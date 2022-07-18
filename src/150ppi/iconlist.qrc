@@ -1,0 +1,55 @@
+<RCC>
+  <qresource prefix="home">
+    <file>Asset 1.png</file>
+    <file>Asset 2.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 4.png</file>
+    <file>Asset 5.png</file>
+  </qresource>
+  <qresource prefix="sidebar">
+    <file>Asset 6.png</file>
+    <file>Asset 8.png</file>
+    <file>Asset 9.png</file>
+    <file>Asset 10.png</file>
+    <file>Asset 11.png</file>
+    <file>Asset 12.png</file>
+  </qresource>
+  <qresource prefix="acquisiton">
+    <file>Asset 13.png</file>
+    <file>Asset 14.png</file>
+    <file>Asset 15.png</file>
+  </qresource>
+  <qresource prefix="offline">
+    <file>Asset 2.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 16.png</file>
+    <file>Asset 17.png</file>
+    <file>Asset 18.png</file>
+    <file>Asset 19.png</file>
+    <file>Asset 20.png</file>
+    <file>Asset 21.png</file>
+  </qresource>
+  <qresource prefix="online">
+    <file>LeftArrow.png</file>
+    <file>Arrow.png</file>
+    <file>Asset 14.png</file>
+    <file>Asset 17.png</file>
+    <file>Asset 23.png</file>
+    <file>Asset 24.png</file>
+  </qresource>
+  <qresource prefix="decoding">
+    <file>Asset 2.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 25.png</file>
+    <file>Asset 26.png</file>
+    <file>Asset 27.png</file>
+    <file>Asset 28.png</file>
+  </qresource>
+  <qresource prefix="media">
+    <file>ff.png</file>
+    <file>next.png</file>
+    <file>play.png</file>
+    <file>previous.png</file>
+    <file>rw.png</file>
+  </qresource>
+</RCC>

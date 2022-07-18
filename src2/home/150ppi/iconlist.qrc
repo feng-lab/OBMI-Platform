@@ -1,0 +1,103 @@
+<RCC>
+  <qresource prefix="home">
+    <file>BehaviorCamOn.png</file>
+    <file>ScopeCamOn.png</file>
+    <file>BehaviorCamOn.png</file>
+    <file>ScopeCamOn.png</file>
+    <file>home_option.png</file>
+    <file>Asset 1.png</file>
+    <file>Asset 1_pre.png</file>
+    <file>Asset 2_pre.png</file>
+    <file>Asset 3_pre.png</file>
+    <file>Asset 4_pre.png</file>
+    <file>Asset 2.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 4.png</file>
+    <file>tab_acq_1.png</file>
+    <file>tab_acq_2.png</file>
+    <file>tab_decoding_1.png</file>
+    <file>tab_decoding_2.png</file>
+    <file>tab_home_1.png</file>
+    <file>tab_home_2.png</file>
+    <file>tab_off_1.png</file>
+    <file>tab_off_2.png</file>
+    <file>tab_on_1.png</file>
+    <file>tab_on_2.png</file>
+  </qresource>
+  <qresource prefix="sidebar">
+    <file>Asset 6.png</file>
+    <file>Asset 9_pre.png</file>
+    <file>Asset 10_1.png</file>
+    <file>Asset 11_pre.png</file>
+    <file>Asset 12_pre.png</file>
+    <file>Asset 8.png</file>
+    <file>Asset 9.png</file>
+    <file>Asset 10.png</file>
+    <file>Asset 11.png</file>
+    <file>Asset 12.png</file>
+  </qresource>
+  <qresource prefix="acquisiton">
+    <file>Asset 13.png</file>
+    <file>Asset 13_pre.png</file>
+    <file>Asset 14_pre.png</file>
+    <file>Asset 15_pre.png</file>
+    <file>Asset 14.png</file>
+    <file>Asset 15.png</file>
+  </qresource>
+  <qresource prefix="offline">
+    <file>Asset 2.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 2_pre.png</file>
+    <file>Asset 3_pre.png</file>
+    <file>Asset 16_pre.png</file>
+    <file>Asset 17_pre.png</file>
+    <file>Asset 18_pre.png</file>
+    <file>Asset 19_pre.png</file>
+    <file>Asset 20_pre.png</file>
+    <file>Asset 21_pre.png</file>
+    <file>Asset 16.png</file>
+    <file>Asset 17.png</file>
+    <file>Asset 18.png</file>
+    <file>Asset 19.png</file>
+    <file>Asset 20.png</file>
+    <file>Asset 21.png</file>
+  </qresource>
+  <qresource prefix="online">
+    <file>Asset 14_pre.png</file>
+    <file>Asset 17_pre.png</file>
+    <file>Asset 23_pre.png</file>
+    <file>Asset 24_pre.png</file>
+    <file>LeftArrow.png</file>
+    <file>Arrow.png</file>
+    <file>Asset 14.png</file>
+    <file>Asset 17.png</file>
+    <file>Asset 23.png</file>
+    <file>Asset 24.png</file>
+  </qresource>
+  <qresource prefix="decoding">
+    <file>Asset 2.png</file>
+    <file>Asset 2_pre.png</file>
+    <file>Asset 3_pre.png</file>
+    <file>Asset 25_pre.png</file>
+    <file>Asset 26_pre.png</file>
+    <file>Asset 27_pre.png</file>
+    <file>Asset 28_pre.png</file>
+    <file>Asset 3.png</file>
+    <file>Asset 25.png</file>
+    <file>Asset 26.png</file>
+    <file>Asset 27.png</file>
+    <file>Asset 28.png</file>
+  </qresource>
+  <qresource prefix="media">
+    <file>Pause.png</file>
+    <file>ff.png</file>
+    <file>ff_pre.png</file>
+    <file>next_pre.png</file>
+    <file>previous_pre.png</file>
+    <file>rw_pre.png</file>
+    <file>next.png</file>
+    <file>play.png</file>
+    <file>previous.png</file>
+    <file>rw.png</file>
+  </qresource>
+</RCC>
