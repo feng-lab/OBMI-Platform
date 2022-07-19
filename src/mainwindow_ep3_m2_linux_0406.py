@@ -2549,6 +2549,7 @@ class MainWindow(QMainWindow):
     def onacidmes(self, param_list):
         # if self.player2 is None:
         #     return
+
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
