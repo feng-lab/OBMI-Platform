@@ -1,16 +1,16 @@
 import h5py
 import numpy
-from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog,QTableWidget, QTableWidgetItem,
-                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
-                                QHBoxLayout, QLabel)
+from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
+                               QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
+                               QHBoxLayout, QLabel)
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QObject, Signal, Slot
 
-from PySide2.QtUiTools import QUiLoader ### +++++++++++++++++++++++++++++++++++++
+from PySide2.QtUiTools import QUiLoader  ### +++++++++++++++++++++++++++++++++++++
 
-from PySide2.QtWidgets import QApplication, QDesktopWidget #
-from PySide2.QtCore import QFile #
+from PySide2.QtWidgets import QApplication, QDesktopWidget  #
+from PySide2.QtCore import QFile  #
 
 ##for ui
 from PySide2 import QtWidgets
@@ -26,7 +26,6 @@ from PySide2.QtCore import QUrl, Qt, QSize
 ## from ui_mainwindow3 import Ui_MainWindow ## - 1
 
 
-
 ## from ui_mainwindow6 import Ui_MainWindow ############----------------------------++++
 # from ui_mainwindow7 import Ui_MainWindow ############----------------------------++++ 0316
 
@@ -36,10 +35,9 @@ import cv2, random
 import platform
 from datetime import datetime
 
-#from test_chart2 import make_graph
+# from test_chart2 import make_graph
 import time
 import numpy as np
-
 
 ### lever -- chart------------
 import pandas as pd
@@ -60,24 +58,23 @@ from PySide2.QtUiTools import QUiLoader
 ## motion correction
 from mccc import MCC
 
-
 from online_player import OPlayer
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super().__init__() ## //
+        super().__init__()  ## //
 
         self.timermode = True
         self.cameraID = 0
-        #- self.ui = Ui_MainWindow() ## ###+++++++++
+        # - self.ui = Ui_MainWindow() ## ###+++++++++
 
-        self.setupUi() ############################ +------
+        self.setupUi()  ############################ +------
         ## self.gh = make_graph()
-        #- self.ui.setupUi(self) ## ----------------
+        # - self.ui.setupUi(self) ## ----------------
 
         ## window coordinate
-        rect=self.frameGeometry() #.center
+        rect = self.frameGeometry()  # .center
         centerPoint = QDesktopWidget().availableGeometry().center()
         rect.moveCenter(centerPoint)
         self.move(rect.topLeft())
@@ -85,11 +82,11 @@ class MainWindow(QMainWindow):
 
         ## xx self.ui.mapToGlobal(QtCore.QPoint(0, 0))
 
-        self.capturer = None #
+        self.capturer = None  #
         self.capturer2 = None
 
         self.roi_clicked = None
-        self.data_lock = QtCore.QMutex() #thread-vari.
+        self.data_lock = QtCore.QMutex()  # thread-vari.
 
         ## Behavior Camera Connection
         self.ui.connectBehaviorCameraButton.clicked.connect(self.connect_behavior_camera_button_clicked)
@@ -99,13 +96,14 @@ class MainWindow(QMainWindow):
         ## Scope Camera Connection
         self.ui.connectScopeCameraButton.clicked.connect(self.connect_scope_camera_button_clicked)
 
-
         ## slider movement - (class/
 
-        self.ui.exposureSliderBCam.valueChanged.connect(self.move_slider1) #self.ui.exposureValueBCam, self.ui.exposureSliderBCam.value
-        self.ui.exposureValueBCam.returnPressed.connect(self.slider_box1) ## if get value  #self.ui.exposureValueBCam, self.ui.exposureSliderBCam
-        #self.ui.exposureValueBCam.valueChanged.connect(self.move_slider)
-        #self.ui.exposureSliderBCam.mouseMoveEvent(self.move_slider)
+        self.ui.exposureSliderBCam.valueChanged.connect(
+            self.move_slider1)  # self.ui.exposureValueBCam, self.ui.exposureSliderBCam.value
+        self.ui.exposureValueBCam.returnPressed.connect(
+            self.slider_box1)  ## if get value  #self.ui.exposureValueBCam, self.ui.exposureSliderBCam
+        # self.ui.exposureValueBCam.valueChanged.connect(self.move_slider)
+        # self.ui.exposureSliderBCam.mouseMoveEvent(self.move_slider)
         ## self.ui.exposureSliderBCam.value()
         # valueChanged/ mouseMoveEvent/ sliderMoved / line-edit : (returnPressed | textChanged)
 
@@ -134,7 +132,7 @@ class MainWindow(QMainWindow):
         self.ui.scopeGainValue.returnPressed.connect(self.slider_box6)
 
         ## scope FR slider
-        self.fvalue = [5,10,15,20,30,60]
+        self.fvalue = [5, 10, 15, 20, 30, 60]
         self.ui.scopeFRslider.valueChanged.connect(self.move_slider7)
         self.ui.scopeFRvalue.returnPressed.connect(self.slider_box7)
 
@@ -146,7 +144,6 @@ class MainWindow(QMainWindow):
         #### self.ui.scopeETslider.valueChanged.connect(self.move_slider9)
         #### self.ui.scopeETvalue.returnPressed.connect(self.slider_box9)
 
-
         ##------------project name----------- home tab ---------
 
         n_date = datetime.now()
@@ -155,13 +152,12 @@ class MainWindow(QMainWindow):
 
         self.ui.lineEdit.setText(self.project_name)
 
-
         ##------------file window------------ home tab ---------
-        self.ui.homeBrowseButton.clicked.connect(self.selectD) ## browse button (76)
+        self.ui.homeBrowseButton.clicked.connect(self.selectD)  ## browse button (76)
         self.save_path = ""
         self.user_path = False
 
-        #self.ui.homeSaveButton.clicked.connect(self.push_dir) ## send button (75)
+        # self.ui.homeSaveButton.clicked.connect(self.push_dir) ## send button (75)
         ## self.ui.lineEdit.textChanged.connect(self.project_name = self.self)
 
         ##------------new project---------------
@@ -180,12 +176,11 @@ class MainWindow(QMainWindow):
         ##------------project option-------------
         self.ui.pushButton_11.clicked.connect(self.button_option)
 
-        self.format_list = ["wmv","avi","mp4", "tiff"]
+        self.format_list = ["wmv", "avi", "mp4", "tiff"]
         self.save_format = ""
 
         ##------------file save---------
-        self.ui.comboBox.currentIndexChanged.connect(self.format_change) ##
-
+        self.ui.comboBox.currentIndexChanged.connect(self.format_change)  ##
 
         ##------------hide--------------------
         ## leverpressure
@@ -197,8 +192,6 @@ class MainWindow(QMainWindow):
         ## scopecamera
         self.ui.pushButton_20.clicked.connect(self.scopeP_vi)
         self.scopeVS = True
-
-
 
         ## ----lever pressure 2
         self.ui.pushButton_17.clicked.connect(self.leverP_rec)
@@ -237,7 +230,7 @@ class MainWindow(QMainWindow):
 
         ## player2
         self.player2 = None
-        self.fin_record_status2 = False ##- next function
+        self.fin_record_status2 = False  ##- next function
 
         self.s_total2 = 0
         self.s_totalframe2 = 0
@@ -252,8 +245,8 @@ class MainWindow(QMainWindow):
         self.ontrace_viewer = None
 
         ## self.ui.horizontalSlider_3.sliderReleased.connect(self.slider_value_changed)
-        #self.ui.horizontalSlider_3.valueChanged.connect(self.slider_value_changed)
-##        self.frame_count = 0
+        # self.ui.horizontalSlider_3.valueChanged.connect(self.slider_value_changed)
+        ##        self.frame_count = 0
         ## time domain으로 --
         ## self.p_timer = QtCore.QTimer()
         ##self.p_timer.timeout.connect(self.count_player)
@@ -269,20 +262,18 @@ class MainWindow(QMainWindow):
 
         ## self.player_view = self.ui.graphicsView_5 --
         self.player_scene = QGraphicsScene()
-        self.ui.graphicsView_5.setScene(self.player_scene) ##-
+        self.ui.graphicsView_5.setScene(self.player_scene)  ##-
         self.player_view = None
-        self.player_view = QGraphicsView(self.player_scene, parent=self.ui.graphicsView_5) ##ui.widget_46)
+        self.player_view = QGraphicsView(self.player_scene, parent=self.ui.graphicsView_5)  ##ui.widget_46)
         self.ui.graphicsView_5.setStyleSheet("background-color: rgb(0,0,0);")  # *# ##-
 
         self.player_view_item_i = QGraphicsPixmapItem()
         self.player_scene.addItem(self.player_view_item_i)
 
-
         ## offline processing tab --------------------------------------------------------------
 
-        self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video) ### UI - need to change the name
+        self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
-
 
         ## second player scene
 
@@ -290,16 +281,13 @@ class MainWindow(QMainWindow):
         ## self.ui.scope_camera_view_item_2.setMinimumSize(QtCore.QSize(917,585))
         ## self.ui.horizontalLayout_2.addWidget(self.ui.scope_camera_view_item_2)
 
-
         self.player_scene2 = QGraphicsScene()
-        self.ui.scope_camera_view_item_2.setScene(self.player_scene2) ##-
+        self.ui.scope_camera_view_item_2.setScene(self.player_scene2)  ##-
         self.player_view2 = None
-
 
         self.ui.scope_camera_view_item_2.setStyleSheet("background-color: rgb(0,0,0);")
         self.player_view_item_i2 = QGraphicsPixmapItem()
         self.player_scene2.addItem(self.player_view_item_i2)
-
 
         self.ui.pushButton_2.clicked.connect(self.play_button_clicked2)
         self.ui.pushButton_6.clicked.connect(self.stop_button_clicked2)
@@ -316,10 +304,10 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_30.clicked.connect(self.player2_onoff)
         self.p2oo_st = True
 
-##      ## online processing tab -----------------------------------------------------------------
+        ##      ## online processing tab -----------------------------------------------------------------
 
         # scope connect
-        self.ui.connectScopeCameraButton_2.clicked.connect(self.online_scope) ## saved 영상으로 일단 대체
+        self.ui.connectScopeCameraButton_2.clicked.connect(self.online_scope)  ## saved 영상으로 일단 대체
 
         ## scope LED slider
         self.ui.scopeLEDslider_2.valueChanged.connect(self.move_LEDslider2)
@@ -376,213 +364,197 @@ class MainWindow(QMainWindow):
         self.ui.horizontalSlider_6.sliderPressed.connect(self.onplayer_slider_pressed)
         self.ui.horizontalSlider_6.valueChanged.connect(self.onplayer_slider_valueChanged)
         self.ui.horizontalSlider_6.sliderReleased.connect(self.onplayer_slider_released)
-## -------------------------------------------------------------------------------------------
+        ## -------------------------------------------------------------------------------------------
 
-#x#
-        #self.l_chart = QWidget(self.ui.widget_21)
+        # x#
+        # self.l_chart = QWidget(self.ui.widget_21)
 
-      #x#  chart_scene = QGraphicsScene()
-      #x#
-      #x#  #self.chart_view = QGraphicsView(self.chart0, parent=self.ui.widget_21) ## number changed
-      #x#  l_chart = QGraphicsView(chart_scene, parent=self.ui.widget_21)
-      #x#
-      #x#  chart0 = QtCharts.QChart()
-      #x#  chart_scene.addItem(chart0)
-#x#
-      #x#  #self.ui.widget_21
-      #x# ## l_chart=QtCharts.QChartView(chart0)
-      #x#  l_chart.setGeometry(QtCore.QRect(10,25,600,85))
-      #x#  series = QtCharts.QLineSeries(name='lever pressure')
-      #x#  mapper = QtCharts.QVXYModelMapper(xColumn=0, yColumn=2)  #################  ?? *******#V#
-      #x#  # mapper.setModel(self.table.model())
-      #x#  mapper.setSeries(series)
+        # x#  chart_scene = QGraphicsScene()
+        # x#
+        # x#  #self.chart_view = QGraphicsView(self.chart0, parent=self.ui.widget_21) ## number changed
+        # x#  l_chart = QGraphicsView(chart_scene, parent=self.ui.widget_21)
+        # x#
+        # x#  chart0 = QtCharts.QChart()
+        # x#  chart_scene.addItem(chart0)
+        # x#
+        # x#  #self.ui.widget_21
+        # x# ## l_chart=QtCharts.QChartView(chart0)
+        # x#  l_chart.setGeometry(QtCore.QRect(10,25,600,85))
+        # x#  series = QtCharts.QLineSeries(name='lever pressure')
+        # x#  mapper = QtCharts.QVXYModelMapper(xColumn=0, yColumn=2)  #################  ?? *******#V#
+        # x#  # mapper.setModel(self.table.model())
+        # x#  mapper.setSeries(series)
         # l_chart.addSeries(mapper.series())
 
+        # l_chart.setFixedSize(620,100)
 
+        # QtCharts.QChartView(self.l_chart)
+        # l_chart = QtCharts.QChart()
+        # l
 
-        #l_chart.setFixedSize(620,100)
-
-        #QtCharts.QChartView(self.l_chart)
-        #l_chart = QtCharts.QChart()
-        #l
-
-        #self.ui.widget_21.add
+        # self.ui.widget_21.add
 
         ##------------ lever pressure - trace praph (self.ui.widget_21 ) ------------
-        #print("chart test0")
-        #chart1 = QtCharts.QChart()
+        # print("chart test0")
+        # chart1 = QtCharts.QChart()
 
-        #self.chart_v1 = QtCharts.QChartView(chart1)
+        # self.chart_v1 = QtCharts.QChartView(chart1)
 
-        #self.chart_v1.setFixedSize(620,100)
+        # self.chart_v1.setFixedSize(620,100)
         # qsplitter
 
         # self.chart_v1.setFixedSize(620,100)
 
-     #x#  series = QtCharts.QLineSeries(name='lever pressure')
-     #x#  mapper = QtCharts.QVXYModelMapper(xColumn=0, yColumn=2)
-     #x#  #mapper.setModel(self)
-     #x#  mapper.setSeries(series)
+        # x#  series = QtCharts.QLineSeries(name='lever pressure')
+        # x#  mapper = QtCharts.QVXYModelMapper(xColumn=0, yColumn=2)
+        # x#  #mapper.setModel(self)
+        # x#  mapper.setSeries(series)
 
-     #x#  self.table = QTableWidget(0,2)
+        # x#  self.table = QTableWidget(0,2)
 
-     #x#  chart0.addSeries(mapper.series()) ### sf ui1 0
+        # x#  chart0.addSeries(mapper.series()) ### sf ui1 0
 
-     #x#  self.axis_X = QtCharts.QDateTimeAxis()
-     #x#  self.axis_X.setFormat("ss mm HH")
-     #x#  self.axis_Y = QtCharts.QValueAxis()
+        # x#  self.axis_X = QtCharts.QDateTimeAxis()
+        # x#  self.axis_X.setFormat("ss mm HH")
+        # x#  self.axis_Y = QtCharts.QValueAxis()
 
-     #x#  chart0.setAxisX(self.axis_X, series)  ### sf ui1 0
-     #x#  chart0.setAxisY(self.axis_Y, series)  ### sf ui1 0
-     #x#  self.axis_Y.setRange(0,0)
-     #x#  self.axis_Y.setLabelFormat('%.0f')
+        # x#  chart0.setAxisX(self.axis_X, series)  ### sf ui1 0
+        # x#  chart0.setAxisY(self.axis_Y, series)  ### sf ui1 0
+        # x#  self.axis_Y.setRange(0,0)
+        # x#  self.axis_Y.setLabelFormat('%.0f')
 
-     #x#  chart0.setTitle('trace graph') ### sf ui1 0
+        # x#  chart0.setTitle('trace graph') ### sf ui1 0
 
-     #x#  self.populate()
-        #self.axis_X.setRange()
+        # x#  self.populate()
+        # self.axis_X.setRange()
 
-        #self.axis_X =
+        # self.axis_X =
 
-
-        #self.ui.widget_21 = QtCharts.QChart()
+        # self.ui.widget_21 = QtCharts.QChart()
         ### self.chartLever = QtCharts.QChart()
         ### QtCharts.QChartView(self.chartLever[self.parent=widget_21])
         # self.chart.setAnimationOptions(QtCHarts.QCHart.AllAnimations)
         # self.add_series("Magnitude (Column 1)",[0,1])
 
-## lever pressure __3  --------------- temp chart
-        #self.gp = make_graph()
+        ## lever pressure __3  --------------- temp chart
+        # self.gp = make_graph()
 
-###       self.l_graph_scene = QGraphicsScene()
-###       self.ui.graphicsView = QGraphicsView(self.l_graph_scene, parent=self.ui.widget_10)
-###       self.ui.graphicsView.setGeometry(QtCore.QRect(10, 27, 1460, 101))
-###
-###       x = np.linspace(0,10,100)
-###       y = np.cos(x)
-###
-###       plt.ion()
-###
-###       l_figure, ax = plt.subplots(figsize=(16,0.8))
-###       matplotlib.interactive(True)
-###       plt.close(fig=l_figure)
-###
-###       line1, = ax.plot(x,y)
-###
-###       #l_fig = plt.Figure()
-###       canvas = FigureCanvas(l_figure)
-###
-###
-###       #canvas.setGeometry(10,27,1460,101)
-###
-###       #layout_l = QLayout(self.ui.widget_10)
-###       #layout_l.addWidget(canvas)
-###       self.l_graph_scene.addWidget(canvas)
-###
-###
-###       for p in range(100):
-###           updated_y = np.cos(x-0.05*p)
-###
-###           line1.set_xdata(x)
-###           line1.set_ydata(updated_y)
-###           canvas.draw()
-###           canvas.flush_events()
-###           time.sleep(0.01)
+        ###       self.l_graph_scene = QGraphicsScene()
+        ###       self.ui.graphicsView = QGraphicsView(self.l_graph_scene, parent=self.ui.widget_10)
+        ###       self.ui.graphicsView.setGeometry(QtCore.QRect(10, 27, 1460, 101))
+        ###
+        ###       x = np.linspace(0,10,100)
+        ###       y = np.cos(x)
+        ###
+        ###       plt.ion()
+        ###
+        ###       l_figure, ax = plt.subplots(figsize=(16,0.8))
+        ###       matplotlib.interactive(True)
+        ###       plt.close(fig=l_figure)
+        ###
+        ###       line1, = ax.plot(x,y)
+        ###
+        ###       #l_fig = plt.Figure()
+        ###       canvas = FigureCanvas(l_figure)
+        ###
+        ###
+        ###       #canvas.setGeometry(10,27,1460,101)
+        ###
+        ###       #layout_l = QLayout(self.ui.widget_10)
+        ###       #layout_l.addWidget(canvas)
+        ###       self.l_graph_scene.addWidget(canvas)
+        ###
+        ###
+        ###       for p in range(100):
+        ###           updated_y = np.cos(x-0.05*p)
+        ###
+        ###           line1.set_xdata(x)
+        ###           line1.set_ydata(updated_y)
+        ###           canvas.draw()
+        ###           canvas.flush_events()
+        ###           time.sleep(0.01)
 
-
-## motion correction --------------------------------------*****--------------------------
+        ## motion correction --------------------------------------*****--------------------------
 
         self.ui.connectBehaviorCameraButton_4.clicked.connect(self.motion_corr)
 
-
-## lever pressure_ 4 graph -------------------------------- **** ------------------------------------------------------
+        ## lever pressure_ 4 graph -------------------------------- **** ------------------------------------------------------
         p_path = os.getcwd()
         self.file_csv = p_path + '/test.csv'
         self.im_data(self.file_csv)
         ## -----------------------------------------
         self.test_chart = QtCharts.QChart()
-        self.test_chart.setAnimationOptions(QtCharts.QChart.AllAnimations) ## realtime-re
+        self.test_chart.setAnimationOptions(QtCharts.QChart.AllAnimations)  ## realtime-re
         ## 중복조심 name
-    ##    self.test_model = self.loadChartData(self.chart_df) ## self 필요 check
-        self.add_series("lever-data", [0,1])
+        ##    self.test_model = self.loadChartData(self.chart_df) ## self 필요 check
+        self.add_series("lever-data", [0, 1])
         ## creating QChartView
         self.chart_view = QtCharts.QChartView(self.test_chart)
-        self.chart_view.setRenderHint(QtGui.QPainter.Antialiasing) ## clear line
-        self.main_layout = QHBoxLayout(self.ui.widget_10) #######################3)
-    #widgetsize#    size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-    #widgetsize#    self.chart_view.setSizePolicy(size)
+        self.chart_view.setRenderHint(QtGui.QPainter.Antialiasing)  ## clear line
+        self.main_layout = QHBoxLayout(self.ui.widget_10)  #######################3)
+        # widgetsize#    size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        # widgetsize#    self.chart_view.setSizePolicy(size)
         self.main_layout.addWidget(self.chart_view)
         self.setLayout(self.main_layout)  #####################
 
+        ### default cam widget disable--------------------------
+        self.ui.widget_8.setEnabled(False)  ## behavior
+        self.ui.widget_9.setEnabled(False)  ## scope
 
-### default cam widget disable--------------------------
-        self.ui.widget_8.setEnabled(False) ## behavior
-        self.ui.widget_9.setEnabled(False) ## scope
-
-        self.ui.widget_2.setEnabled(False) ## record
+        self.ui.widget_2.setEnabled(False)  ## record
 
         ## default camera
         self.Snum = None
         self.Bnum = None
         self.cam_nlist = None
 
-
-  ## notice -------------------------
+        ## notice -------------------------
         self.mnotice = QMessageBox()
         self.mnotice.setWindowTitle("notice")
         self.mnotice.setWindowIcon(QtGui.QPixmap("info.png"))
         self.mnotice.setIcon(QMessageBox.Information)
         self.mnotice.setText("!")
 
-
         self.ui.statusbar.showMessage('welcome')
 
-
-
-### loging test -- system information
+        ### loging test -- system information
 
         self.dev_list = []
-   ##     self.get_devlist()
+        ##     self.get_devlist()
         self.mini_num = None
         self.cam_num = None
         self.get_cam_n()
 
+        ###
+        ## usb list
 
+        #   import win32com.client
+        #   wmi = win32com.client.GetObject("winmgmts:")
+        #   for usb in wmi.InstancesOf("Win32_USBHub"):
+        #       print(usb.DeviceID, usb.Name, usb.Description, usb.SystemName, usb.status)
 
+        ## drive list
+        ##     import win32file
 
-###
-  ## usb list
-
-     #   import win32com.client
-     #   wmi = win32com.client.GetObject("winmgmts:")
-     #   for usb in wmi.InstancesOf("Win32_USBHub"):
-     #       print(usb.DeviceID, usb.Name, usb.Description, usb.SystemName, usb.status)
-
-
-  ## drive list
-  ##     import win32file
-
-  ##     def locate_usb():
-  ##         drive_list = []
-  ##         drivebits = win32file.GetLogicalDrives()
-  ##         for d in range(1, 26):
-  ##             mask = 1 << d
-  ##             if drivebits & mask:
-  ##                 # here if the drive is at least there
-  ##                 drname = '%c:\\' % chr(ord('A') + d)
-  ##                 t = win32file.GetDriveType(drname)
-  ##                 ## if t == win32file.DRIVE_REMOVABLE:
-  ##                 drive_list.append(drname)
-  ##         return drive_list
-  ##     print(locate_usb())
-## ---
+        ##     def locate_usb():
+        ##         drive_list = []
+        ##         drivebits = win32file.GetLogicalDrives()
+        ##         for d in range(1, 26):
+        ##             mask = 1 << d
+        ##             if drivebits & mask:
+        ##                 # here if the drive is at least there
+        ##                 drname = '%c:\\' % chr(ord('A') + d)
+        ##                 t = win32file.GetDriveType(drname)
+        ##                 ## if t == win32file.DRIVE_REMOVABLE:
+        ##                 drive_list.append(drname)
+        ##         return drive_list
+        ##     print(locate_usb())
+        ## ---
 
         self.user_os = platform.system()
-        sys_info_data = ("system OS: " + self.user_os + "\n")*10 + (f'device: {self.dev_list}') ## H add function 처리
+        sys_info_data = ("system OS: " + self.user_os + "\n") * 10 + (f'device: {self.dev_list}')  ## H add function 처리
         self.sys_info = QLabel(sys_info_data)
         self.ui.scrollArea.setWidget(self.sys_info)
-
-
 
         ## if 'win' or 'Win' in self.user_os:
         ## os.environ['QT_MULTIMEDIA_PREFERRED_PLUGINS'] = 'windowsmediafoundation'
@@ -595,48 +567,48 @@ class MainWindow(QMainWindow):
         ## one miniscope, other cam
         self.ui.catch_camlist.clicked.connect(self.cam_refresh)
 
-
         ## cam number
         self.Bnum = None
         self.Scam = None
         regExp = QtCore.QRegExp("[0-9]*")
-        self.ui.BnumBox.setValidator(QtGui.QRegExpValidator(regExp,self))
-        self.ui.SnumBox.setValidator(QtGui.QRegExpValidator(regExp,self))
+        self.ui.BnumBox.setValidator(QtGui.QRegExpValidator(regExp, self))
+        self.ui.SnumBox.setValidator(QtGui.QRegExpValidator(regExp, self))
         self.ui.set_cnum_button.clicked.connect(self.set_cam_number)
         ## self.cam_nlist = None
 
-## scope camera box
+        ## scope camera box
 
-       ##
-        #self.scope_camera_view_item = QtWidgets.QGraphicsView(self.widget_5)
-        #self.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
-        #self.scope_camera_view_item.setObjectName("scope_camera_view_item")
-        #self.gridLayout_5.addWidget(self.scope_camera_view_item, 1, 1, 1, 2)
+        ##
+        # self.scope_camera_view_item = QtWidgets.QGraphicsView(self.widget_5)
+        # self.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
+        # self.scope_camera_view_item.setObjectName("scope_camera_view_item")
+        # self.gridLayout_5.addWidget(self.scope_camera_view_item, 1, 1, 1, 2)
 
-        #self.scope_camera_view = self.ui.scope_camera_view_item
+        # self.scope_camera_view = self.ui.scope_camera_view_item
 
-      ##
-       # self.ui.scope_camera_scene = QGraphicsScene()
-       # self.ui.scope_camera_view_item = QGraphicsView(self.ui.scope_camera_scene, parent=self.ui.widget_5)
-       # self.ui.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
-       # self.ui.scope_camera_view_item.setStyleSheet("background-color: rgb(0, 0, 0);")
-       # self.ui.scope_camera_view_item.setObjectName("scope_camera_view_item")
-       # self.ui.scope_camera_view_item_i = QGraphicsPixmapItem()
-       # self.ui.scope_camera_scene.addItem(self.ui.scope_camera_view_item_i)
-       # self.ui.gridLayout_5.addWidget(self.ui.scope_camera_view_item, 1, 1, 1, 2)
+        ##
+        # self.ui.scope_camera_scene = QGraphicsScene()
+        # self.ui.scope_camera_view_item = QGraphicsView(self.ui.scope_camera_scene, parent=self.ui.widget_5)
+        # self.ui.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
+        # self.ui.scope_camera_view_item.setStyleSheet("background-color: rgb(0, 0, 0);")
+        # self.ui.scope_camera_view_item.setObjectName("scope_camera_view_item")
+        # self.ui.scope_camera_view_item_i = QGraphicsPixmapItem()
+        # self.ui.scope_camera_scene.addItem(self.ui.scope_camera_view_item_i)
+        # self.ui.gridLayout_5.addWidget(self.ui.scope_camera_view_item, 1, 1, 1, 2)
 
-      ##
+        ##
 
         ## self.scope_camera_view = self.ui.scope_camera_view_item
         ##self.scope_camera_view = self.ui.graphicsView_5
         self.scope_camera_scene = QGraphicsScene()
 
-        self.scope_camera_view = QGraphicsView(self.scope_camera_scene, parent=self.ui.widget_71) ## w5->widget_71-> graphicsView_5
-        #+# self.scope_camera_view = QGraphicsView(self.scope_camera_scene)#, parent=self.ui.graphicsView_5) ## w5->widget_71->
+        self.scope_camera_view = QGraphicsView(self.scope_camera_scene,
+                                               parent=self.ui.widget_71)  ## w5->widget_71-> graphicsView_5
+        # +# self.scope_camera_view = QGraphicsView(self.scope_camera_scene)#, parent=self.ui.graphicsView_5) ## w5->widget_71->
 
-        #self.behavior_camera_view.setMinimumSize(QtCore.QSize(1020, 640))
+        # self.behavior_camera_view.setMinimumSize(QtCore.QSize(1020, 640))
         self.scope_camera_view.setStyleSheet("background-color: rgb(0, 0, 0);")
-        #self.behavior_camera_view.setObjectName("scope_camera_view")
+        # self.behavior_camera_view.setObjectName("scope_camera_view")
         self.scope_camera_view_item_i = QGraphicsPixmapItem()
         self.scope_camera_scene.addItem(self.scope_camera_view_item_i)
 
@@ -647,46 +619,42 @@ class MainWindow(QMainWindow):
 
         self.ui.tabWidget.setCurrentIndex(0)
 
-
         ## 내부 창 *****
         ## self.scope_camera_view.raise_()
         ## self.ui.gridLayout_21.addWidget(self.scope_camera_view) ##, 1, 1, 1, 2) ## grid 5 -> 21 ->22
 
-        #+# self.ui.gridLayout_21.addWidget(self.scope_camera_view, 1, 1, 1, 2) ## grid 5 -> 21
+        # +# self.ui.gridLayout_21.addWidget(self.scope_camera_view, 1, 1, 1, 2) ## grid 5 -> 21
 
-
-
-## behavior camera box
-       ##
-        #self.scope_camera_view_item = QtWidgets.QGraphicsView(self.widget_5)
-        #self.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
-        #self.scope_camera_view_item.setObjectName("scope_camera_view_item")
-        #self.gridLayout_5.addWidget(self.scope_camera_view_item, 1, 1, 1, 2)
-       ##
+        ## behavior camera box
+        ##
+        # self.scope_camera_view_item = QtWidgets.QGraphicsView(self.widget_5)
+        # self.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
+        # self.scope_camera_view_item.setObjectName("scope_camera_view_item")
+        # self.gridLayout_5.addWidget(self.scope_camera_view_item, 1, 1, 1, 2)
+        ##
         self.behavior_camera_view = self.ui.behavior_camera_view_item
         self.behavior_camera_scene = QGraphicsScene()
         self.behavior_camera_view = QGraphicsView(self.behavior_camera_scene, parent=self.ui.widget_4)
-        #self.behavior_camera_view.setMinimumSize(QtCore.QSize(1020, 640))
+        # self.behavior_camera_view.setMinimumSize(QtCore.QSize(1020, 640))
         self.behavior_camera_view.setStyleSheet("background-color: rgb(0, 0, 0);")
-        #self.behavior_camera_view.setObjectName("scope_camera_view")
+        # self.behavior_camera_view.setObjectName("scope_camera_view")
         self.behavior_camera_view_item_i = QGraphicsPixmapItem()
         self.behavior_camera_scene.addItem(self.behavior_camera_view_item_i)
         self.ui.gridLayout_6.addWidget(self.behavior_camera_view, 1, 1, 1, 2)
 
-
-## loading box
+        ## loading box
         t_lay_parent = QtWidgets.QVBoxLayout()
-        self.ld_widget=QWidget(self.ui.widget_103)
-        #self.ui.widget_103.setLayout(t_lay_parent)
+        self.ld_widget = QWidget(self.ui.widget_103)
+        # self.ui.widget_103.setLayout(t_lay_parent)
         self.ld_widget.setLayout(t_lay_parent)
-        self.ld_widget.setGeometry(218,20,895,556)
-#        t_lay_parent=ld_widget.QVBoxLayout()
+        self.ld_widget.setGeometry(218, 20, 895, 556)
+        #        t_lay_parent=ld_widget.QVBoxLayout()
 
-        self.m_play_state=False
+        self.m_play_state = False
 
         self.m_label_gif = QLabel()
         t_lay_parent.addWidget(self.m_label_gif)
-        #self.ui.scope_camera_view_item_2.addWidget(self.m_label_gif)
+        # self.ui.scope_camera_view_item_2.addWidget(self.m_label_gif)
 
         self.m_movie_gif = QtGui.QMovie("ldld.gif")
         self.m_label_gif.setMovie(self.m_movie_gif)
@@ -694,50 +662,46 @@ class MainWindow(QMainWindow):
         self.m_label_gif.hide()
         self.ld_widget.hide()
 
-## ROI list
+        ## ROI list
 
         from roi_table import Table
-        self.roi_table = Table(0,self)
-        #self.ui.tab_16.layout = QtWidgets.QVBoxLayout(self)
+        self.roi_table = Table(0, self)
+        # self.ui.tab_16.layout = QtWidgets.QVBoxLayout(self)
         roilist_layout = QtWidgets.QVBoxLayout()
         roilist_layout.addWidget(self.roi_table)
         self.ui.tab_16.setLayout(roilist_layout)
 
-        self.onroi_table = Table(1,self)
+        self.onroi_table = Table(1, self)
         onroilist_layout = QtWidgets.QVBoxLayout()
         onroilist_layout.addWidget(self.onroi_table)
         self.ui.tab_12.setLayout(onroilist_layout)
 
-
-## ROI function
+        ## ROI function
         print('item_before: ', self.player_scene2.items())
         self.check_ROI_add = False
         self.ui.pushButton_75.clicked.connect(self.addRoi)
         self.ui.pushButton_77.clicked.connect(self.deleteRoi)
 
-        boundingRect = self.player_scene2.itemsBoundingRect() ##여기서 하면, frame 좌표로 생성
-        self.player_scene2.setSceneRect(0,0,boundingRect.right(), boundingRect.bottom())
+        boundingRect = self.player_scene2.itemsBoundingRect()  ##여기서 하면, frame 좌표로 생성
+        self.player_scene2.setSceneRect(0, 0, boundingRect.right(), boundingRect.bottom())
 
         self.check_onROI_add = False
         self.ui.pushButton_122.clicked.connect(self.addOnRoi)
         self.ui.pushButton_124.clicked.connect(self.deleteOnRoi)
 
-## AUTO ROI function
+        ## AUTO ROI function
         self.ui.connectBehaviorCameraButton_5.clicked.connect(self.auto_roi)
         # self.ui.connectBehaviorCameraButton_5.clicked.connect(self.caimanpipe)
         # self.ui.connectBehaviorCameraButton_5.clicked.connect(self.hncc_roi)
 
-## neuron extraction
+        ## neuron extraction
         self.ui.connectBehaviorCameraButton_10.clicked.connect(self.neuronExtraction)
         self.trace_viewer = None
-
-
 
         itemlist = self.player_scene2.items()
         print('item_after: ', itemlist)
 
-
-## functions ------------------------------------------------------------------------------------------------------------------------
+    ## functions ------------------------------------------------------------------------------------------------------------------------
     #########################################################################
     #                                                                       #
     #                                                                       #
@@ -761,7 +725,7 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
     def button_load(self):
-        path = str(QFileDialog.getOpenFileName(self, "select project file",'./','Project File (*.obmiproject)')[0])
+        path = str(QFileDialog.getOpenFileName(self, "select project file", './', 'Project File (*.obmiproject)')[0])
         if path == "":
             return
 
@@ -818,7 +782,7 @@ class MainWindow(QMainWindow):
                     size = self.roi_table.size()
                     if size > 0:
                         data = np.empty((size, 5))
-                        mat_data = np.empty(shape=(1,0))
+                        mat_data = np.empty(shape=(1, 0))
                         roi_list = self.roi_table.itemlist
                         for i in range(len(roi_list)):
                             roi = roi_list[i]
@@ -839,7 +803,7 @@ class MainWindow(QMainWindow):
                 size = self.onroi_table.size()
                 if size > 0:
                     data = np.empty((size, 5))
-                    mat_data = np.empty(shape=(1,0))
+                    mat_data = np.empty(shape=(1, 0))
                     roi_list = self.roi_table.itemlist
                     for i in range(len(roi_list)):
                         roi = roi_list[i]
@@ -857,7 +821,6 @@ class MainWindow(QMainWindow):
 
     def button_option(self):
         pass
-
 
     #########################################################################
     #                                                                       #
@@ -878,7 +841,7 @@ class MainWindow(QMainWindow):
     def recording_start_stop(self):
 
         ## 현재시간 저장
-    ###    self.rec_timer()
+        ###    self.rec_timer()
         ## 타이머 동작
         ## behavior 영상저장
         ## scope 영상저장
@@ -900,7 +863,7 @@ class MainWindow(QMainWindow):
             self.ui.recordButton.setText("Record")
 
             self.show_player()
-            self.stop_connection() ##
+            self.stop_connection()  ##
 
     # behavior camera connection
     @Slot()
@@ -909,11 +872,13 @@ class MainWindow(QMainWindow):
         if text == 'Behavior\n''Connect' and self.capturer is None:
 
             ## camera_ID = self.cam_num #1
-            camera_ID = cv2.CAP_DSHOW + self.Bnum ##
+            camera_ID = cv2.CAP_DSHOW + self.Bnum  ##
 
-            self.capturer = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock, parent=self, user_path=self.user_path, f_type=self.save_format, pj_name=self.project_name, scopei=True) ##받는 ##par-처리
-            self.capturer.frameCaptured.connect(self.update_behavior_camera_frame) ## frame 연결
-            self.capturer.fpsChanged.connect(self.update_behavior_camera_FPS) ##
+            self.capturer = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock, parent=self,
+                                          user_path=self.user_path, f_type=self.save_format, pj_name=self.project_name,
+                                          scopei=True)  ##받는 ##par-처리
+            self.capturer.frameCaptured.connect(self.update_behavior_camera_frame)  ## frame 연결
+            self.capturer.fpsChanged.connect(self.update_behavior_camera_FPS)  ##
             self.capturer.start()
 
             ## about fps
@@ -923,52 +888,52 @@ class MainWindow(QMainWindow):
             ## default fps
             self.default_fps(20)
 
-          #  self.exposure_control(int(self.ui.exposureSliderBCam.value))
-          # self.capturer.
-          ### nd2 set policy / (!>interruption 고려)
+            #  self.exposure_control(int(self.ui.exposureSliderBCam.value))
+            # self.capturer.
+            ### nd2 set policy / (!>interruption 고려)
             self.ui.connectBehaviorCameraButton.setText('Behavior\n''Disconnect')
-            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(0, 255, 0);") ## > func or not
+            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(0, 255, 0);")  ## > func or not
             self.ui.behaviorcamStatusLabel.setText('Connected')
-           ###
+            ###
             ### (nd check function)
             ###        if check_function():
             ###                setEnabled(True)
             ###           else
             ###                setEnabled(False)
-           ###
+            ###
             self.ui.widget_2.setEnabled(True)
 
         elif text == 'Behavior\n''Disconnect' and self.capturer is not None:
 
-            self.capturer.frameCaptured.disconnect(self.update_behavior_camera_frame) ##
+            self.capturer.frameCaptured.disconnect(self.update_behavior_camera_frame)  ##
             self.capturer.fpsChanged.disconnect(self.update_behavior_camera_FPS)
             self.capturer.stop()
             self.capturer = None
 
-            self.ui.connectBehaviorCameraButton.setText('Behavior\n''Connect') ## set text ##
-            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(85, 85, 127);") ## > func or not
+            self.ui.connectBehaviorCameraButton.setText('Behavior\n''Connect')  ## set text ##
+            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(85, 85, 127);")  ## > func or not
             self.ui.behaviorcamStatusLabel.setText('Disconnected')
 
             self.disable_cam('B')
             self.ui.widget_2.setEnabled(False)
             ## self.disable_cam('S') ## temp
 
-
     # scope camera connection
     @Slot()
     def connect_scope_camera_button_clicked(self):
         print("sign-sign")
         text = self.ui.connectScopeCameraButton.text()
-        if text == 'Scope\n''Connect' and self.capturer2 is None: ## check - capturer
+        if text == 'Scope\n''Connect' and self.capturer2 is None:  ## check - capturer
             ## camera_ID = self.mini_num #0
-            camera_ID = cv2.CAP_DSHOW + self.Snum ##
+            camera_ID = cv2.CAP_DSHOW + self.Snum  ##
 
             print("Camera_no.1")
-            self.capturer2 = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock, parent=self, user_path=self.user_path, f_type=self.save_format, pj_name=self.project_name, scopei=False) ## VP- ##par-처리
+            self.capturer2 = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock,
+                                           parent=self, user_path=self.user_path, f_type=self.save_format,
+                                           pj_name=self.project_name, scopei=False)  ## VP- ##par-처리
             self.capturer2.frameCaptured.connect(self.update_scope_camera_frame)
             self.capturer2.fpsChanged.connect(self.update_scope_camera_FPS)
             self.capturer2.start()
-
 
             ## record finished
             self.capturer2.videoSaved.connect(self.record_finished)
@@ -977,7 +942,7 @@ class MainWindow(QMainWindow):
             self.ui.signScopeCamera.setStyleSheet("background-color: rgb(0, 255, 0);")
             self.ui.scopecamStatusLabel.setText('Connected')
 
-            self.ui.widget_2.setEnabled(True) ##
+            self.ui.widget_2.setEnabled(True)  ##
 
             if self.player is not None:
                 self.play_finished()
@@ -986,7 +951,7 @@ class MainWindow(QMainWindow):
                 self.ui.widget_71.hide()
                 self.scope_camera_view.show()
 
-            self.capturer2.fps_calculating = True ###
+            self.capturer2.fps_calculating = True  ###
 
             ## print("cap2: ", self.capturer2.get(cv2.CAP_PROP_BRIGHTNESS))
 
@@ -1163,7 +1128,7 @@ class MainWindow(QMainWindow):
 
     def elapsed_time(self):
         self.s_total = self.s_total + 1
-        total = self.s_total*10
+        total = self.s_total * 10
         ## print(total)
         time = self.hhmmss(total)
         self.ui.label_24.setText(f'Elapsed time: {time}')
@@ -1231,27 +1196,26 @@ class MainWindow(QMainWindow):
         ##    self.cam_num = 1 ##
         else:
             self.mini_num = None
-            self.ui.statusbar.showMessage('-- No miniscope found --',7000)
+            self.ui.statusbar.showMessage('-- No miniscope found --', 7000)
             print('--no miniscope found--')
         return self.mini_num
 
-
     @Slot()
-    def set_cam_number(self): ## check mini_num and cam_num ###
+    def set_cam_number(self):  ## check mini_num and cam_num ###
 
-        self.ui.statusbar.showMessage('camera setting') ## ch2 emit
+        self.ui.statusbar.showMessage('camera setting')  ## ch2 emit
         Bn = self.ui.BnumBox.text()
         Sn = self.ui.SnumBox.text()
 
         if Bn == '' and Sn == '':
-            self.mnotice.setText("(temp) set camera number again please ") ## temporary
+            self.mnotice.setText("(temp) set camera number again please ")  ## temporary
             self.mnotice.exec_()
             return
 
         Bn = int(Bn)
         Sn = int(Sn)
 
-        #if type(Bn) or type(Sn) is not :
+        # if type(Bn) or type(Sn) is not :
         #    self.mnotice.setText("check your input please")
         #    self.mnotice.exec_()
 
@@ -1260,7 +1224,7 @@ class MainWindow(QMainWindow):
         ## print("Bnt: ", type(Bn)) ## str
         ## print(f'b: {Bn}, s: {Sn}')
 
-        if (Bn in self.cam_nlist) and (Sn in self.cam_nlist): ## 각 조건
+        if (Bn in self.cam_nlist) and (Sn in self.cam_nlist):  ## 각 조건
             print("what happend")
             self.Bnum = Bn
             self.Snum = Sn
@@ -1274,7 +1238,7 @@ class MainWindow(QMainWindow):
             self.mnotice.setText("check the numbers please")
             self.mnotice.exec_()
             self.ui.statusbar.showMessage('_')
-            self.ui.statusbar.showMessage('check the numbers please',10000)
+            self.ui.statusbar.showMessage('check the numbers please', 10000)
         print(self.dev_list)
 
     def disable_cam(self, alp: str):
@@ -1289,23 +1253,20 @@ class MainWindow(QMainWindow):
             # self.ui.SnumBox.setText("")
             # self.ui.SnumBox.setPlaceholderText(str(self.Snum))
 
-
     ### def cam_status_check(self):
     ###     return True | False
-
 
     ### ------ notice f ----
     @Slot(str)
     def record_finished(self, a):
-        self.ui.statusbar.showMessage('record finished',10000)
+        self.ui.statusbar.showMessage('record finished', 10000)
         self.mnotice.setText(f"record finished \n {a}")
-
-
 
     ### ------ software system ----
 
     def d_widget_scope(self):
         self.ui.widget_9.setEnabled(False)
+
     def e_widget_scope(self):
         self.ui.widget_9.setEnabled(True)
 
@@ -1321,14 +1282,14 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
 
     # behavior camera image update
-    @Slot(QtGui.QImage) ## camera image
+    @Slot(QtGui.QImage)  ## camera image
     def update_behavior_camera_frame(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
         # temp_width2 = self.behavior_camera_view.width()
         # if self.temp_width != temp_width2:
         #     self.temp_width = temp_width2
         #     print(self.temp_width)
-        pixmap = pixmap.scaledToWidth(self.behavior_camera_view.width()) ## 4
+        pixmap = pixmap.scaledToWidth(self.behavior_camera_view.width())  ## 4
         self.behavior_camera_view_item_i.setPixmap(pixmap)
 
     # scope camera image update
@@ -1336,28 +1297,27 @@ class MainWindow(QMainWindow):
     def update_scope_camera_frame(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = pixmap.scaledToWidth(self.scope_camera_view.width())
-        self.scope_camera_view_item_i.setPixmap(pixmap) ## ui, _i
+        self.scope_camera_view_item_i.setPixmap(pixmap)  ## ui, _i
 
     @Slot(float)
     def update_behavior_camera_FPS(self, fps):
         self.ui.behavior_fps.setText(f'FPS: {fps}')
 
     @Slot(float)
-    def update_scope_camera_FPS(self,fps):
+    def update_scope_camera_FPS(self, fps):
         self.ui.scope_fps.setText(f'FPS: {fps}')
 
     def set_scope_fps(self, fps):
-        fps_d = {5:4,7:6,8:6,9:6,10:12,11:12}
-        fps = fps/5
+        fps_d = {5: 4, 7: 6, 8: 6, 9: 6, 10: 12, 11: 12}
+        fps = fps / 5
         if fps in list(fps_d.keys()):
             fps = fps_d[fps]
 
-        self.capturer2.cfps = fps*5
+        self.capturer2.cfps = fps * 5
         ## self.capturer2.set(cv2.CAP_PROP_FPS, fps)
 
     def set_behavior_fps(self, fps):
         self.capturer.cfps = fps
-
 
     # ------------------------------------------------------------------------
     #
@@ -1365,15 +1325,15 @@ class MainWindow(QMainWindow):
     #
     # ------------------------------------------------------------------------
 
-## exposure control   ### seems, miniscope used brightness for exposure > need to change
+    ## exposure control   ### seems, miniscope used brightness for exposure > need to change
     def exposure_control_b(self, val):
-        val = val/100 * 64
-        self.capturer.exposure_status = val ##self.ui.exposureSliderBCam.value() ## ab on/
+        val = val / 100 * 64
+        self.capturer.exposure_status = val  ##self.ui.exposureSliderBCam.value() ## ab on/
         ## self.ui.label_59.setText("FPS: " + str(self.capturer.exposure_status))
         ## self.ui.label_59.setText(f"FPS: {self.ui.exposureSliderBCam.value()}")
 
     def exposure_control_s(self, val):
-        val = val/100 * 64
+        val = val / 100 * 64
         self.capturer2.exposure_status = val
 
     @Slot()
@@ -1385,13 +1345,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box1(self):
-        set_v=int(self.ui.exposureValueBCam.text())
+        set_v = int(self.ui.exposureValueBCam.text())
         self.move_slider1(set_v)
         self.ui.exposureSliderBCam.setValue(set_v)
         self.ui.exposureValueBCam.setText("")
 
-
-## Visualization brightness
+    ## Visualization brightness
     @Slot()
     def move_slider2(self, sl_val):
         print(sl_val)
@@ -1400,12 +1359,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box2(self):
-        set_v=int(self.ui.visualBrightnessValue.text())
+        set_v = int(self.ui.visualBrightnessValue.text())
         self.ui.visualBrightnessValue.setPlaceholderText(str(set_v))
         self.ui.visualBrightnessSlider.setValue(set_v)
         self.ui.visualBrightnessValue.setText("")
 
-## Visualization contrast
+    ## Visualization contrast
     @Slot()
     def move_slider3(self, sl_val):
         print(sl_val)
@@ -1414,12 +1373,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box3(self):
-        set_v=int(self.ui.visualContrastValue.text())
+        set_v = int(self.ui.visualContrastValue.text())
         self.ui.visualContrastValue.setPlaceholderText(str(set_v))
         self.ui.visualContrastSlider.setValue(set_v)
         self.ui.visualContrastValue.setText("")
 
-## display overlay slider
+    ## display overlay slider
 
     @Slot()
     def move_slider4(self, sl_val):
@@ -1429,13 +1388,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box4(self):
-        set_v=int(self.ui.overlayValue.text())
+        set_v = int(self.ui.overlayValue.text())
         self.ui.overlayValue.setPlaceholderText(str(set_v))
         self.ui.overlaySlider.setValue(set_v)
         self.ui.overlayValue.setText("")
 
-
-## scope LED slider
+    ## scope LED slider
     @Slot()
     def move_slider5(self, sl_val):
         print(sl_val)
@@ -1445,12 +1403,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box5(self):
-        set_v=int(self.ui.scopeLEDvalue.text())
+        set_v = int(self.ui.scopeLEDvalue.text())
         self.move_slider5(set_v)
         self.ui.scopeLEDslider.setValue(set_v)
         self.ui.scopeLEDvalue.setText("")
 
-## scope Gain slider  #####
+    ## scope Gain slider  #####
     @Slot()
     def move_slider6(self, sl_val):
         print(sl_val)
@@ -1462,18 +1420,17 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box6(self):
-        set_v=int(self.ui.scopeGainValue.text())
-        #self.ui.scopeGainValue.setPlaceholderText(str(set_v))
+        set_v = int(self.ui.scopeGainValue.text())
+        # self.ui.scopeGainValue.setPlaceholderText(str(set_v))
         self.move_slider6(set_v)
         self.ui.scopeGainSlider.setValue(set_v)
         self.ui.scopeGainValue.setText("")
 
-
-## scope FR slider
+    ## scope FR slider
     @Slot()
     def move_slider7(self, sl_val_r):
-        print("dex ",sl_val_r)
-        sl_val = self.fvalue[sl_val_r] #[5,10,15,20,30,60]
+        print("dex ", sl_val_r)
+        sl_val = self.fvalue[sl_val_r]  # [5,10,15,20,30,60]
         print(sl_val)
         print("moved")
         self.ui.scopeFRvalue.setPlaceholderText(str(sl_val))
@@ -1484,20 +1441,23 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box7(self):
-        set_v=int(self.ui.scopeFRvalue.text())
+        set_v = int(self.ui.scopeFRvalue.text())
         ## self.ui.scopeFRvalue.setPlaceholderText(str(set_v))
 
-        if (set_v/5 -1)>= 8: v = 5
-        elif (set_v/5 -1)>= 4: v = 4
-        elif (set_v/5 - 1)<0 : v = 0
-        else:  v = int(set_v/5 - 1)
-        print('v ',v)
-        self.move_slider7(v) #set_v
+        if (set_v / 5 - 1) >= 8:
+            v = 5
+        elif (set_v / 5 - 1) >= 4:
+            v = 4
+        elif (set_v / 5 - 1) < 0:
+            v = 0
+        else:
+            v = int(set_v / 5 - 1)
+        print('v ', v)
+        self.move_slider7(v)  # set_v
         self.ui.scopeFRslider.setValue(v)
         self.ui.scopeFRvalue.setText("")
 
-
-## scope Exposure slider
+    ## scope Exposure slider
     @Slot()
     def move_slider8(self, sl_val):
         print(sl_val)
@@ -1507,35 +1467,24 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def slider_box8(self):
-        set_v=int(self.ui.scopeExposureValue.text())
+        set_v = int(self.ui.scopeExposureValue.text())
         # self.ui.scopeExposureValue.setPlaceholderText(str(set_v))
         self.move_slider8(set_v)
         self.ui.scopeExposureSlider.setValue(set_v)
         self.ui.scopeExposureValue.setText("")
 
-
-## scope Exposuretime slider
+    ## scope Exposuretime slider
     @Slot()
     def move_slider9(self, sl_val):
         print(sl_val)
         print("moved")
 
-####    @Slot()
-####    def slider_box9(self):
-####        set_v=int(self.ui.scopeETvalue.text())
-####        self.ui.scopeETvalue.setPlaceholderText(str(set_v))
-####        self.ui.scopeETslider.setValue(set_v)
-####        self.ui.scopeETvalue.setText("")
-
-
-
-
-
-
-
-
-
-
+    ####    @Slot()
+    ####    def slider_box9(self):
+    ####        set_v=int(self.ui.scopeETvalue.text())
+    ####        self.ui.scopeETvalue.setPlaceholderText(str(set_v))
+    ####        self.ui.scopeETslider.setValue(set_v)
+    ####        self.ui.scopeETvalue.setText("")
 
     # ----------Seems no need in Acquisition Tab------------
     # @Slot()
@@ -1649,13 +1598,7 @@ class MainWindow(QMainWindow):
     #         else:
     #             self.player.vplayer_status = VPlayerStatus.MOVING
 
-
-
-
-
-
-
-        ### show player lock----------------------------------------------------------------------------------------------------
+    ### show player lock----------------------------------------------------------------------------------------------------
 
     ###    def show_player(self):
     ###
@@ -1753,7 +1696,6 @@ class MainWindow(QMainWindow):
     ###        ## if self.ui.pushButton_49.text != 'start':
     ###        self.ui.pushButton_49.setText('start')
 
-
     #########################################################################
     #                                                                       #
     #                                                                       #
@@ -1770,25 +1712,28 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def load_video(self):
-        self.open_video_path = str(QFileDialog.getOpenFileName(self, "select media file",'./','Video (*.mp4 *.wma *.avi);;All files (*.*)')[0]) ## 형식*, Qurl 기본폴더
+        self.open_video_path = str(
+            QFileDialog.getOpenFileName(self, "select media file", './', 'Video (*.mp4 *.wma *.avi);;All files (*.*)')[
+                0])  ## 형식*, Qurl 기본폴더
         print(f'selected file: {self.open_video_path}')
         if self.open_video_path != "":
-            self.startPlayer2() #init
+            self.startPlayer2()  # init
 
     def get_devlist(self):
-        self.dev_list = [] ### temp
+        self.dev_list = []  ### temp
         graph = FilterGraph()
-        try: self.dev_list = graph.get_input_devices()
+        try:
+            self.dev_list = graph.get_input_devices()
         except ValueError:
-            print("-- No device found --") ## cn sys_info_data
-            self.ui.statusbar.showMessage('-- No device found --',7000)
-            self.mnotice.setText("no device found ") ##
+            print("-- No device found --")  ## cn sys_info_data
+            self.ui.statusbar.showMessage('-- No device found --', 7000)
+            self.mnotice.setText("no device found ")  ##
             self.mnotice.exec_()
 
     # player initialization
     def startPlayer2(self):
-        #video2 = cv2.VideoCapture(self.open_video_path)
-        #video2_fps = video2.get(cv2.CAP_PROP_FPS)
+        # video2 = cv2.VideoCapture(self.open_video_path)
+        # video2_fps = video2.get(cv2.CAP_PROP_FPS)
         self.player2 = VPlayer(v_path=self.open_video_path, lock=self.data_lock, parent=self)
         self.player2.start()
         self.player2.frameC.connect(self.update_player_frame2)
@@ -1818,28 +1763,28 @@ class MainWindow(QMainWindow):
         self.player_view_item_i2.setPixmap(pixmap)
         self.frame_slider_update2(self.player2.present_frame)
         # print(f'{time.time()-self.player2.timer}')
-    #------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
     #
     #                             player buttons
     #
-    #------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
 
     # play/pause button
     @Slot()
     def play_button_clicked2(self):
         text = self.ui.pushButton_2.text()
         if self.player2 is not None and text == 'play':
-            #self.player2.frameC.connect(self.update_player_frame2)
+            # self.player2.frameC.connect(self.update_player_frame2)
             self.player2.vplayer_status = VPlayerStatus.STARTING
             print("set starting")
             self.ui.pushButton_2.setText('pause')
         elif self.player2 is not None and text == 'pause':
             self.player2.vplayer_status = VPlayerStatus.PAUSING
-            #self.player2.frameC.disconnect(self.update_player_frame2)
+            # self.player2.frameC.disconnect(self.update_player_frame2)
             print("set pausing")
             self.ui.pushButton_2.setText('play')
-        #self.player2.stateCh.connect(self.stop_button_clicked2)
-
+        # self.player2.stateCh.connect(self.stop_button_clicked2)
 
     # L2 button
     @Slot()
@@ -1856,7 +1801,7 @@ class MainWindow(QMainWindow):
         if self.player2 is not None:
             self.player2.vplayer_status = VPlayerStatus.STOPPING  ## vplayer _
             self.ui.pushButton_2.setText('play')
-            #self.ui.horizontalSlider_10.setValue(0) ##_
+            # self.ui.horizontalSlider_10.setValue(0) ##_
             print("set stopping")
         if a == 1:
             self.player2.stateCh.disconnect(self.stop_button_clicked2)
@@ -1897,13 +1842,13 @@ class MainWindow(QMainWindow):
     ## player2 time slider update
     def update_v_duration2(self, duration, f_duration):
 
-        self.ui.horizontalSlider_10.setMaximum(f_duration - 1) ## see max ##_
+        self.ui.horizontalSlider_10.setMaximum(f_duration - 1)  ## see max ##_
         print(f'set maxvalue: {f_duration}')
         if duration >= 0:
-            self.ui.label_206.setText(self.player2.time_format(duration)) ## _15
+            self.ui.label_206.setText(self.player2.time_format(duration))  ## _15
             self.ui.label_211.setText(self.player2.time_format(duration))
 
-    #player2 slider functions
+    # player2 slider functions
     def player2slider_pressed(self):
         if self.player2 is not None:
             if self.player2.vplayer_status == VPlayerStatus.STARTING:
@@ -1925,15 +1870,15 @@ class MainWindow(QMainWindow):
     ## slider update
     def frame_slider_update2(self, present_f):
         ## if self.player is not None:
-        self.ui.horizontalSlider_10.blockSignals(True) ##_
-        self.ui.horizontalSlider_10.setValue(present_f) ##_
-        self.ui.horizontalSlider_10.blockSignals(False) ##_
+        self.ui.horizontalSlider_10.blockSignals(True)  ##_
+        self.ui.horizontalSlider_10.setValue(present_f)  ##_
+        self.ui.horizontalSlider_10.blockSignals(False)  ##_
         print(f'sliderposition: {present_f}')
         self.frame_slider_update_p2(present_f)
 
     ## slider texts update
     def frame_slider_update_p2(self, present_f):
-        self.ui.label_209.setText(f'Frame: {int(present_f)}') #_72
+        self.ui.label_209.setText(f'Frame: {int(present_f)}')  # _72
         self.ui.label_213.setText(f'Frame: {int(present_f)}')
 
         # time update
@@ -1948,12 +1893,13 @@ class MainWindow(QMainWindow):
     # fps set
     def set_onscope_fps(self, fps):
 
-        fps_d = {5:4,7:6,8:6,9:6,10:12,11:12}
-        fps = fps/5
+        fps_d = {5: 4, 7: 6, 8: 6, 9: 6, 10: 12, 11: 12}
+        fps = fps / 5
         if fps in list(fps_d.keys()):
             fps = fps_d[fps]
 
-        self.on_scope.cfps = fps*5
+        self.on_scope.cfps = fps * 5
+
     # ------------------------------------------------------------------------
     #
     #                           motion correction
@@ -1976,9 +1922,9 @@ class MainWindow(QMainWindow):
         # loading bar signal
         # motion correction
         from mccc import MCC
-        mcstart=time.time()
+        mcstart = time.time()
         self.play_finished2()
-        print('playfinished2: ', time.time()-mcstart)
+        print('playfinished2: ', time.time() - mcstart)
         self.wait = None
         self.mccbar = QtWidgets.QProgressBar()
         ## self.mccbar.setMininum(0)
@@ -1986,7 +1932,7 @@ class MainWindow(QMainWindow):
         mccdone = QMessageBox()
         mccdone.setWindowTitle("notice")
         mccdone.setWindowIcon(QtGui.QPixmap("info.png"))
-        mccdone.setStandardButtons(QMessageBox.Apply|QMessageBox.Close)
+        mccdone.setStandardButtons(QMessageBox.Apply | QMessageBox.Close)
         mccdone.setDefaultButton(QMessageBox.Apply)
         mccdone.setIcon(QMessageBox.Information)
         mccdone.setText("!")
@@ -1996,13 +1942,12 @@ class MainWindow(QMainWindow):
             self.wait = path
             self.ui.statusbar.showMessage('-- MCC process done --')
 
-            mccdone.setText("MCC process finished") ## temporary  ## button
+            mccdone.setText("MCC process finished")  ## temporary  ## button
             if mccdone.exec_() == QMessageBox.Apply:
                 self.open_video_path = path
 
             ## player restart
             self.startPlayer2()
-
 
         @Slot(int)
         def totallen(maxn):
@@ -2016,7 +1961,7 @@ class MainWindow(QMainWindow):
             self.mccbar.setValue(nums)
 
         mccth = MCC(self.open_video_path, parent=self)
-        print('mccth videopath: ', time.time()-mcstart)
+        print('mccth videopath: ', time.time() - mcstart)
         mccth.signalLen.connect(totallen)
         mccth.signalPath.connect(get_path)
         mccth.signalPrc.connect(prclen)
@@ -2052,7 +1997,7 @@ class MainWindow(QMainWindow):
 
     # add ROI
     def addR(self, scenePos, size=30):  ## 시도
-        #num, colr = self.roi_table.add_to_table()
+        # num, colr = self.roi_table.add_to_table()
         colr = self.roi_table.randcolr()
         roi_circle = self.create_circle(colr, scenePos, size)
         self.player_scene2.addItem(roi_circle)
@@ -2072,7 +2017,7 @@ class MainWindow(QMainWindow):
             if dialog.exec() == QDialog.Accepted:
                 param_list = []
 
-                param_list.append(int(dialog.lineEdit.text())) # p
+                param_list.append(int(dialog.lineEdit.text()))  # p
 
                 if dialog.lineEdit_2.text() == 'None':  # K
                     param_list.append(None)
@@ -2080,7 +2025,7 @@ class MainWindow(QMainWindow):
                     param_list.append(int(dialog.lineEdit_2.text()))
 
                 sig = int(dialog.lineEdit_3.text())
-                param_list.append((sig,sig)) # gSig
+                param_list.append((sig, sig))  # gSig
 
                 siz = int(dialog.lineEdit_4.text())
                 param_list.append((siz, siz))  # gSiz
@@ -2091,10 +2036,10 @@ class MainWindow(QMainWindow):
                     param_list.append(int(dialog.lineEdit_5.text()))
 
                 param_list.append(float(dialog.lineEdit_6.text()))  # merge_thr
-                param_list.append(int(dialog.lineEdit_7.text()))    # rf
-                param_list.append(int(dialog.lineEdit_8.text()))    # stride_cnmf
-                param_list.append(int(dialog.lineEdit_9.text()))    # tsub
-                param_list.append(int(dialog.lineEdit_10.text()))   # ssub
+                param_list.append(int(dialog.lineEdit_7.text()))  # rf
+                param_list.append(int(dialog.lineEdit_8.text()))  # stride_cnmf
+                param_list.append(int(dialog.lineEdit_9.text()))  # tsub
+                param_list.append(int(dialog.lineEdit_10.text()))  # ssub
 
                 if dialog.lineEdit_11.text() == 'None':  # low_rank_background
                     param_list.append(None)
@@ -2136,7 +2081,7 @@ class MainWindow(QMainWindow):
 
         print('hncc roi process time: ', time.time() - hncc_timer)
         for cell in res:
-            if cell[0] - (cell[2]+4)/2 < 0 or cell[1] - (cell[2]+4)/2 < 0:
+            if cell[0] - (cell[2] + 4) / 2 < 0 or cell[1] - (cell[2] + 4) / 2 < 0:
                 continue
             self.addR(QtCore.QPointF(cell[0], cell[1]), cell[2] + 4)
 
@@ -2147,7 +2092,7 @@ class MainWindow(QMainWindow):
             coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
             shapeY = coors.T[1]
-            size = max([max(shapeX)-min(shapeX), max(shapeY)-min(shapeY)])
+            size = max([max(shapeX) - min(shapeX), max(shapeY) - min(shapeY)])
             pos = QtCore.QPointF(centX, centY)
             self.addR(pos, size)
 
@@ -2166,9 +2111,9 @@ class MainWindow(QMainWindow):
 
         itemlist = self.player_scene2.items().copy()
 
-        brightlist = [] # store trace value
+        brightlist = []  # store trace value
 
-        for i in range(len(itemlist)-1, -1, -1):
+        for i in range(len(itemlist) - 1, -1, -1):
             if itemlist[i].__class__.__name__ == "ROIcircle":
                 brightlist.append([])
             else:
@@ -2180,11 +2125,11 @@ class MainWindow(QMainWindow):
         itemlist.reverse()
         for frame in frame_list:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            for i in range(0,len(itemlist)):
+            for i in range(0, len(itemlist)):
                 brightlist[i].append(self.getBrightness(frame, itemlist[i]))
 
         self.draw_chart(brightlist)
-        print(f'total time: {time.time()-timer}')
+        print(f'total time: {time.time() - timer}')
 
     # initialize and draw offline traces
     def draw_chart(self, brightlist):
@@ -2292,8 +2237,8 @@ class MainWindow(QMainWindow):
         ## video connect
         text = self.ui.connectScopeCameraButton_2.text()
         if text == 'Scope\nConnect' and self.on_scope is None:
-            #camera_ID = self.open_video_path ### temp
-            camera_ID = self.cameraID # defalut device, make it seletable in the future
+            # camera_ID = self.open_video_path ### temp
+            camera_ID = self.cameraID  # defalut device, make it seletable in the future
 
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
@@ -2315,6 +2260,7 @@ class MainWindow(QMainWindow):
 
             self.on_scope = None
             self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+
     # ------------------------------------------------------------------------
     #
     #                           slider functions
@@ -2428,9 +2374,9 @@ class MainWindow(QMainWindow):
         else:
             cur_time = total_time * cur_frame / total_frame
 
-        timestr = f'Time: {round(cur_time,1)}/{round(total_time,1)} sec'
-        cur_time = self.hhmmss(cur_time*1000)
-        total_time = self.hhmmss(total_time*1000)
+        timestr = f'Time: {round(cur_time, 1)}/{round(total_time, 1)} sec'
+        cur_time = self.hhmmss(cur_time * 1000)
+        total_time = self.hhmmss(total_time * 1000)
 
         self.ui.label_168.setText(cur_time)
         self.ui.label_174.setText(timestr)
@@ -2446,6 +2392,7 @@ class MainWindow(QMainWindow):
 
         self.ui.horizontalSlider_7.setValue(cur_frame)
         self.ui.horizontalSlider_6.setValue(cur_frame)
+
     # ------------------------------------------------------------------------
     #
     #                           motion correction
@@ -2466,9 +2413,9 @@ class MainWindow(QMainWindow):
     def pre_process(self):
         print('preprocess clicked')
 
-        #scope_num = self.open_video_path ##0
+        # scope_num = self.open_video_path ##0
         scope_num = self.cameraID + cv2.CAP_DSHOW
-        #self.on_template = None
+        # self.on_template = None
 
         text = self.ui.connectScopeCameraButton_2.text()
         if self.ui.checkBox_7.isChecked():
@@ -2485,7 +2432,7 @@ class MainWindow(QMainWindow):
             # self.MC = MCC(filepath, self)
             self.MC = MCC(scope_num, self)
 
-            #d_i ### update policy - 다되면 없애는 거 등 필요 ##
+            # d_i ### update policy - 다되면 없애는 거 등 필요 ##
             self.mccbar = QtWidgets.QProgressBar()
             self.ui.statusbar.addWidget(self.mccbar)
             self.mccbar.setMaximum(200)
@@ -2503,7 +2450,7 @@ class MainWindow(QMainWindow):
         # generate template
 
     ##prebar
-    def prebar(self, n): ## 중복해결필요    ## 200 template
+    def prebar(self, n):  ## 중복해결필요    ## 200 template
         self.mccbar.setValue(n)
 
     # ------------------------------------------------------------------------
@@ -2514,11 +2461,109 @@ class MainWindow(QMainWindow):
 
     # TODO:implement algorithm
     def on_auto_roi(self):
-        x = [267, 119, 106, 211, 229, 49, 206]
-        y = [81, 94, 169, 235, 133, 17, 202]
-        for i in range(len(x)):
-            self.addOnR(QtCore.QPointF(x[i] + 15.0, y[i] + 15.0))
+        # x = [267, 119, 106, 211, 229, 49, 206]
+        # y = [81, 94, 169, 235, 133, 17, 202]
+        # for i in range(len(x)):
+        #     self.addOnR(QtCore.QPointF(x[i] + 15.0, y[i] + 15.0))
         ## need to think about how many/ data for input will be used
+        # if not self.player2:
+        #     return
+        if self.ui.comboBox_23.currentText() == 'OnACID':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # thresh_CNN_noisy
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+                param_list.append(str(dialog.lineEdit_8.text()))  # init_method
+                param_list.append(int(dialog.lineEdit_9.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_10.text()))  # patch_size
+                param_list.append(int(dialog.lineEdit_11.text()))  # stride
+                param_list.append(int(dialog.lineEdit_12.text()))  # K
+
+                self.onacid(param_list)
+            else:
+                print('cancel')
+        elif self.ui.comboBox_23.currentText() == 'OnACID_mes':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_mes.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # ds_factor
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+
+                if dialog.checkBox.isChecked():  # mot_corr
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_2.isChecked():  # pw_rigid
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_3.isChecked():  # sniper_mode
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                param_list.append(float(dialog.lineEdit_12.text()))  # rval_thr
+                param_list.append(int(dialog.lineEdit_13.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_14.text()))  # K
+                param_list.append(int(dialog.lineEdit_15.text()))  # epochs
+
+                if dialog.checkBox_4.isChecked():  # show_movie
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                self.onacidmes(param_list)
+            else:
+                print('cancel')
+
+    def onacid(self, param_list):
+        # if self.player2 is None:
+        #     return
+
+        from caiman_OnACID import Caiman_OnACID
+        cm = Caiman_OnACID(self, param_list, self.open_video_path)
+        cm.roi_pos.connect(self.addOnlineRoi)
+        cm.start_pipeline()
+
+    def onacidmes(self, param_list):
+        # if self.player2 is None:
+        #     return
+        from caiman_OnACID_mesoscope import Caiman_OnACID_mes
+        cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
+        cm.roi_pos.connect(self.addOnlineRoi)
+        cm.start_pipeline()
+
+    def addOnlineRoi(self, comps):
+        for item in comps:
+            centY, centX = item['CoM']
+            coors = item['coordinates']
+            coors = coors[~np.isnan(coors).any(axis=1)]
+            shapeX = coors.T[0]
+            shapeY = coors.T[1]
+            size = max([max(shapeX) - min(shapeX), max(shapeY) - min(shapeY)])
+            pos = QtCore.QPointF(centX, centY)
+            self.addOnR(pos, size)
 
     # Online Tab add ROI button clicked
     def addOnRoi(self):
@@ -2552,6 +2597,7 @@ class MainWindow(QMainWindow):
         roi_circle = self.onroi_table.deleteRoi()
         self.ontrace_viewer.remove_trace(roi_circle)
         self.onplayer_scene.removeItem(roi_circle)
+
     # ------------------------------------------------------------------------
     #
     #                          real time process
@@ -2575,17 +2621,18 @@ class MainWindow(QMainWindow):
             self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
             print('connection')
 
-        if self.ui.checkBox_7.isChecked(): ## ?could be pre-checked
+        if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
             if type(self.on_template) != type(None):
                 print('yes you have template')
-                self.MC.c_onmc = 0 ##
+                self.MC.c_onmc = 0  ##
                 self.on_scope.MC = self.MC
-                self.on_scope.ged_template = self.on_template ###
+                self.on_scope.ged_template = self.on_template  ###
                 ##self.MCC.on_mc(self.on_template, )
-            else: print('no template')
-             ## need to check process status of processing (motion corrected | ROI selected)
-        else: print('check X - motion correction ')
-
+            else:
+                print('no template')
+            ## need to check process status of processing (motion corrected | ROI selected)
+        else:
+            print('check X - motion correction ')
 
         self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()
@@ -2608,7 +2655,6 @@ class MainWindow(QMainWindow):
         # random addition for testing
         self.onroi_table.btn1.clicked.connect(self.onroi_table.randomAdd)
 
-
     #########################################################################
     #                                                                       #
     #                                                                       #
@@ -2620,23 +2666,24 @@ class MainWindow(QMainWindow):
     # time format
     def hhmmss(self, ms):
         ## 1000/60000/360000
-        s = round(ms/1000)
-        m,s = divmod(s,60)
-        h,m = divmod(m,60)
-        return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))
+        s = round(ms / 1000)
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+        return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
     ## about ui +
     def setupUi(self):
-        self.ui = QUiLoader().load('210513_OMBI_UI.ui') ##'210202_ui.ui') ## "1011_ui.ui")  ##
+        self.ui = QUiLoader().load('210513_OMBI_UI.ui')  ##'210202_ui.ui') ## "1011_ui.ui")  ##
         self.setCentralWidget(self.ui)
         ## self.show()
 
-    def roi_click(self, widget, filter): ## widget과 raphicsview 같이 받아서 해보면 어떨까.
+    def roi_click(self, widget, filter):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
             clicked = Signal(QtCore.QPointF)
+
             def eventFilter(self, obj, event):
                 if obj == widget:
-                    if event.type() == QtCore.QEvent.GraphicsSceneMousePress: ## mousePressEvent: ## ButtonRelease
+                    if event.type() == QtCore.QEvent.GraphicsSceneMousePress:  ## mousePressEvent: ## ButtonRelease
                         if obj.sceneRect().contains(event.scenePos()):
                             self.clicked.emit(event.scenePos())
                             print(f'click pos: {event.scenePos()}')
@@ -2652,6 +2699,7 @@ class MainWindow(QMainWindow):
             selected = Signal(str)
             moved = Signal(list)
             sizeChange = Signal(int)
+
         class ROIcircle(QtWidgets.QGraphicsEllipseItem):
             def __init__(self, x, y, w, h):
                 super().__init__(x, y, w, h)
@@ -2661,18 +2709,23 @@ class MainWindow(QMainWindow):
                 self.noise = None
                 self.mat = self.matUpdate()
                 self.contour = contour
+
             def setName(self, str):
                 self.name = str
+
             def setId(self, n):
                 self.id = n
+
             def mousePressEvent(self, event):
                 super().mousePressEvent(event)
                 self.signals.selected.emit(self.name)
+
             def mouseReleaseEvent(self, event):
                 super().mouseReleaseEvent(event)
                 x = self.pos().x()
                 y = self.pos().y()
-                self.signals.moved.emit([x,y])
+                self.signals.moved.emit([x, y])
+
             def wheelEvent(self, event):
                 super().wheelEvent(event)
                 size = int(self.rect().width())
@@ -2683,6 +2736,7 @@ class MainWindow(QMainWindow):
                 self.setRect(0, 0, size, size)
                 self.signals.sizeChange.emit(size)
                 self.mat = self.matUpdate()
+
             def matUpdate(self):
                 h = int(self.rect().height())
                 w = int(self.rect().width())
@@ -2692,15 +2746,16 @@ class MainWindow(QMainWindow):
                         pt = QtCore.QPoint(j, i)
                         if self.contains(pt):
                             mat[i, j] = 1
-                self.noise = (mat.copy()-1)*(-1)
+                self.noise = (mat.copy() - 1) * (-1)
                 return mat
+
         r, g, b = c
         # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
         roi_circle = ROIcircle(0, 0, size, size)
         roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 2, Qt.SolidLine))
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
-        roi_circle.setPos(pos.x()-size/2, pos.y()-size/2)
+        roi_circle.setPos(pos.x() - size / 2, pos.y() - size / 2)
         return roi_circle
 
     #########################################################################
@@ -2711,9 +2766,9 @@ class MainWindow(QMainWindow):
     #                                                                       #
     #########################################################################
 
-    def closeEvent(self, event): ## how-signal ## temp ?
-        if self.capturer is not None: ##
-            self.capturer.stop() ##? -- stop
+    def closeEvent(self, event):  ## how-signal ## temp ?
+        if self.capturer is not None:  ##
+            self.capturer.stop()  ##? -- stop
         QMainWindow.closeEvent(self, event)
 
     def closeEvent2(self, event):
@@ -2734,7 +2789,7 @@ class MainWindow(QMainWindow):
             self.capturer2.save_one_screen_shot = True
 
     def motion_corr3(self):
-        #self.ld_play()
+        # self.ld_play()
 
         self.mcctice = QMessageBox()
         self.mcctice.setWindowTitle("motion correction")
@@ -2748,25 +2803,25 @@ class MainWindow(QMainWindow):
         self.mcctice.setText('Loading...')
         self.mcctice.exec_()
 
-        #time.sleep(5)
+        # time.sleep(5)
         print('click')
-        #self.ld_play()
-
+        # self.ld_play()
 
         from mcc_thr2 import MCCThread
         _mccthread = MCCThread(self.open_video_path)
 
-        self.wait=None
+        self.wait = None
+
         @Slot(str)
         def get_path(path):
             self.wait = path
 
         while True:
             if not _mccthread.isRunning():
-                if self.wait==None:
+                if self.wait == None:
                     _mccthread.start()
                     _mccthread.signalPath.connect(get_path)
-                #_mccthread.signalPath.emit()
+                # _mccthread.signalPath.emit()
             elif self.wait != None:
                 _mccthread.terminate()
                 print('exit')
@@ -2782,7 +2837,7 @@ class MainWindow(QMainWindow):
             self.ld_widget.hide()
             self.m_label_gif.hide()
             self.m_movie_gif.stop()
-            self.m_play_state=False
+            self.m_play_state = False
         else:
             self.ld_widget.show()
             self.ld_widget.raise_()
@@ -2810,10 +2865,10 @@ class MainWindow(QMainWindow):
 
         while True:
             if not _mccthread.isRunning():
-                if self.wait==None:
+                if self.wait == None:
                     _mccthread.start()
                     _mccthread.signalPath.connect(get_path)
-                #_mccthread.signalPath.emit()
+                # _mccthread.signalPath.emit()
             elif self.wait != None:
                 _mccthread.terminate()
                 print('exit')
@@ -2843,41 +2898,43 @@ class MainWindow(QMainWindow):
         startX = time.time()
 
         path = self.open_video_path
-        save_path = self.open_video_path.split('.')[0] + '_mcc.avi'   ## result .avi
+        save_path = self.open_video_path.split('.')[0] + '_mcc.avi'  ## result .avi
 
         crop_size = 150
-        crop_frame = torch.zeros([crop_size, crop_size], dtype=torch.float) ## temp 150*150
+        crop_frame = torch.zeros([crop_size, crop_size], dtype=torch.float)  ## temp 150*150
 
-        ldp=ld(path)
+        ldp = ld(path)
 
-        raw_video, size1, size2, size3, _, _ = ldp.Trans_GPU(False, False) ## ld(path).Trans_GPU(False, False) ## high_filter, crop
-        sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer = ldp.SetParameters(crop_frame) ## ld(path).SetParameters(crop_frame)
+        raw_video, size1, size2, size3, _, _ = ldp.Trans_GPU(False,
+                                                             False)  ## ld(path).Trans_GPU(False, False) ## high_filter, crop
+        sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer = ldp.SetParameters(
+            crop_frame)  ## ld(path).SetParameters(crop_frame)
 
-        new_video=torch.empty([size1, size2, size3], dtype=torch.float)
-        y_shift=torch.empty([1,size3], dtype=torch.float)
-        x_shift=torch.empty([1,size3], dtype=torch.float)
+        new_video = torch.empty([size1, size2, size3], dtype=torch.float)
+        y_shift = torch.empty([1, size3], dtype=torch.float)
+        x_shift = torch.empty([1, size3], dtype=torch.float)
 
-        input_temp=torch.empty([crop_size, crop_size], dtype=torch.float)
+        input_temp = torch.empty([crop_size, crop_size], dtype=torch.float)
 
         ## data transformation .cuda()
 
         crop_frame = crop_frame.cuda()
-        new_video=new_video.cuda()
+        new_video = new_video.cuda()
         y_shift = y_shift.cuda()
         x_shift = x_shift.cuda()
-        input_temp=input_temp.cuda()
-        psf=loadmat('psf.mat')
+        input_temp = input_temp.cuda()
+        psf = loadmat('psf.mat')
         kernel = torch.tensor(np.array(psf.get('psf')), dtype=torch.float)
         kernel = kernel.cuda()
 
         ## 100 template generation
 
         init_batch = 100
-        init_video=raw_video[:,:,0:init_batch]
-        filtered_temp=ld.filter_frame(1,init_video[:,:,0], kernel)
-        preprocess_temp=ld.cut_frame(1,filtered_temp)
-        MC=NMC(sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer)
-        preprocess_temp=MC.generate_template(init_batch, init_video, kernel) ##
+        init_video = raw_video[:, :, 0:init_batch]
+        filtered_temp = ld.filter_frame(1, init_video[:, :, 0], kernel)
+        preprocess_temp = ld.cut_frame(1, filtered_temp)
+        MC = NMC(sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer)
+        preprocess_temp = MC.generate_template(init_batch, init_video, kernel)  ##
 
         print('preprocessed')
         ## NCC registration
@@ -2885,31 +2942,30 @@ class MainWindow(QMainWindow):
         new_video, x_shift, y_shift = MC.OnlineNCC(raw_video, kernel, preprocess_temp, y_shift, x_shift, new_video)
         print(f'ncc registration: {time.time() - startT}s')
 
-
-        new_video=new_video.cpu().numpy()
-        raw_video=raw_video.cpu().numpy()
-        x_shift=x_shift.cpu().numpy()
-        y_shift=y_shift.cpu().numpy()
-        kernel=kernel.cpu().numpy()
+        new_video = new_video.cpu().numpy()
+        raw_video = raw_video.cpu().numpy()
+        x_shift = x_shift.cpu().numpy()
+        y_shift = y_shift.cpu().numpy()
+        kernel = kernel.cpu().numpy()
 
         print('starttonow: ', time.time() - startX)
 
         R_new_video = np.array(new_video, dtype='uint8')
-        writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), 20, (752,480)) ## 'ms_result.avi' ## ***size control
-        for i in range(999): ### *** size control
-            img = cv2.cvtColor(R_new_video[:,:,i], cv2.COLOR_GRAY2BGR)
+        writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), 20,
+                                 (752, 480))  ## 'ms_result.avi' ## ***size control
+        for i in range(999):  ### *** size control
+            img = cv2.cvtColor(R_new_video[:, :, i], cv2.COLOR_GRAY2BGR)
             writer.write(img)
         writer.release()
 
         print('until saving: ', time.time() - startX)
-
 
     def motion_corr2(self):
         from registration_ed import Preprocess
         import cv2
         import numpy as np
 
-        path = self.open_video_path## input path
+        path = self.open_video_path  ## input path
         result = self.open_video_path  ## result .avi
         fps = self.ui.scopeFRvalue.placeholderText()
 
@@ -2918,22 +2974,22 @@ class MainWindow(QMainWindow):
         Preprocess.path = path
         Preprocess.result = result
 
-
-        result_tpl=Preprocess.generate_template(path, result)
-        R_new_video=np.array(new_video, dtype='uint8')
-        nums,height,width = Preprocess.size
+        result_tpl = Preprocess.generate_template(path, result)
+        R_new_video = np.array(new_video, dtype='uint8')
+        nums, height, width = Preprocess.size
         if (nums * height * width) == 0:
             print("check your process, template size 0")
 
         else:
             mc_writer(nums, height, width, fps, result)
+
         ## save +공유고려
         ## 일단 고정 추후 수정 encoder
         def mc_writer(self, num, height, width, fps, result):
             print(f'savefps: {fps}')
-            writer = cv2.VideoWriter(result, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width,height))
+            writer = cv2.VideoWriter(result, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width, height))
             for i in range(nums):
-                img=cv2.cvtColor(Rnew_video[:,:,i],cv2.COLOR_GRAY2BGR)
+                img = cv2.cvtColor(Rnew_video[:, :, i], cv2.COLOR_GRAY2BGR)
                 writer.write(img)
             writer.release()
 
