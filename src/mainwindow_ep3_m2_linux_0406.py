@@ -761,7 +761,32 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
     def button_load(self):
-        pass
+        path = str(QFileDialog.getOpenFileName(self, "select project file",'./','Project File (*.obmiproject)')[0])
+        if path == "":
+            return
+
+        print(f'load project file: {path}')
+        with h5py.File(path, 'r') as f:
+            version = f['info']['version']
+            if version == '1.0':
+                g = f['offline']
+                if len(g.keys()) > 0:
+                    self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
+                    self.player2.frame_list = g['video']
+                    self.player2.total_frame = g['total_frame']
+                    self.player2.fps = g['fps']
+                    self.player2.start()
+                    self.player2.frameC.connect(self.update_player_frame2)
+
+                    time.sleep(0.1)
+
+                    self.s_totalframe2 = self.player2.total_frame
+                    self.s_total2 = int(self.s_totalframe2 / self.player2.fps)
+
+                    self.update_v_duration2(self.s_total2, self.s_totalframe2)
+                    if len(g.keys() > 3):
+                        # TODO: implement
+                        pass
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -786,7 +811,8 @@ class MainWindow(QMainWindow):
             if self.player2 is not None:
                 fl = self.player2.frame_list
                 g['fps'] = self.player2.fps
-                g['video'] = numpy.asarray(fl).flatten()
+                g['total_frame'] = self.player2.total_frame
+                g['video'] = numpy.asarray(fl)
 
                 if self.roi_table is not None:
                     size = self.roi_table.size()
@@ -2621,7 +2647,7 @@ class MainWindow(QMainWindow):
         widget.installEventFilter(filter)
         return filter.clicked
 
-    def create_circle(self, c, pos, size):  ## circle 별도 class 만들어줄지
+    def create_circle(self, c, pos, size=-1, contour=[]):  ## circle 별도 class 만들어줄지
         class ROIconnect(QObject):
             selected = Signal(str)
             moved = Signal(list)
@@ -2634,6 +2660,7 @@ class MainWindow(QMainWindow):
                 self.name = None
                 self.noise = None
                 self.mat = self.matUpdate()
+                self.contour = contour
             def setName(self, str):
                 self.name = str
             def setId(self, n):

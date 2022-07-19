@@ -159,3 +159,4 @@ Temporary Items
 *.html
 src2/online/trace_data.h5
 src/trace_data.h5
+src/tester.py

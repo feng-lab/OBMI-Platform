@@ -26,7 +26,6 @@ class VPlayer(QtCore.QThread):
         super().__init__(parent=parent)
         self.v_path = v_path
         self.total_frame = 0
-        self.total_length = 0
         self.present_frame = 0
         self.move_frame = 0 ## ui 내에서 처리?
         self.start_frame = 0
@@ -65,7 +64,6 @@ class VPlayer(QtCore.QThread):
         print('fps: ', self.fps)
 
         print('total_frame: ', self.total_frame)
-        print('lenght: ', self.total_length)
 
 
         print('init time: ', time.time() - t1)
@@ -156,7 +154,6 @@ class VPlayer(QtCore.QThread):
         num_images = 3024
         self.total_frame = num_images
         self.fps = 20
-        self.total_length = self.total_frame
         self.total_time = self.total_frame / self.fps
         tmp = Movie.from_tiff_images("Example movie", image_dir, num_images, subsample=1)
         tmp = tmp._data
@@ -170,10 +167,9 @@ class VPlayer(QtCore.QThread):
         self.capture = cv2.VideoCapture(self.v_path)
         print('fileopen', self.v_path)
         self.total_frame = self.capture.get(cv2.CAP_PROP_FRAME_COUNT)
-        self.total_length = self.capture.get(cv2.CAP_PROP_POS_MSEC)
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.total_time = self.total_frame / self.fps
-        print('tf, tl: ', self.total_frame, self.total_length)
+        print('tf: ', self.total_frame)
 
         print("load start")
         timer = time.time()
