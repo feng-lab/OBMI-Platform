@@ -8791,36 +8791,6 @@ Processing</string>
          <string notr="true">background-color: rgb(149, 149, 149);</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="exposureValueBCam_4">
-        <property name="geometry">
-         <rect>
-          <x>1330</x>
-          <y>30</y>
-          <width>47</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox_6">
-        <property name="geometry">
-         <rect>
-          <x>1330</x>
-          <y>60</y>
-          <width>76</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <item>
-         <property name="text">
-          <string>Round</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Freehand</string>
-         </property>
-        </item>
-       </widget>
        <widget class="QPushButton" name="connectBehaviorCameraButton_8">
         <property name="geometry">
          <rect>
@@ -8877,50 +8847,6 @@ ROI</string>
         <property name="text">
          <string>Real-time
 Process</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_166">
-        <property name="geometry">
-         <rect>
-          <x>1235</x>
-          <y>60</y>
-          <width>91</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Edge Shape:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_162">
-        <property name="geometry">
-         <rect>
-          <x>1235</x>
-          <y>30</y>
-          <width>91</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Neuron Size:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
        <widget class="QPushButton" name="pushButton_121">
@@ -8984,6 +8910,54 @@ Process</string>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
+       </widget>
+       <widget class="QLabel" name="label_318">
+        <property name="geometry">
+         <rect>
+          <x>1230</x>
+          <y>50</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Algorithm:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_23">
+        <property name="geometry">
+         <rect>
+          <x>1310</x>
+          <y>50</y>
+          <width>101</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="editable">
+         <bool>false</bool>
+        </property>
+        <property name="currentText">
+         <string>OnACID</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>OnACID</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>OnACID_mes</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="widget_82" native="true">
