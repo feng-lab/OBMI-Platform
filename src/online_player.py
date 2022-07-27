@@ -51,6 +51,9 @@ class OPlayer(QtCore.QThread):
         self.file_count = 1
         self.file_size = 5000
 
+        self.isAutoROI = False
+        self.autoROI = None
+
         self.cap_init()
 
         self.timer = QTimer(self)
@@ -79,6 +82,8 @@ class OPlayer(QtCore.QThread):
                 # capture.set(cv2.CAP_PROP_FPS, 30)
                 # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
 
+    def setAutoROI(self, cm):
+        self.autoROI = cm
 
     def updates(self):
         capture = self.capture
@@ -90,6 +95,7 @@ class OPlayer(QtCore.QThread):
         if not ret:
             if self.fakecapture:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                return
 
         if self.rtProcess:
             if self.status == VideoSavingStatus.STARTING:
@@ -140,9 +146,14 @@ class OPlayer(QtCore.QThread):
             print('MC time: ', t1 - t0)
 
         t2 = time.time()
+
+
         # print('1:',1/(time.time() - S))
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.frameG.emit(gray)
+
+        if self.isAutoROI:
+            self.autoROI.frame_process(gray.data)
 
         tmp_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.data_lock.lock()
@@ -164,9 +175,9 @@ class OPlayer(QtCore.QThread):
             self.timelist.append(ct)
             if len(self.timelist) > 100:
                 self.timelist.pop(0)
-            print('current fps:', 1 / tt)
-            print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
-            print('frame cycle time: ', tt)
+            # print('current fps:', 1 / tt)
+            # print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
+            # print('frame cycle time: ', tt)
 
         et = time.time()
         print('frame end: ', et)
@@ -184,6 +195,7 @@ class OPlayer(QtCore.QThread):
             #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
             capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
         self.exposure = int(capture.get(cv2.CAP_PROP_EXPOSURE))
         self.s_gain = int(capture.get(cv2.CAP_PROP_GAIN))
         self.hue_value = 0

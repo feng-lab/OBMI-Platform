@@ -2552,13 +2552,22 @@ class MainWindow(QMainWindow):
                 print('cancel')
 
     def onacid(self, param_list):
-        # if self.player2 is None:
-        #     return
+        if self.on_scope is None:
+            camera_ID = self.cameraID
+            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
+            if self.MC is not None:
+                self.on_scope.MC = self.MC
+            if self.on_template is not None:
+                self.on_scope.ged_template = self.on_template
+
+        # TODO：采集
 
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline()
+        self.on_scope.setAutoROI(cm)
+        self.on_scope.isAutoROI = True
 
     def onacidmes(self, param_list):
         # if self.player2 is None:
@@ -2568,6 +2577,8 @@ class MainWindow(QMainWindow):
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline()
+        self.on_scope.setAutoROI(cm)
+        self.on_scope.isAutoROI = True
 
     def addOnlineRoi(self, comps):
         for item in comps:

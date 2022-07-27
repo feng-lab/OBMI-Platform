@@ -58,7 +58,7 @@ class Caiman_OnACID(QtCore.QThread):
 
     def start_pipeline(self):
         pass  # For compatibility between running under Spyder and the CLI
-        # fname = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.tif')]
+        # fname = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
         fname = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
 
 

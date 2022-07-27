@@ -160,3 +160,6 @@ Temporary Items
 src2/online/trace_data.h5
 src/trace_data.h5
 src/tester.py
+src/Yr_d1_480_d2_752_d3_1_order_C_frames_200_.mmap
+*.mmap
+src/init_file.hdf5

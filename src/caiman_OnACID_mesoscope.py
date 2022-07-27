@@ -68,7 +68,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # fnames.append(download_demo('Tolias_mesoscope_1.hdf5', fld_name))
         # fnames.append(download_demo('Tolias_mesoscope_2.hdf5', fld_name))
         # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
-        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.tif')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
         fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
 
         # your list of files should look something like this
@@ -119,9 +119,11 @@ class Caiman_OnACID_mes(QtCore.QThread):
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
     # %% fit online
+        # TODO: capture
+        Y = (self.init_batch)
 
         cnm = cnmf.online_cnmf.OnACID(params=opts)
-        cnm.fit_online()
+        cnm.fit_online(Y)
 
     # %% plot contours (this may take time)
         logging.info('Number of components: ' + str(cnm.estimates.A.shape[-1]))
