@@ -46,6 +46,7 @@ import pandas as pd
 
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
+from ROI import ROI, ROIType
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -1786,6 +1787,7 @@ class MainWindow(QMainWindow):
             self.mnotice.exec_()
 
     # player initialization
+    # TODO: potential bugs, logic optimization req
     def startPlayer2(self):
         #video2 = cv2.VideoCapture(self.open_video_path)
         #video2_fps = video2.get(cv2.CAP_PROP_FPS)
@@ -2044,6 +2046,7 @@ class MainWindow(QMainWindow):
 
             self.check_ROI_add = True
 
+
         else:
             self.check_ROI_add = False
             self.roi_clicked.disconnect()
@@ -2057,6 +2060,14 @@ class MainWindow(QMainWindow):
         roi_circle = self.create_circle(colr, scenePos, size)
         self.player_scene2.addItem(roi_circle)
         self.roi_table.add_to_table(roi_circle, colr)
+
+    #
+    def addRoiPolygon(self, x, y, shape):
+        # shape: list of QPointF
+        colr = self.roi_table.randcolr()
+        roi_polygon = self.create_polygon(colr, x, y, shape)
+        self.player_scene2.addItem(roi_polygon)
+        self.roi_table.add_to_table(roi_polygon, colr)
 
     def deleteRoi(self):
         roi_circle = self.roi_table.deleteRoi()
@@ -2115,6 +2126,7 @@ class MainWindow(QMainWindow):
             self.hncc_roi()
 
     # auto ROI algorithm from CaImAn
+    # TODO: Caiman Alg. video loading optimization req
     def caimanpipe(self, param_list):
         if self.player2 is None:
             return
@@ -2147,9 +2159,10 @@ class MainWindow(QMainWindow):
             coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
             shapeY = coors.T[1]
-            size = max([max(shapeX)-min(shapeX), max(shapeY)-min(shapeY)])
-            pos = QtCore.QPointF(centX, centY)
-            self.addR(pos, size)
+            minx = min(shapeX)
+            miny = min(shapeY)
+            shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
+            self.addRoiPolygon(minx, miny, shape)
 
     # ------------------------------------------------------------------------
     #
@@ -2169,7 +2182,7 @@ class MainWindow(QMainWindow):
         brightlist = [] # store trace value
 
         for i in range(len(itemlist)-1, -1, -1):
-            if itemlist[i].__class__.__name__ == "ROIcircle":
+            if itemlist[i].__class__.__name__ == "ROI":
                 brightlist.append([])
             else:
                 itemlist.pop(i)
@@ -2229,8 +2242,8 @@ class MainWindow(QMainWindow):
     def getBrightness(self, frame, item):
         x = int(item.pos().x())
         y = int(item.pos().y())
-        width = int(item.rect().width())
-        height = int(item.rect().height())
+        width = int(item.boundingRect().width())
+        height = int(item.boundingRect().height())
 
         # extract gray value
         imgmat = frame[y:y + height, x:x + width]
@@ -2647,61 +2660,80 @@ class MainWindow(QMainWindow):
         widget.installEventFilter(filter)
         return filter.clicked
 
-    def create_circle(self, c, pos, size=-1, contour=[]):  ## circle 별도 class 만들어줄지
-        class ROIconnect(QObject):
-            selected = Signal(str)
-            moved = Signal(list)
-            sizeChange = Signal(int)
-        class ROIcircle(QtWidgets.QGraphicsEllipseItem):
-            def __init__(self, x, y, w, h):
-                super().__init__(x, y, w, h)
-                self.signals = ROIconnect()
-                self.id = 0
-                self.name = None
-                self.noise = None
-                self.mat = self.matUpdate()
-                self.contour = contour
-            def setName(self, str):
-                self.name = str
-            def setId(self, n):
-                self.id = n
-            def mousePressEvent(self, event):
-                super().mousePressEvent(event)
-                self.signals.selected.emit(self.name)
-            def mouseReleaseEvent(self, event):
-                super().mouseReleaseEvent(event)
-                x = self.pos().x()
-                y = self.pos().y()
-                self.signals.moved.emit([x,y])
-            def wheelEvent(self, event):
-                super().wheelEvent(event)
-                size = int(self.rect().width())
-                if event.delta() > 0:
-                    size += 1
-                else:
-                    size -= 1
-                self.setRect(0, 0, size, size)
-                self.signals.sizeChange.emit(size)
-                self.mat = self.matUpdate()
-            def matUpdate(self):
-                h = int(self.rect().height())
-                w = int(self.rect().width())
-                mat = np.zeros((h, w))
-                for i in range(h):
-                    for j in range(w):
-                        pt = QtCore.QPoint(j, i)
-                        if self.contains(pt):
-                            mat[i, j] = 1
-                self.noise = (mat.copy()-1)*(-1)
-                return mat
+    def create_circle(self, c, pos, size=30):  ## circle 별도 class 만들어줄지
         r, g, b = c
         # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
-        roi_circle = ROIcircle(0, 0, size, size)
-        roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 2, Qt.SolidLine))
+        roi_circle = ROI(type=ROIType.CIRCLE, size=size)
+        roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 1, Qt.SolidLine))
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
         roi_circle.setPos(pos.x()-size/2, pos.y()-size/2)
         return roi_circle
+
+    def create_polygon(self, c, x, y, shape):
+        r, g, b = c
+        roi_polygon = ROI(type=ROIType.POLYGON, shape=shape)
+        roi_polygon.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 1, Qt.SolidLine))
+        roi_polygon.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        roi_polygon.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
+        roi_polygon.setPos(x, y)
+        return roi_polygon
+
+    # old version
+    # def create_circle(self, c, pos, size=30):  ## circle 별도 class 만들어줄지
+    #     class ROIconnect(QObject):
+    #         selected = Signal(str)
+    #         moved = Signal(list)
+    #         sizeChange = Signal(int)
+    #     class ROIcircle(QtWidgets.QGraphicsEllipseItem):
+    #         def __init__(self, x, y, w, h):
+    #             super().__init__(x, y, w, h)
+    #             self.signals = ROIconnect()
+    #             self.id = 0
+    #             self.name = None
+    #             self.noise = None
+    #             self.mat = self.matUpdate()
+    #         def setName(self, str):
+    #             self.name = str
+    #         def setId(self, n):
+    #             self.id = n
+    #         def mousePressEvent(self, event):
+    #             super().mousePressEvent(event)
+    #             self.signals.selected.emit(self.name)
+    #         def mouseReleaseEvent(self, event):
+    #             super().mouseReleaseEvent(event)
+    #             x = self.pos().x()
+    #             y = self.pos().y()
+    #             self.signals.moved.emit([x,y])
+    #         def wheelEvent(self, event):
+    #             super().wheelEvent(event)
+    #             size = int(self.rect().width())
+    #             if event.delta() > 0:
+    #                 size += 1
+    #             else:
+    #                 size -= 1
+    #             self.setRect(0, 0, size, size)
+    #             self.signals.sizeChange.emit(size)
+    #             self.mat = self.matUpdate()
+    #         def matUpdate(self):
+    #             h = int(self.rect().height())
+    #             w = int(self.rect().width())
+    #             mat = np.zeros((h, w))
+    #             for i in range(h):
+    #                 for j in range(w):
+    #                     pt = QtCore.QPoint(j, i)
+    #                     if self.contains(pt):
+    #                         mat[i, j] = 1
+    #             self.noise = (mat.copy()-1)*(-1)
+    #             return mat
+    #     r, g, b = c
+    #     # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
+    #     roi_circle = ROIcircle(0, 0, size, size)
+    #     roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 2, Qt.SolidLine))
+    #     roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+    #     roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
+    #     roi_circle.setPos(pos.x()-size/2, pos.y()-size/2)
+    #     return roi_circle
 
     #########################################################################
     #                                                                       #

@@ -7,6 +7,9 @@ import numpy as np
 from PySide2 import QtGui, QtCore
 import re
 
+from ROI import ROIType
+
+
 class Table(QWidget):
     def __init__(self, type, parent=None):
         super().__init__(parent)
@@ -70,7 +73,9 @@ class Table(QWidget):
             return
 
         row = self.table.currentRow()
-        self.itemlist[row].setRect(0, 0, int(value), int(value))
+        item = self.itemlist[row]
+        if item.type == ROIType.CIRCLE:
+            item.circleSizeChange(int(value))
 
 
     def value_changed(self, item):
@@ -103,7 +108,7 @@ class Table(QWidget):
                     item.setText(posstr)
             if column == 3:
                 col = item.backgroundColor()
-                self.itemlist[row].setPen(QtGui.QPen(QtGui.QColor(col), 2, Qt.SolidLine))
+                self.itemlist[row].setPen(QtGui.QPen(QtGui.QColor(col), 1, Qt.SolidLine))
 
 
     def __make_table(self):
@@ -114,7 +119,7 @@ class Table(QWidget):
         self.table.setColumnCount(4)
         self.table.setRowCount(0)
 
-        self.table.setHorizontalHeaderLabels(['V','name', 'xy','C'])
+        self.table.setHorizontalHeaderLabels(['Visible','Name', 'Position','Color'])
         self.table.horizontalHeaderItem(0).setToolTip('set visible/hide...')         
 
         self.table.setColumnWidth(0, 20) # v
@@ -160,7 +165,10 @@ class Table(QWidget):
         self.editlock = True
         self.spinboxX.setValue(int(pos.x()))
         self.spinboxY.setValue(int(pos.y()))
-        self.spinboxSize.setValue(int(item.rect().width()))
+        if item.type == ROIType.CIRCLE:
+            self.spinboxSize.setValue(int(item.boundingRect().width()))
+        else:
+            self.spinboxSize.setValue(0)
         self.editlock = False
         print(pos)
 
