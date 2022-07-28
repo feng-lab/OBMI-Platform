@@ -56,7 +56,7 @@ class Caiman_OnACID(QtCore.QThread):
         self.stride = param_list[10]  # amount of overlap between patches
         self.K = param_list[11]  # max number of components in each patch
 
-    def start_pipeline(self):
+    def start_pipeline(self, frames):
         pass  # For compatibility between running under Spyder and the CLI
         # fname = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
         fname = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
@@ -95,7 +95,7 @@ class Caiman_OnACID(QtCore.QThread):
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
         cnm = cnmf.online_cnmf.OnACID(params=opts)
-        cnm.fit_online()
+        cnm.fit_online(frames)
         cnm.dims = dims
         comps = get_contours(cnm.estimates.A, dims)
 

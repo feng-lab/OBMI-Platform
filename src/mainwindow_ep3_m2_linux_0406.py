@@ -89,6 +89,8 @@ class MainWindow(QMainWindow):
         self.roi_clicked = None
         self.data_lock = QtCore.QMutex()  # thread-vari.
 
+        self.MC = None
+
         ## Behavior Camera Connection
         self.ui.connectBehaviorCameraButton.clicked.connect(self.connect_behavior_camera_button_clicked)
         self.ui.recordButton.clicked.connect(self.recording_start_stop)
@@ -2556,23 +2558,39 @@ class MainWindow(QMainWindow):
         if self.on_scope is None:
             camera_ID = self.cameraID
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
-            if self.MC is not None:
+            if self.MC and self.on_template:
                 self.on_scope.MC = self.MC
-            if self.on_template is not None:
                 self.on_scope.ged_template = self.on_template
 
-        # TODO：采集
+        init_batch = param_list[8]
+        frames = []
+        for i in range(init_batch):
+            ret, frame = self.on_scope.capture.read()
+            frames.append(frame.data)
+        frames = np.array(frames)
 
+        print(frames)
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
-        cm.start_pipeline()
+        cm.start_pipeline(frames)
         self.on_scope.setAutoROI(cm)
         self.on_scope.isAutoROI = True
 
     def onacidmes(self, param_list):
-        # if self.player2 is None:
-        #     return
+        if self.on_scope is None:
+            camera_ID = self.cameraID
+            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
+            if self.MC and self.on_template:
+                self.on_scope.MC = self.MC
+                self.on_scope.ged_template = self.on_template
+
+        init_batch = param_list[11]
+        frames = []
+        for i in range(init_batch):
+            ret, frame = self.on_scope.capture.read()
+            frames.append(frame.data)
+        frames = np.array(frames)
 
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)

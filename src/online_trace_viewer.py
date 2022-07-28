@@ -90,7 +90,8 @@ class OnTraceviewer(QWidget):
                 if noise_avg != 0:
                     avg = avg / noise_avg
 
-            data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
+            #data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
+            data[i] = np.array([item.id, x, y, item.getContuor(), avg])
 
             if i < 5:
                 chart = self.chartlist[i].chart()
@@ -102,11 +103,12 @@ class OnTraceviewer(QWidget):
                         chart.axisX().setMin(self.frame_count + 1 - 499)
                         if chart.series()[0].count() > 500:
                             chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
-                    #chart.axisY().max
+                    if avg > chart.axisY().max():
+                        chart.axisY().setMax(avg)
 
         t2 = time.time()
         str = f'{self.frame_count:06}'
-        with h5py.File('trace_data.h5', 'a') as f:
+        with h5py.File('trace_data_2.h5', 'a') as f:
             g = f.create_group(str)
             g["image"] = img
             g["data"] = data

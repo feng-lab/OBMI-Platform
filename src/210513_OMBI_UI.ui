@@ -3810,6 +3810,9 @@ Connect</string>
                 <height>23</height>
                </rect>
               </property>
+              <property name="maximum">
+               <number>255</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -3974,6 +3977,9 @@ Connect</string>
                 <width>173</width>
                 <height>23</height>
                </rect>
+              </property>
+              <property name="maximum">
+               <number>255</number>
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -8103,6 +8109,9 @@ border-color: rgb(0, 0, 0);</string>
           <height>11</height>
          </size>
         </property>
+        <property name="maximum">
+         <number>255</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -8190,6 +8199,9 @@ border-color: rgb(0, 0, 0);</string>
         </property>
         <property name="cursor">
          <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="maximum">
+         <number>255</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

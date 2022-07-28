@@ -187,6 +187,9 @@ class OPlayer(QtCore.QThread):
         # else:
         #     self.timer.setInterval(int(delay))
 
+    def ROIupdate(self):
+        # TODO: 获取数据
+        pass
 
     def run(self):
         capture = cv2.VideoCapture(self.c_number, cv2.CAP_DSHOW)

@@ -351,6 +351,7 @@ class CaptureThread(QtCore.QThread):
         exp_value = exp_value / 64 * 255
         # cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
         cap.set(cv2.CAP_PROP_BRIGHTNESS, exp_value)
+        cap.set(cv2.CAP_PROP_EXPOSURE, exp_value)
         print('changed exposure: ', cap.get(cv2.CAP_PROP_EXPOSURE))
         # print(cap.get(cv2.CAP_PROP_BRIGHTNESS))
         # print("change", cap.get(cv2.CAP_PROP_EXPOSURE))
