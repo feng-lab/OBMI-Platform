@@ -46,7 +46,7 @@ class OPlayer(QtCore.QThread):
         self.total_frame = 0
         self.s_timer = 0
 
-        self.fakecapture = True
+        self.fakecapture = False
         self.file_save = False
         self.file_count = 1
         self.file_size = 5000
@@ -64,7 +64,7 @@ class OPlayer(QtCore.QThread):
         self.timelist = []
 
     def cap_init(self):
-        # self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
+        self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         if self.fakecapture:
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")

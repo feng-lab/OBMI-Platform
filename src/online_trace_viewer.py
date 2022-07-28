@@ -70,8 +70,8 @@ class OnTraceviewer(QWidget):
             item = self.itemlist[i]
             x = int(item.pos().x())
             y = int(item.pos().y())
-            width = int(item.rect().width())
-            height = int(item.rect().height())
+            width = int(item.boundingRect().width())
+            height = int(item.boundingRect().height())
 
             # extract gray value
             imgmat = img[y:y+height, x:x+width]
@@ -91,6 +91,18 @@ class OnTraceviewer(QWidget):
                     avg = avg / noise_avg
 
             data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
+
+            if i < 5:
+                chart = self.chartlist[i].chart()
+                chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
+                if not self.pause:
+                    chart.axisX().setMax(self.frame_count + 1)
+                    self.chartlist[i].max = self.frame_count + 1
+                    if self.frame_count + 1 > 500:
+                        chart.axisX().setMin(self.frame_count + 1 - 499)
+                        if chart.series()[0].count() > 500:
+                            chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
+                    #chart.axisY().max
 
         t2 = time.time()
         str = f'{self.frame_count:06}'
@@ -243,7 +255,7 @@ class OnTraceviewer(QWidget):
 
         # axis setting
         axisY = QtCharts.QValueAxis()
-        axisY.setRange(0, 255)
+        axisY.setRange(0, 0.1)
         #axisY.setVisible(False)
         axisY.setTickCount(2)
         axisY.setLabelFormat("%d")

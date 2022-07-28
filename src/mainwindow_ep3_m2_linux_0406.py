@@ -2257,6 +2257,7 @@ class MainWindow(QMainWindow):
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
 
+
             if self.timermode:
                 self.on_scope.timer.start()
             else:
