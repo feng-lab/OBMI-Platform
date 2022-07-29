@@ -2595,7 +2595,7 @@ class MainWindow(QMainWindow):
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
-        cm.start_pipeline()
+        cm.start_pipeline(frames)
         self.on_scope.setAutoROI(cm)
         self.on_scope.isAutoROI = True
 
