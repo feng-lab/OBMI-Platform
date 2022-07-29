@@ -2566,10 +2566,10 @@ class MainWindow(QMainWindow):
         frames = []
         for i in range(init_batch):
             ret, frame = self.on_scope.capture.read()
-            frames.append(frame.data)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frames.append(frame.data.obj)
         frames = np.array(frames)
 
-        print(frames)
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
@@ -2589,15 +2589,18 @@ class MainWindow(QMainWindow):
         frames = []
         for i in range(init_batch):
             ret, frame = self.on_scope.capture.read()
-            frames.append(frame.data)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frames.append(frame.data.obj)
         frames = np.array(frames)
 
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
         cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline(frames)
-        self.on_scope.setAutoROI(cm)
+        self.on_scope.setAutoROI(cm.online_runner)
+        self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
+        print('Auto ROI init done')
 
     def addOnlineRoi(self, comps):
         for item in comps:
@@ -2630,6 +2633,17 @@ class MainWindow(QMainWindow):
             self.on_roi_clicked = None
             self.onplayer_scene.removeEventFilter(self.on_filter)
 
+    def addAutoOnRoi(self, comps):
+        for item in comps:
+            coors = item['coordinates']
+            coors = coors[~np.isnan(coors).any(axis=1)]
+            shapeX = coors.T[0]
+            shapeY = coors.T[1]
+            minx = min(shapeX)
+            miny = min(shapeY)
+            shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
+            self.addOnRoiPolygon(minx, miny, shape)
+
     # Online Tab add ROI
     def addOnR(self, scenePos, size=30):
         colr = self.onroi_table.randcolr()
@@ -2637,6 +2651,14 @@ class MainWindow(QMainWindow):
         self.onplayer_scene.addItem(roi_circle)
         self.onroi_table.add_to_table(roi_circle, colr)
         self.ontrace_viewer.add_trace(roi_circle)
+
+    # Online Tab add ROI Polygon
+    def addOnRoiPolygon(self, x, y, shape):
+        # shape: list of QPointF
+        colr = self.onroi_table.randcolr()
+        roi_polygon = self.create_polygon(colr, x, y, shape)
+        self.onplayer_scene.addItem(roi_polygon)
+        self.onroi_table.add_to_table(roi_polygon, colr)
 
     def deleteOnRoi(self):
         roi_circle = self.onroi_table.deleteRoi()

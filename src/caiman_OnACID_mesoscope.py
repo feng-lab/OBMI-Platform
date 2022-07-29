@@ -28,6 +28,8 @@ from caiman.utils.utils import download_demo
 from PySide2 import QtCore
 from caiman.utils.visualization import get_contours
 
+from src.caiman_online_runner import OnlineRunner
+
 
 class Caiman_OnACID_mes(QtCore.QThread):
     roi_pos = QtCore.Signal(list)
@@ -59,7 +61,9 @@ class Caiman_OnACID_mes(QtCore.QThread):
         self.epochs = param_list[13]  # number of passes over the data
         self.show_movie = param_list[14]  # show the movie as the data gets processed
 
-    def start_pipeline(self):
+        self.online_runner = None
+
+    def start_pipeline(self, frames):
         pass # For compatibility between running under Spyder and the CLI
 
         # folder inside ./example_movies where files will be saved
@@ -69,10 +73,10 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # fnames.append(download_demo('Tolias_mesoscope_2.hdf5', fld_name))
         # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
-        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
+        #fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
 
         # your list of files should look something like this
-        logging.info(fnames)
+        #logging.info(fnames)
 
         # %%   Set up some parameters
         # fr = 15  # frame rate (Hz)
@@ -95,7 +99,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # epochs = 1  # number of passes over the data
         # show_movie = False  # show the movie as the data gets processed
 
-        params_dict = {'fnames': fnames,
+        params_dict = {
                        'fr': self.fr,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
@@ -119,88 +123,87 @@ class Caiman_OnACID_mes(QtCore.QThread):
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
     # %% fit online
-        # TODO: capture
-        Y = (self.init_batch)
-
         cnm = cnmf.online_cnmf.OnACID(params=opts)
-        cnm.fit_online(Y)
 
-    # %% plot contours (this may take time)
-        logging.info('Number of components: ' + str(cnm.estimates.A.shape[-1]))
-        images = cm.load(fnames)
-        Cn = images.local_correlations(swap_dim=False, frames_per_chunk=500)
-        # cnm.estimates.plot_contours(img=Cn, display_numbers=False)
+        self.online_runner = OnlineRunner(cnm, frames)
+        self.online_runner.fit_online()
 
-    # %% view components
-    #     cnm.estimates.view_components(img=Cn)
-
-    # %% plot timing performance (if a movie is generated during processing, timing
-    # will be severely over-estimated)
-
-        # T_motion = 1e3*np.array(cnm.t_motion)
-        # T_detect = 1e3*np.array(cnm.t_detect)
-        # T_shapes = 1e3*np.array(cnm.t_shapes)
-        # T_track = 1e3*np.array(cnm.t_online) - T_motion - T_detect - T_shapes
-        # plt.figure()
-        # plt.stackplot(np.arange(len(T_motion)), T_motion, T_track, T_detect, T_shapes)
-        # plt.legend(labels=['motion', 'tracking', 'detect', 'shapes'], loc=2)
-        # plt.title('Processing time allocation')
-        # plt.xlabel('Frame #')
-        # plt.ylabel('Processing time [ms]')
-    #%% RUN IF YOU WANT TO VISUALIZE THE RESULTS (might take time)
-        c, dview, n_processes = \
-            cm.cluster.setup_cluster(backend='local', n_processes=None,
-                                     single_thread=False)
-        if opts.online['motion_correct']:
-            shifts = cnm.estimates.shifts[-cnm.estimates.C.shape[-1]:]
-            if not opts.motion['pw_rigid']:
-                memmap_file = cm.motion_correction.apply_shift_online(images, shifts,
-                                                            save_base_name='MC')
-            else:
-                mc = cm.motion_correction.MotionCorrect(fnames, dview=dview,
-                                                        **opts.get_group('motion'))
-
-                mc.y_shifts_els = [[sx[0] for sx in sh] for sh in shifts]
-                mc.x_shifts_els = [[sx[1] for sx in sh] for sh in shifts]
-                memmap_file = mc.apply_shifts_movie(fnames, rigid_shifts=False,
-                                                    save_memmap=True,
-                                                    save_base_name='MC')
-        else:  # To do: apply non-rigid shifts on the fly
-            memmap_file = images.save(fnames[0][:-4] + 'mmap')
-        cnm.mmap_file = memmap_file
-        Yr, dims, T = cm.load_memmap(memmap_file)
-
-        images = np.reshape(Yr.T, [T] + list(dims), order='F')
-        min_SNR = 2  # peak SNR for accepted components (if above this, acept)
-        rval_thr = 0.85  # space correlation threshold (if above this, accept)
-        use_cnn = True  # use the CNN classifier
-        min_cnn_thr = 0.99  # if cnn classifier predicts below this value, reject
-        cnn_lowest = 0.1  # neurons with cnn probability lower than this value are rejected
-
-        cnm.params.set('quality',   {'min_SNR': min_SNR,
-                                    'rval_thr': rval_thr,
-                                    'use_cnn': use_cnn,
-                                    'min_cnn_thr': min_cnn_thr,
-                                    'cnn_lowest': cnn_lowest})
-
-        cnm.estimates.evaluate_components(images, cnm.params, dview=dview)
-        cnm.estimates.Cn = Cn
-        # cnm.save(os.path.splitext(fnames[0])[0]+'_results.hdf5')
-
-        dview.terminate()
-
-        print(' ***** ')
-        print('Number of total components: ', len(cnm.estimates.C))
-        print('Number of accepted components: ', len(cnm.estimates.idx_components))
-        comps = get_contours(cnm.estimates.A, dims)
-
-        cnm.dims = dims
-        display_images = True  # Set to true to show movies and images
-        if display_images:
-            cnm.estimates.plot_contours(img=Cn, display_numbers=False)
-            cnm.estimates.view_components(img=Cn)
-
-        # print('Auto ROI processing time: ', time.time() - start_time)
-        for i in range(len(cnm.estimates.idx_components_bad) - 1, -1, -1):
-            comps.pop(cnm.estimates.idx_components_bad[i])
-        self.roi_pos.emit(comps)
+    # # %% plot contours (this may take time)
+    #     logging.info('Number of components: ' + str(cnm.estimates.A.shape[-1]))
+    #     images = cm.load(fnames)
+    #     Cn = images.local_correlations(swap_dim=False, frames_per_chunk=500)
+    #     # cnm.estimates.plot_contours(img=Cn, display_numbers=False)
+    #
+    # # %% view components
+    # #     cnm.estimates.view_components(img=Cn)
+    #
+    # # %% plot timing performance (if a movie is generated during processing, timing
+    # # will be severely over-estimated)
+    #
+    #     # T_motion = 1e3*np.array(cnm.t_motion)
+    #     # T_detect = 1e3*np.array(cnm.t_detect)
+    #     # T_shapes = 1e3*np.array(cnm.t_shapes)
+    #     # T_track = 1e3*np.array(cnm.t_online) - T_motion - T_detect - T_shapes
+    #     # plt.figure()
+    #     # plt.stackplot(np.arange(len(T_motion)), T_motion, T_track, T_detect, T_shapes)
+    #     # plt.legend(labels=['motion', 'tracking', 'detect', 'shapes'], loc=2)
+    #     # plt.title('Processing time allocation')
+    #     # plt.xlabel('Frame #')
+    #     # plt.ylabel('Processing time [ms]')
+    # #%% RUN IF YOU WANT TO VISUALIZE THE RESULTS (might take time)
+    #     c, dview, n_processes = \
+    #         cm.cluster.setup_cluster(backend='local', n_processes=None,
+    #                                  single_thread=False)
+    #     if opts.online['motion_correct']:
+    #         shifts = cnm.estimates.shifts[-cnm.estimates.C.shape[-1]:]
+    #         if not opts.motion['pw_rigid']:
+    #             memmap_file = cm.motion_correction.apply_shift_online(images, shifts,
+    #                                                         save_base_name='MC')
+    #         else:
+    #             mc = cm.motion_correction.MotionCorrect(fnames, dview=dview,
+    #                                                     **opts.get_group('motion'))
+    #
+    #             mc.y_shifts_els = [[sx[0] for sx in sh] for sh in shifts]
+    #             mc.x_shifts_els = [[sx[1] for sx in sh] for sh in shifts]
+    #             memmap_file = mc.apply_shifts_movie(fnames, rigid_shifts=False,
+    #                                                 save_memmap=True,
+    #                                                 save_base_name='MC')
+    #     else:  # To do: apply non-rigid shifts on the fly
+    #         memmap_file = images.save(fnames[0][:-4] + 'mmap')
+    #     cnm.mmap_file = memmap_file
+    #     Yr, dims, T = cm.load_memmap(memmap_file)
+    #
+    #     images = np.reshape(Yr.T, [T] + list(dims), order='F')
+    #     min_SNR = 2  # peak SNR for accepted components (if above this, acept)
+    #     rval_thr = 0.85  # space correlation threshold (if above this, accept)
+    #     use_cnn = True  # use the CNN classifier
+    #     min_cnn_thr = 0.99  # if cnn classifier predicts below this value, reject
+    #     cnn_lowest = 0.1  # neurons with cnn probability lower than this value are rejected
+    #
+    #     cnm.params.set('quality',   {'min_SNR': min_SNR,
+    #                                 'rval_thr': rval_thr,
+    #                                 'use_cnn': use_cnn,
+    #                                 'min_cnn_thr': min_cnn_thr,
+    #                                 'cnn_lowest': cnn_lowest})
+    #
+    #     cnm.estimates.evaluate_components(images, cnm.params, dview=dview)
+    #     cnm.estimates.Cn = Cn
+    #     # cnm.save(os.path.splitext(fnames[0])[0]+'_results.hdf5')
+    #
+    #     dview.terminate()
+    #
+    #     print(' ***** ')
+    #     print('Number of total components: ', len(cnm.estimates.C))
+    #     print('Number of accepted components: ', len(cnm.estimates.idx_components))
+    #     comps = get_contours(cnm.estimates.A, dims)
+    #
+    #     cnm.dims = dims
+    #     display_images = True  # Set to true to show movies and images
+    #     if display_images:
+    #         cnm.estimates.plot_contours(img=Cn, display_numbers=False)
+    #         cnm.estimates.view_components(img=Cn)
+    #
+    #     # print('Auto ROI processing time: ', time.time() - start_time)
+    #     for i in range(len(cnm.estimates.idx_components_bad) - 1, -1, -1):
+    #         comps.pop(cnm.estimates.idx_components_bad[i])
+    #     self.roi_pos.emit(comps)

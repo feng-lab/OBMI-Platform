@@ -1,20 +1,29 @@
 import logging
 from datetime import time
+from multiprocessing import cpu_count
 
 import caiman
 import cv2
 import numpy as np
+from caiman import mmapping
+from caiman.motion_correction import sliding_window
 from caiman.source_extraction import cnmf as cnmf
 
 ## Helper class for running online CNMF pipeline
+from caiman.source_extraction.cnmf import CNMF
+from caiman.source_extraction.cnmf.online_cnmf import bare_initialization, seeded_initialization
+from caiman.source_extraction.cnmf.pre_processing import get_noise_fft
+from caiman.source_extraction.cnmf.utilities import get_file_size
 from numpy import hstack
 from typing import List, Tuple
 from scipy.sparse import csc_matrix, coo_matrix
 
 
+
 class OnlineRunner():
-    def __init__(self, cnmf):
+    def __init__(self, cnmf, Y):
         self.cnmf = cnmf
+        self.Y = Y
         self.model_LN = None
         self.epochs = 1
         self.t = 0
@@ -26,7 +35,6 @@ class OnlineRunner():
 
         logging.info(f"Searching for new components set to: {self.cnmf.params.get('online', 'update_num_comps')}")
 
-        old_comps = self.cnmf.N  # number of existing components
         if model_LN is not None:
             if self.cnmf.params.get('ring_CNN', 'remove_activity'):
                 activity = self.cnmf.estimates.Ab[:, :self.cnmf.N].dot(
@@ -69,11 +77,23 @@ class OnlineRunner():
 
         self.t += 1
         self.cnmf.Ab_epoch.append(self.cnmf.estimates.Ab.copy())
+        print('success, number of ROI: ', self.cnmf.N)
+
+        if self.cnmf.params.get('online', 'normalize'):
+            Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
+                self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]))
+        self.cnmf.estimates.A, _ = Ab[:, self.cnmf.params.get('init', 'nb'):], Ab[:, :self.cnmf.params.get('init', 'nb')].toarray()
+        if self.cnmf.params.get('online', 'ds_factor') > 1:
+            dims = frame.shape
+            self.cnmf.estimates.A = hstack(
+                [coo_matrix(cv2.resize(self.cnmf.estimates.A[:, i].reshape(self.cnmf.estimates.dims, order='F').toarray(),
+                                       dims[::-1]).reshape(-1, order='F')[:, None]) for i in range(self.cnmf.N)],
+                format='csc')
+
 
     # replace original fit_online in online_cnmf.py
     def fit_online(self, **kwargs):
 
-        fls = self.cnmf.params.get('data', 'fnames')
         init_batch = self.cnmf.params.get('online', 'init_batch')
         self.t = init_batch
         if self.cnmf.params.get('online', 'ring_CNN'):
@@ -91,9 +111,11 @@ class OnlineRunner():
             else:
                 sch = rate_scheduler(*self.cnmf.params.get('ring_CNN', 'lr_scheduler'))
 
-            ## TODO: 替换
-            Y = caiman.base.movies.load(fls[0], subindices=slice(init_batch),
-                                        var_name_hdf5=self.cnmf.params.get('data', 'var_name_hdf5'))
+            # ## TODO: 替换
+            # Y = caiman.base.movies.load(fls[0], subindices=slice(init_batch),
+            #                             var_name_hdf5=self.cnmf.params.get('data', 'var_name_hdf5'))
+            Y = self.Y
+
             shape = Y.shape[1:] + (1,)
             logging.info('Starting background model training.')
             model_LN = create_LN_model(Y, shape=shape, n_channels=nch,
@@ -116,11 +138,13 @@ class OnlineRunner():
             model_LN = None
         self.model_LN = model_LN
         self.epochs = self.cnmf.params.get('online', 'epochs')
-        self.cnmf.initialize_online(model_LN=model_LN)
+        self.initialize_online(model_LN=model_LN)
+        self.cnmf.Ab_epoch: List = []
 
 
 
-
+        # t = self.t
+        # epochs = 1
         # if self.cnmf.params.get('online', 'normalize'):
         #     self.cnmf.estimates.Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
         #         self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]))
@@ -144,7 +168,7 @@ class OnlineRunner():
         #     self.cnmf.estimates.bl = [0] * self.cnmf.estimates.C.shape[0]
         #     self.cnmf.estimates.S = np.zeros_like(self.cnmf.estimates.C)
         # if self.cnmf.params.get('online', 'ds_factor') > 1:
-        #     dims = frame.shape
+        #     dims = Y.shape[1:]
         #     self.cnmf.estimates.A = hstack(
         #         [coo_matrix(cv2.resize(self.cnmf.estimates.A[:, i].reshape(self.cnmf.estimates.dims, order='F').toarray(),
         #                                dims[::-1]).reshape(-1, order='F')[:, None]) for i in range(self.cnmf.N)],
@@ -163,8 +187,111 @@ class OnlineRunner():
         #     self.cnmf.params.set('data', {'dims': dims})
         #     self.cnmf.estimates.dims = dims
         #
-        # self.cnmf.t_online = t_online
         # self.cnmf.estimates.C_on = self.cnmf.estimates.C_on[:self.cnmf.M]
         # self.cnmf.estimates.noisyC = self.cnmf.estimates.noisyC[:self.cnmf.M]
+
+        return self
+
+    def initialize_online(self, model_LN=None, T=None):
+
+        opts = self.cnmf.params.get_group('online')
+        Y = caiman.movie(self.Y.astype(np.float32))
+
+        if model_LN is not None:
+            Y = Y - caiman.movie(np.squeeze(model_LN.predict(np.expand_dims(Y, -1))))
+            Y = np.maximum(Y, 0)
+        # Downsample if needed
+        ds_factor = np.maximum(opts['ds_factor'], 1)
+        if ds_factor > 1:
+            Y = Y.resize(1./ds_factor, 1./ds_factor)
+        self.cnmf.estimates.shifts = []  # store motion shifts here
+        self.cnmf.estimates.time_new_comp = []
+        img_min = Y.min()
+
+        if self.cnmf.params.get('online', 'normalize'):
+            Y -= img_min
+        img_norm = np.std(Y, axis=0)
+        img_norm += np.median(img_norm)  # normalize data to equalize the FOV
+        logging.info('Frame size:' + str(img_norm.shape))
+        if self.cnmf.params.get('online', 'normalize'):
+            Y = Y/img_norm[None, :, :]
+        if opts['show_movie']:
+            self.cnmf.bnd_Y = np.percentile(Y,(0.001,100-0.001))
+        _, d1, d2 = Y.shape
+        Yr = Y.to_2D().T        # convert data into 2D array
+        self.cnmf.img_min = img_min
+        self.cnmf.img_norm = img_norm
+        if self.cnmf.params.get('online', 'init_method') == 'bare':
+            init = self.cnmf.params.get_group('init').copy()
+            is1p = (init['method_init'] == 'corr_pnr' and  init['ring_size_factor'] is not None)
+            if is1p:
+                self.cnmf.estimates.sn, psx = get_noise_fft(
+                    Yr, noise_range=self.cnmf.params.get('preprocess', 'noise_range'),
+                    noise_method=self.cnmf.params.get('preprocess', 'noise_method'),
+                    max_num_samples_fft=self.cnmf.params.get('preprocess', 'max_num_samples_fft'))
+            for key in ('K', 'nb', 'gSig', 'method_init'):
+                init.pop(key, None)
+            tmp = bare_initialization(
+                Y.transpose(1, 2, 0), init_batch=self.cnmf.params.get('online', 'init_batch'),
+                k=self.cnmf.params.get('init', 'K'), gnb=self.cnmf.params.get('init', 'nb'),
+                method_init=self.cnmf.params.get('init', 'method_init'), sn=self.cnmf.estimates.sn,
+                gSig=self.cnmf.params.get('init', 'gSig'), return_object=False,
+                options_total=self.cnmf.params.to_dict(), **init)
+            if is1p:
+                (self.cnmf.estimates.A, self.cnmf.estimates.b, self.cnmf.estimates.C, self.cnmf.estimates.f,
+                 self.cnmf.estimates.YrA, self.cnmf.estimates.W, self.cnmf.estimates.b0) = tmp
+            else:
+                (self.cnmf.estimates.A, self.cnmf.estimates.b, self.cnmf.estimates.C, self.cnmf.estimates.f,
+                 self.cnmf.estimates.YrA) = tmp
+            self.cnmf.estimates.S = np.zeros_like(self.cnmf.estimates.C)
+            nr = self.cnmf.estimates.C.shape[0]
+            self.cnmf.estimates.g = np.array([-np.poly([0.9] * max(self.cnmf.params.get('preprocess', 'p'), 1))[1:]
+                               for gg in np.ones(nr)])
+            self.cnmf.estimates.bl = np.zeros(nr)
+            self.cnmf.estimates.c1 = np.zeros(nr)
+            self.cnmf.estimates.neurons_sn = np.std(self.cnmf.estimates.YrA, axis=-1)
+            self.cnmf.estimates.lam = np.zeros(nr)
+        elif self.cnmf.params.get('online', 'init_method') == 'cnmf':
+            n_processes = cpu_count() - 1 or 1
+            cnm = CNMF(n_processes=n_processes, params=self.cnmf.params, dview=self.cnmf.dview)
+            cnm.estimates.shifts = self.cnmf.estimates.shifts
+            if self.cnmf.params.get('patch', 'rf') is None:
+                cnm.dview = None
+                cnm.fit(np.array(Y))
+                self.cnmf.estimates = cnm.estimates
+
+            else:
+                Y.save(caiman.paths.fn_relocated('init_file.hdf5'))
+                f_new = mmapping.save_memmap(['init_file.hdf5'], base_name='Yr', order='C',
+                                             slices=[slice(0, opts['init_batch']), None, None])
+
+                Yrm, dims_, T_ = mmapping.load_memmap(f_new)
+                Y = np.reshape(Yrm.T, [T_] + list(dims_), order='F')
+                cnm.fit(Y)
+                self.cnmf.estimates = cnm.estimates
+                if self.cnmf.params.get('online', 'normalize'):
+                    self.cnmf.estimates.A /= self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]
+                    self.cnmf.estimates.b /= self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]
+                    self.cnmf.estimates.A = csc_matrix(self.cnmf.estimates.A)
+
+        elif self.cnmf.params.get('online', 'init_method') == 'seeded':
+            self.cnmf.estimates.A, self.cnmf.estimates.b, self.cnmf.estimates.C, self.cnmf.estimates.f, self.cnmf.estimates.YrA = seeded_initialization(
+                    Y.transpose(1, 2, 0), self.cnmf.estimates.A, gnb=self.cnmf.params.get('init', 'nb'), k=self.cnmf.params.get('init', 'K'),
+                    gSig=self.cnmf.params.get('init', 'gSig'), return_object=False)
+            self.cnmf.estimates.S = np.zeros_like(self.cnmf.estimates.C)
+            nr = self.cnmf.estimates.C.shape[0]
+            self.cnmf.estimates.g = np.array([-np.poly([0.9] * max(self.cnmf.params.get('preprocess', 'p'), 1))[1:]
+                               for gg in np.ones(nr)])
+            self.cnmf.estimates.bl = np.zeros(nr)
+            self.cnmf.estimates.c1 = np.zeros(nr)
+            self.cnmf.estimates.neurons_sn = np.std(self.cnmf.estimates.YrA, axis=-1)
+            self.cnmf.estimates.lam = np.zeros(nr)
+        else:
+            raise Exception('Unknown initialization method!')
+        dims = Y.shape[1:]
+        self.cnmf.params.set('data', {'dims': dims})
+        # Todo: frame size: 200000, enlarge it when needed
+        T1 = 200000 * self.cnmf.params.get('online', 'epochs') if T is None else T
+        self.cnmf._prepare_object(Yr, T1)
 
         return self
