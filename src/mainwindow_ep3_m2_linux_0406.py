@@ -2575,6 +2575,7 @@ class MainWindow(QMainWindow):
         cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline(frames)
         self.on_scope.setAutoROI(cm)
+        self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
 
     def onacidmes(self, param_list):

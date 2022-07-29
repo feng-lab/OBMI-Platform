@@ -20,6 +20,8 @@ from caiman.paths import caiman_datadir
 from PySide2 import QtCore
 from caiman.utils.visualization import get_contours
 
+from src.caiman_online_runner import OnlineRunner
+
 
 class Caiman_OnACID(QtCore.QThread):
     #%%
@@ -59,8 +61,6 @@ class Caiman_OnACID(QtCore.QThread):
     def start_pipeline(self, frames):
         pass  # For compatibility between running under Spyder and the CLI
         # fname = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
-        fname = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
-
 
         # fr = 30
         # decay_time = .75  # approximate length of transient event in seconds
@@ -79,7 +79,6 @@ class Caiman_OnACID(QtCore.QThread):
         # K = 4  # max number of components in each patch
 
         params_dict = {'fr': self.fr,
-                       'fnames':fname,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
                        'p': self.p,
@@ -95,16 +94,9 @@ class Caiman_OnACID(QtCore.QThread):
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
         cnm = cnmf.online_cnmf.OnACID(params=opts)
-        cnm.fit_online(frames)
-        cnm.dims = dims
-        comps = get_contours(cnm.estimates.A, dims)
+        self.online_runner = OnlineRunner(cnm, frames)
+        self.online_runner.fit_online()
 
-    # %% plot contours
-
-        logging.info('Number of components:' + str(cnm.estimates.A.shape[-1]))
-        for i in range(len(cnm.estimates.idx_components_bad) - 1, -1, -1):
-            comps.pop(cnm.estimates.idx_components_bad[i])
-        self.roi_pos.emit(comps)
 
     #     Cn = cm.load(fname[0], subindices=slice(0,500)).local_correlations(swap_dim=False)
     #     cnm.estimates.plot_contours(img=Cn)
