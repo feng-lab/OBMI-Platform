@@ -112,14 +112,15 @@ class Caiman_OnACID_mes(QtCore.QThread):
                        'init_batch': self.init_batch,
                        'init_method': 'bare',
                        'normalize': True,
-                       'sniper_mode': self.sniper_mode,
+                       'sniper_mode': False,
                        'K': self.K,
                        'epochs': self.epochs,
                        'max_shifts_online': self.max_shifts_online,
                        'pw_rigid': self.pw_rigid,
                        'dist_shape_update': True,
                        'min_num_trial': 10,
-                       'show_movie': self.show_movie}
+                       'show_movie': self.show_movie,
+                        'border_pix': 50}
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
     # %% fit online

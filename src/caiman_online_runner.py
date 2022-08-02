@@ -82,6 +82,8 @@ class OnlineRunner():
         if self.cnmf.params.get('online', 'normalize'):
             Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
                 self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]))
+        else:
+            Ab = self.cnmf.estimates.Ab
         self.cnmf.estimates.A, _ = Ab[:, self.cnmf.params.get('init', 'nb'):], Ab[:, :self.cnmf.params.get('init', 'nb')].toarray()
         if self.cnmf.params.get('online', 'ds_factor') > 1:
             dims = frame.shape

@@ -2576,7 +2576,7 @@ class MainWindow(QMainWindow):
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.start_pipeline(frames)
-        self.on_scope.setAutoROI(cm)
+        self.on_scope.setAutoROI(cm.online_runner)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
 
@@ -2641,7 +2641,7 @@ class MainWindow(QMainWindow):
                 coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
             shapeY = coors.T[1]
-            tck, u = scipy.interpolate.splprep([shapeX, shapeY], s=0.25)
+            tck, u = scipy.interpolate.splprep([shapeX, shapeY], s=50)
             out = scipy.interpolate.splev(u, tck)
             shapeX = out[0]
             shapeY = out[1]

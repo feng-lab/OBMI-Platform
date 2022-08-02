@@ -69,9 +69,12 @@ class OPlayer(QtCore.QThread):
     def cap_init(self):
         self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         if self.fakecapture:
-            # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
-            # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\demoMovie.avi")
+            self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\demoMovie_out.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4")
+            # self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\msCam13_mcc.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie2.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
         capture = self.capture
@@ -104,6 +107,8 @@ class OPlayer(QtCore.QThread):
             if self.status == VideoSavingStatus.STARTING:
                 self.cur_frame += 1
             self.total_frame += 1
+
+        # frame = cv2.resize(frame, dsize=(400, 300), interpolation=cv2.INTER_CUBIC)
 
         if self.exposure_status != self.exposure:  ## > change to bool type?
             # print("before input t E: ", self.exposure)
