@@ -2576,7 +2576,7 @@ class MainWindow(QMainWindow):
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.start_pipeline(frames)
-        self.on_scope.setAutoROI(cm.online_runner)
+        self.on_scope.setAutoROI(cm)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
 

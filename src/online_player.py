@@ -11,24 +11,22 @@ import time
 import torch
 from caiman.utils.visualization import get_contours
 
-
 class VideoSavingStatus(Enum):
     STARTING = auto()
     PAUSING = auto()
     STOPPING = auto()
     STOPPED = auto()
 
-
 class OPlayer(QtCore.QThread):
+
     frameI = QtCore.Signal(QtGui.QImage)
     frameG = QtCore.Signal(list)
     fpsChanged = QtCore.Signal(float)
     roi_pos = QtCore.Signal(list)
-
     ## fImg = QtCore.Signal(np.ndarray)
 
     def __init__(self, camera: str,  ## temp
-                 lock: QtCore.QMutex, parent: QtCore.QObject):
+            lock: QtCore.QMutex, parent: QtCore.QObject):
         super().__init__(parent=parent)
         self.data_lock = lock
         self.c_number = camera
@@ -68,20 +66,14 @@ class OPlayer(QtCore.QThread):
         self.ptime = None
         self.timelist = []
 
-        self.bad_filtered = False
-        self.currentIdx = 0
-
     def cap_init(self):
         self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         if self.fakecapture:
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam13_mcc.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.mp4")
+            self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
-            # self.capture = cv2.VideoCapture("D:\\0_Project\OBMI_Data\\20211217_neurofinder\\neurofinder.02.00\\results\images.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
         capture = self.capture
         self.exposure = int(capture.get(cv2.CAP_PROP_EXPOSURE))
         self.s_gain = int(capture.get(cv2.CAP_PROP_GAIN))
@@ -89,9 +81,9 @@ class OPlayer(QtCore.QThread):
 
         self.height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        # capture.set(cv2.CAP_PROP_FPS, 30)
-        # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
+                # capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                # capture.set(cv2.CAP_PROP_FPS, 30)
+                # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
 
     def setAutoROI(self, cm):
         self.autoROI = cm
@@ -106,7 +98,6 @@ class OPlayer(QtCore.QThread):
         if not ret:
             if self.fakecapture:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                # self.timer.stop()
                 return
 
         if self.rtProcess:
@@ -159,6 +150,7 @@ class OPlayer(QtCore.QThread):
 
         t2 = time.time()
 
+
         # print('1:',1/(time.time() - S))
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.frameG.emit(gray)
@@ -166,21 +158,10 @@ class OPlayer(QtCore.QThread):
         if self.isAutoROI:
             t0 = time.time()
             self.autoROI.frame_process(gray.data.obj)
-
-            if self.bad_filtered:
-                # lenth = self.autoROI.cnmf.estimates.A.shape[1]
-                # self.autoROI.cnmf.estimates.A = self.autoROI.cnmf.estimates.A[:,self.currentIdx:]
-                # self.currentIdx = lenth
-                self.autoROI.cnmf.estimates.evaluate_components_CNN(self.autoROI.params)  # generate idx_components
-                if len(self.autoROI.cnmf.estimates.idx_components) > self.ROItable.size():
-                    self.ROIupdate()
-            else:
-                # all components
-                if self.autoROI.cnmf.N > self.ROItable.size():
-                    self.ROIupdate()
+            if self.autoROI.cnmf.N > self.ROItable.size():
+                self.ROIupdate()
             t1 = time.time()
             print('ROI process time: ', t1 - t0)
-            print('Number of components:' + str(self.autoROI.cnmf.estimates.A.shape[-1]))
 
         tmp_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.data_lock.lock()
@@ -217,46 +198,44 @@ class OPlayer(QtCore.QThread):
     def ROIupdate(self):
         t0 = time.time()
         dims = (self.height, self.width)
-        if self.bad_filtered:
-            A = self.autoROI.cnmf.estimates.A[:, self.autoROI.cnmf.estimates.idx_components]
-            mat = A[:, self.ROItable.size():]
-        else:
-            mat = self.autoROI.cnmf.estimates.A[:, self.ROItable.size():]
+        mat = self.autoROI.cnmf.estimates.A[:,self.ROItable.size():]
         comps = get_contours(mat, dims)
         self.roi_pos.emit(comps)
         t1 = time.time()
         print('ROI Update Time:', t1 - t0)
 
+
     def run(self):
         capture = cv2.VideoCapture(self.c_number, cv2.CAP_DSHOW)
         # capture = cv2.VideoCapture(self.c_number)
         if self.fakecapture:
-            # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
-            # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
-            # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
+            #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
+            capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.mp4")
         self.exposure = int(capture.get(cv2.CAP_PROP_EXPOSURE))
         self.s_gain = int(capture.get(cv2.CAP_PROP_GAIN))
         self.hue_value = 0
+
 
         self.height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
 
         tt = time.time()
-        timelist = [tt]
+        timelist= [tt]
         ptime = time.time()
         count = 0
         while not self.isInterruptionRequested():
             t0 = time.time()
             ret, frame = capture.read()
             t1 = time.time()
-            print('read:', t1 - t0)
+            print('read:', t1-t0)
             if not ret:
                 if self.fakecapture:
                     capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                     continue
                 break
+
 
             if self.rtProcess:
                 if self.total_frame == 0:
@@ -265,6 +244,8 @@ class OPlayer(QtCore.QThread):
                 if self.status == VideoSavingStatus.STARTING:
                     self.cur_frame += 1
                 self.total_frame += 1
+
+
 
             if self.exposure_status != self.exposure:  ## > change to bool type?
                 # print("before input t E: ", self.exposure)
@@ -307,9 +288,9 @@ class OPlayer(QtCore.QThread):
                 self.MC.c_onmc += 1
                 print('processed ', self.MC.c_onmc)
                 t1 = time.time()
-                print('MC time: ', t1 - t0)
+                print('MC time: ', t1-t0)
 
-            # print('1:',1/(time.time() - S))
+            #print('1:',1/(time.time() - S))
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             self.frameG.emit(gray)
 
@@ -322,12 +303,12 @@ class OPlayer(QtCore.QThread):
             self.data_lock.unlock()
             self.frameI.emit(image)
 
+
             dis = time.time() - ptime
             # print(f'online player frame {self.total_frame} start at {S}')
             # print('frame duration: ', dis)
             if self.fakecapture:
                 st = 1/30 - dis - 0.005
-
                 if st > 0:
                     time.sleep(st)
                     print('delayed: ', st)
@@ -335,15 +316,17 @@ class OPlayer(QtCore.QThread):
                 self.fps_delay(dis)
             et = time.time()
             count += 1
-            print('current fps: ', 1 / (et - ptime))
-            # print('avg fps: ', count/(et-tt))
-            print('recent 100 fps: ', len(timelist) / (et - timelist[0]))
+            print('current fps: ', 1/(et-ptime))
+            #print('avg fps: ', count/(et-tt))
+            print('recent 100 fps: ', len(timelist)/(et-timelist[0]))
             timelist.append(et)
             if len(timelist) > 100:
                 timelist.pop(0)
             ptime = et
 
-        capture.release()  ##
+
+
+        capture.release() ##
 
     def stop(self):
         print('stopped - online')
@@ -401,7 +384,7 @@ class OPlayer(QtCore.QThread):
 
     def fps_delay(self, dis):
         if self.loop_time - 0.005 > dis:
-            time.sleep(self.loop_time - dis - 0.005)
+            time.sleep(self.loop_time-dis - 0.005)
 
     def change_exposure(self, cap: cv2.VideoCapture, exp_value):
 
