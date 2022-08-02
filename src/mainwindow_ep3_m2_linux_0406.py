@@ -1,5 +1,6 @@
 import h5py
 import numpy
+import scipy
 from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
                                QHBoxLayout, QLabel)
@@ -2263,6 +2264,7 @@ class MainWindow(QMainWindow):
             if self.timermode:
                 self.on_scope.timer.start()
             else:
+                #self.moveToThread(self.on_scope)
                 self.on_scope.start()
 
             self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
@@ -2274,6 +2276,7 @@ class MainWindow(QMainWindow):
                 self.on_scope.timer.stop()
             else:
                 self.on_scope.stop()
+                #self.on_scope.quit()
 
             self.on_scope = None
             self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
@@ -2572,7 +2575,6 @@ class MainWindow(QMainWindow):
 
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
-        cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline(frames)
         self.on_scope.setAutoROI(cm)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
@@ -2596,23 +2598,11 @@ class MainWindow(QMainWindow):
 
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
-        cm.roi_pos.connect(self.addOnlineRoi)
         cm.start_pipeline(frames)
         self.on_scope.setAutoROI(cm.online_runner)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
         print('Auto ROI init done')
-
-    def addOnlineRoi(self, comps):
-        for item in comps:
-            centY, centX = item['CoM']
-            coors = item['coordinates']
-            coors = coors[~np.isnan(coors).any(axis=1)]
-            shapeX = coors.T[0]
-            shapeY = coors.T[1]
-            size = max([max(shapeX) - min(shapeX), max(shapeY) - min(shapeY)])
-            pos = QtCore.QPointF(centX, centY)
-            self.addOnR(pos, size)
 
     # Online Tab add ROI button clicked
     def addOnRoi(self):
@@ -2637,9 +2627,24 @@ class MainWindow(QMainWindow):
     def addAutoOnRoi(self, comps):
         for item in comps:
             coors = item['coordinates']
-            coors = coors[~np.isnan(coors).any(axis=1)]
+            nanIdx = np.where(np.isnan(coors))[0]
+            maxRange = nanIdx[1] - nanIdx[0]
+            idx = 0
+            if len(nanIdx) > 2:
+                for i in range(2,len(nanIdx)):
+                    r = nanIdx[i] - nanIdx[i-1]
+                    if r > maxRange:
+                        idx = i-1
+                        maxRange = r
+                coors = coors[nanIdx[idx]+1:nanIdx[idx+1], :]
+            else:
+                coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
             shapeY = coors.T[1]
+            tck, u = scipy.interpolate.splprep([shapeX, shapeY], s=0.25)
+            out = scipy.interpolate.splev(u, tck)
+            shapeX = out[0]
+            shapeY = out[1]
             minx = min(shapeX)
             miny = min(shapeY)
             shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
@@ -2660,6 +2665,7 @@ class MainWindow(QMainWindow):
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.onplayer_scene.addItem(roi_polygon)
         self.onroi_table.add_to_table(roi_polygon, colr)
+        self.ontrace_viewer.add_trace(roi_polygon)
 
     def deleteOnRoi(self):
         roi_circle = self.onroi_table.deleteRoi()

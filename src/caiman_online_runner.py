@@ -111,7 +111,6 @@ class OnlineRunner():
             else:
                 sch = rate_scheduler(*self.cnmf.params.get('ring_CNN', 'lr_scheduler'))
 
-            # ## TODO: 替换
             # Y = caiman.base.movies.load(fls[0], subindices=slice(init_batch),
             #                             var_name_hdf5=self.cnmf.params.get('data', 'var_name_hdf5'))
             Y = self.Y

@@ -71,9 +71,9 @@ class OPlayer(QtCore.QThread):
         if self.fakecapture:
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             # capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
         capture = self.capture
         self.exposure = int(capture.get(cv2.CAP_PROP_EXPOSURE))
         self.s_gain = int(capture.get(cv2.CAP_PROP_GAIN))
@@ -308,9 +308,10 @@ class OPlayer(QtCore.QThread):
             # print(f'online player frame {self.total_frame} start at {S}')
             # print('frame duration: ', dis)
             if self.fakecapture:
-                st = 1/30 - dis
+                st = 1/30 - dis - 0.005
                 if st > 0:
                     time.sleep(st)
+                    print('delayed: ', st)
             else:
                 self.fps_delay(dis)
             et = time.time()
