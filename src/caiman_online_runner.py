@@ -19,14 +19,14 @@ from typing import List, Tuple
 from scipy.sparse import csc_matrix, coo_matrix
 
 
-
 class OnlineRunner():
-    def __init__(self, cnmf, Y):
+    def __init__(self, cnmf, Y, params):
         self.cnmf = cnmf
         self.Y = Y
         self.model_LN = None
         self.epochs = 1
         self.t = 0
+        self.params = params
 
     def frame_process(self, frame):
         # Iterate through the epochs
@@ -39,18 +39,18 @@ class OnlineRunner():
             if self.cnmf.params.get('ring_CNN', 'remove_activity'):
                 activity = self.cnmf.estimates.Ab[:, :self.cnmf.N].dot(
                     self.cnmf.estimates.C_on[:self.cnmf.N, self.t - 1]).reshape(self.cnmf.params.get('data', 'dims'),
-                                                                 order='F')
+                                                                                order='F')
                 if self.cnmf.params.get('online', 'normalize'):
                     activity *= self.cnmf.img_norm
             else:
                 activity = 0.
-            #                                frame = frame.astype(np.float32) - activity
+            # frame = frame.astype(np.float32) - activity
             frame = frame - np.squeeze(model_LN.predict(
                 np.expand_dims(np.expand_dims(frame.astype(np.float32) - activity, 0), -1)))
             frame = np.maximum(frame, 0)
 
         if np.isnan(np.sum(frame)):
-            raise Exception('Frame '+' contains NaN')
+            raise Exception('Frame ' + ' contains NaN')
 
         # Downsample and normalize
         frame_ = frame.copy().astype(np.float32)
@@ -61,7 +61,6 @@ class OnlineRunner():
             frame_ -= self.cnmf.img_min  # make data non-negative
 
         # Motion Correction
-        # t_mot = time()
         # if self.cnmf.params.get('online', 'motion_correct'):  # motion correct
         #     frame_cor = self.cnmf.mc_next(t, frame_)
         # else:
@@ -69,7 +68,7 @@ class OnlineRunner():
         #     frame_cor = frame_
         # self.cnmf.t_motion.append(time() - t_mot)
 
-        frame_cor = frame
+        frame_cor = frame_
         if self.cnmf.params.get('online', 'normalize'):
             frame_cor = frame_cor / self.cnmf.img_norm
         # Fit next frame
@@ -79,17 +78,29 @@ class OnlineRunner():
         self.cnmf.Ab_epoch.append(self.cnmf.estimates.Ab.copy())
         print('success, number of ROI: ', self.cnmf.N)
 
-        if self.cnmf.params.get('online', 'normalize'):
-            Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
-                self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]))
-        self.cnmf.estimates.A, _ = Ab[:, self.cnmf.params.get('init', 'nb'):], Ab[:, :self.cnmf.params.get('init', 'nb')].toarray()
-        if self.cnmf.params.get('online', 'ds_factor') > 1:
-            dims = frame.shape
-            self.cnmf.estimates.A = hstack(
-                [coo_matrix(cv2.resize(self.cnmf.estimates.A[:, i].reshape(self.cnmf.estimates.dims, order='F').toarray(),
-                                       dims[::-1]).reshape(-1, order='F')[:, None]) for i in range(self.cnmf.N)],
-                format='csc')
-
+        # if self.cnmf.params.get('online', 'normalize'):
+        #     Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
+        #         self.cnmf.img_norm.reshape(-1, order='F')[:, np.newaxis]))
+        # else:
+        #     Ab = self.cnmf.estimates.Ab
+        self.cnmf.estimates.A = self.cnmf.estimates.Ab[:, self.cnmf.params.get('init', 'nb'):]
+        #
+        # if self.cnmf.params.get('online', 'ds_factor') > 1:
+        #     dims = frame.shape
+        #     self.cnmf.estimates.A = hstack(
+        #         [coo_matrix(cv2.resize(self.cnmf.estimates.A[:, i].reshape(self.cnmf.estimates.dims, order='F').toarray(),
+        #                                dims[::-1]).reshape(-1, order='F')[:, None]) for i in range(self.cnmf.N)], format='csc')
+        #     if self.cnmf.estimates.b.shape[-1] > 0:
+        #         self.cnmf.estimates.b = np.concatenate([cv2.resize(self.cnmf.estimates.b[:, i].reshape(self.cnmf.estimates.dims, order='F'),
+        #                                                       dims[::-1]).reshape(-1, order='F')[:,None] for i in range(self.cnmf.params.get('init', 'nb'))], axis=1)
+        #     else:
+        #         self.cnmf.estimates.b = np.resize(self.cnmf.estimates.b, (self.cnmf.estimates.A.shape[0], 0))
+        #     if self.cnmf.estimates.b0 is not None:
+        #         b0 = self.cnmf.estimates.b0.reshape(self.cnmf.estimates.dims, order='F')
+        #         b0 = cv2.resize(b0, dims[::-1])
+        #         self.cnmf.estimates.b0 = b0.reshape((-1, 1), order='F')
+        # self.cnmf.estimates.C_on = self.cnmf.estimates.C_on[:self.cnmf.M]
+        # self.cnmf.estimates.noisyC = self.cnmf.estimates.noisyC[:self.cnmf.M]
 
     # replace original fit_online in online_cnmf.py
     def fit_online(self, **kwargs):
@@ -139,8 +150,6 @@ class OnlineRunner():
         self.epochs = self.cnmf.params.get('online', 'epochs')
         self.initialize_online(model_LN=model_LN)
         self.cnmf.Ab_epoch: List = []
-
-
 
         # t = self.t
         # epochs = 1
@@ -202,7 +211,7 @@ class OnlineRunner():
         # Downsample if needed
         ds_factor = np.maximum(opts['ds_factor'], 1)
         if ds_factor > 1:
-            Y = Y.resize(1./ds_factor, 1./ds_factor)
+            Y = Y.resize(1. / ds_factor, 1. / ds_factor)
         self.cnmf.estimates.shifts = []  # store motion shifts here
         self.cnmf.estimates.time_new_comp = []
         img_min = Y.min()
@@ -213,16 +222,16 @@ class OnlineRunner():
         img_norm += np.median(img_norm)  # normalize data to equalize the FOV
         logging.info('Frame size:' + str(img_norm.shape))
         if self.cnmf.params.get('online', 'normalize'):
-            Y = Y/img_norm[None, :, :]
+            Y = Y / img_norm[None, :, :]
         if opts['show_movie']:
-            self.cnmf.bnd_Y = np.percentile(Y,(0.001,100-0.001))
+            self.cnmf.bnd_Y = np.percentile(Y, (0.001, 100 - 0.001))
         _, d1, d2 = Y.shape
-        Yr = Y.to_2D().T        # convert data into 2D array
+        Yr = Y.to_2D().T  # convert data into 2D array
         self.cnmf.img_min = img_min
         self.cnmf.img_norm = img_norm
         if self.cnmf.params.get('online', 'init_method') == 'bare':
             init = self.cnmf.params.get_group('init').copy()
-            is1p = (init['method_init'] == 'corr_pnr' and  init['ring_size_factor'] is not None)
+            is1p = (init['method_init'] == 'corr_pnr' and init['ring_size_factor'] is not None)
             if is1p:
                 self.cnmf.estimates.sn, psx = get_noise_fft(
                     Yr, noise_range=self.cnmf.params.get('preprocess', 'noise_range'),
@@ -245,7 +254,7 @@ class OnlineRunner():
             self.cnmf.estimates.S = np.zeros_like(self.cnmf.estimates.C)
             nr = self.cnmf.estimates.C.shape[0]
             self.cnmf.estimates.g = np.array([-np.poly([0.9] * max(self.cnmf.params.get('preprocess', 'p'), 1))[1:]
-                               for gg in np.ones(nr)])
+                                              for gg in np.ones(nr)])
             self.cnmf.estimates.bl = np.zeros(nr)
             self.cnmf.estimates.c1 = np.zeros(nr)
             self.cnmf.estimates.neurons_sn = np.std(self.cnmf.estimates.YrA, axis=-1)
@@ -275,12 +284,13 @@ class OnlineRunner():
 
         elif self.cnmf.params.get('online', 'init_method') == 'seeded':
             self.cnmf.estimates.A, self.cnmf.estimates.b, self.cnmf.estimates.C, self.cnmf.estimates.f, self.cnmf.estimates.YrA = seeded_initialization(
-                    Y.transpose(1, 2, 0), self.cnmf.estimates.A, gnb=self.cnmf.params.get('init', 'nb'), k=self.cnmf.params.get('init', 'K'),
-                    gSig=self.cnmf.params.get('init', 'gSig'), return_object=False)
+                Y.transpose(1, 2, 0), self.cnmf.estimates.A, gnb=self.cnmf.params.get('init', 'nb'),
+                k=self.cnmf.params.get('init', 'K'),
+                gSig=self.cnmf.params.get('init', 'gSig'), return_object=False)
             self.cnmf.estimates.S = np.zeros_like(self.cnmf.estimates.C)
             nr = self.cnmf.estimates.C.shape[0]
             self.cnmf.estimates.g = np.array([-np.poly([0.9] * max(self.cnmf.params.get('preprocess', 'p'), 1))[1:]
-                               for gg in np.ones(nr)])
+                                              for gg in np.ones(nr)])
             self.cnmf.estimates.bl = np.zeros(nr)
             self.cnmf.estimates.c1 = np.zeros(nr)
             self.cnmf.estimates.neurons_sn = np.std(self.cnmf.estimates.YrA, axis=-1)

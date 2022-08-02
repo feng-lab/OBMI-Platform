@@ -48,7 +48,8 @@ class Caiman_OnACID_mes(QtCore.QThread):
         self.min_SNR = param_list[4]  # minimum SNR for accepting new components
         self.ds_factor = param_list[5]  # spatial downsampling factor (increases speed but may lose some fine structure)
         self.gnb = param_list[6]  # number of background components
-        self.gSig = tuple(np.ceil(np.array(self.gSig)/self.ds_factor).astype('int'))  # recompute gSig if downsampling is involved
+        self.gSig = tuple(
+            np.ceil(np.array(self.gSig) / self.ds_factor).astype('int'))  # recompute gSig if downsampling is involved
         self.mot_corr = param_list[7]  # flag for online motion correction
         self.pw_rigid = param_list[8]  # flag for pw-rigid motion correction (slower but potentially more accurate)
         self.max_shifts_online = np.ceil(10.).astype('int')  # maximum allowed shift during motion correction
@@ -64,7 +65,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         self.online_runner = None
 
     def start_pipeline(self, frames):
-        pass # For compatibility between running under Spyder and the CLI
+        pass  # For compatibility between running under Spyder and the CLI
 
         # folder inside ./example_movies where files will be saved
         # fld_name = 'Mesoscope'
@@ -73,10 +74,10 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # fnames.append(download_demo('Tolias_mesoscope_2.hdf5', fld_name))
         # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
-        #fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
 
         # your list of files should look something like this
-        #logging.info(fnames)
+        # logging.info(fnames)
 
         # %%   Set up some parameters
         # fr = 15  # frame rate (Hz)
@@ -99,8 +100,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # epochs = 1  # number of passes over the data
         # show_movie = False  # show the movie as the data gets processed
 
-        params_dict = {
-                       'fr': self.fr,
+        params_dict = {'fr': self.fr,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
                        'p': self.p,
@@ -122,10 +122,10 @@ class Caiman_OnACID_mes(QtCore.QThread):
                        'show_movie': self.show_movie}
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
-    # %% fit online
+        # %% fit online
         cnm = cnmf.online_cnmf.OnACID(params=opts)
 
-        self.online_runner = OnlineRunner(cnm, frames)
+        self.online_runner = OnlineRunner(cnm, frames, params=opts)
         self.online_runner.fit_online()
 
     # # %% plot contours (this may take time)
