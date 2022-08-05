@@ -1,6 +1,7 @@
 import time
 
 import cv2
+import torch
 from PySide2 import QtCore
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QGraphicsLineItem, QGraphicsTextItem, QLabel
 from PySide2.QtCharts import QtCharts
@@ -47,7 +48,8 @@ class OnTraceviewer(QWidget):
         # self.layout.addStretch(1)
         self.filename = datetime.datetime.now().strftime('%F %T')+'.h5'
 
-        self.save_file = h5py.File('trace_data.h5', 'w')
+        self.save_file = h5py.File('trace_data_2.h5', 'w')
+        self.save_file["version"] = 1.0
         self.save_file.close()
 
 
@@ -60,11 +62,11 @@ class OnTraceviewer(QWidget):
         self.timer.start(200)
 
     def recieve_img(self, img):
-        # self.buffer[self.buffer_index].append(img)
         t0 = time.time()
 
         num = len(self.itemlist)
-        data = np.empty((num, 5))
+        data = np.empty((num, 6))
+        contours = []
 
         for i in range(num):
             item = self.itemlist[i]
@@ -74,13 +76,20 @@ class OnTraceviewer(QWidget):
             height = int(item.boundingRect().height())
 
             # extract gray value
-            imgmat = img[y:y+height, x:x+width]
+            imgmat = img[y:y+height, x:x+width].flatten()
+            if torch.cuda.is_available():
+                imgmat = torch.tensor(imgmat)
+                item_noise = torch.tensor(item.noise)
+                item_mat = torch.tensor(item.mat)
+            else:
+                item_noise = item.noise
+                item_mat = item.mat
 
-            noise = imgmat * item.noise
-            noise_exist = (item.noise != 0)
+            noise = imgmat * item_noise
+            noise_exist = (item_noise != 0)
             noise_avg = int(noise.sum() / noise_exist.sum())
 
-            res = imgmat * item.mat - noise_avg
+            res = imgmat * item_mat - noise_avg
             res[res < 0] = 0
             exist = (res != 0)
             if exist.sum() == 0:
@@ -91,20 +100,24 @@ class OnTraceviewer(QWidget):
                     avg = avg / noise_avg
 
             #data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
-            data[i] = np.array([item.id, x, y, item.getContuor(), avg])
 
-            if i < 5:
-                chart = self.chartlist[i].chart()
-                chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
-                if not self.pause:
-                    chart.axisX().setMax(self.frame_count + 1)
-                    self.chartlist[i].max = self.frame_count + 1
-                    if self.frame_count + 1 > 500:
-                        chart.axisX().setMin(self.frame_count + 1 - 499)
-                        if chart.series()[0].count() > 500:
-                            chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
-                    if avg > chart.axisY().max():
-                        chart.axisY().setMax(avg)
+            c_size = item.c_size
+            contours.extend(item.contours.tolist())
+
+            data[i] = np.array([item.id, x, y, item.type, c_size, avg])
+
+            # if i < 5:
+            #     chart = self.chartlist[i].chart()
+            #     chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
+            #     if not self.pause:
+            #         chart.axisX().setMax(self.frame_count + 1)
+            #         self.chartlist[i].max = self.frame_count + 1
+            #         if self.frame_count + 1 > 500:
+            #             chart.axisX().setMin(self.frame_count + 1 - 499)
+            #             if chart.series()[0].count() > 500:
+            #                 chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
+            #         if avg > chart.axisY().max():
+            #             chart.axisY().setMax(avg)
 
         t2 = time.time()
         str = f'{self.frame_count:06}'
@@ -112,6 +125,7 @@ class OnTraceviewer(QWidget):
             g = f.create_group(str)
             g["image"] = img
             g["data"] = data
+            g["contours"] = np.array(contours)
         self.frame_count += 1
         t1 = time.time()
         print(f'recieve start: {t0}\n'
@@ -260,7 +274,7 @@ class OnTraceviewer(QWidget):
         axisY.setRange(0, 0.1)
         #axisY.setVisible(False)
         axisY.setTickCount(2)
-        axisY.setLabelFormat("%d")
+        axisY.setLabelFormat("%f")
         chart.addAxis(axisY, Qt.AlignRight)
         series.attachAxis(axisY)
 
