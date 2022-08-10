@@ -11,6 +11,8 @@ For a more complete demo check the script demo_OnACID_mesoscope.py
 """
 
 import logging
+
+import caiman
 import numpy as np
 import os
 
@@ -99,7 +101,6 @@ class Caiman_OnACID(QtCore.QThread):
         cnm = cnmf.online_cnmf.OnACID(params=opts)
         self.online_runner = OnlineRunner(cnm, frames)
         self.online_runner.fit_online()
-
 
     #     Cn = cm.load(fname[0], subindices=slice(0,500)).local_correlations(swap_dim=False)
     #     cnm.estimates.plot_contours(img=Cn)
