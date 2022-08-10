@@ -248,7 +248,8 @@ class Caiman_OnACID_mes(QtCore.QThread):
     #     print(' ***** ')
     #     print('Number of total components: ', len(cnm.estimates.C))
     #     print('Number of accepted components: ', len(cnm.estimates.idx_components))
-    #     comps = get_contours(cnm.estimates.A, dims)
+
+
     #
     #     cnm.dims = dims
     #     display_images = True  # Set to true to show movies and images
@@ -259,4 +260,3 @@ class Caiman_OnACID_mes(QtCore.QThread):
     #     # print('Auto ROI processing time: ', time.time() - start_time)
     #     for i in range(len(cnm.estimates.idx_components_bad) - 1, -1, -1):
     #         comps.pop(cnm.estimates.idx_components_bad[i])
-    #     self.roi_pos.emit(comps)
