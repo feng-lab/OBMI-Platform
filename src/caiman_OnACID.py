@@ -21,6 +21,7 @@ from PySide2 import QtCore
 from caiman.utils.visualization import get_contours
 
 from src.caiman_online_runner import OnlineRunner
+import cv2
 
 
 class Caiman_OnACID(QtCore.QThread):
