@@ -82,6 +82,8 @@ class Caiman_OnACID(QtCore.QThread):
         params_dict = {'fr': self.fr,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
+                       'min_num_trial': 12,
+                       # 'gSiz': (60, 60),
                        'p': self.p,
                        'min_SNR': self.min_SNR,
                        'nb': self.gnb,
