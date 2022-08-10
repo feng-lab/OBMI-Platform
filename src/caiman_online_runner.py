@@ -27,6 +27,11 @@ class OnlineRunner():
         self.model_LN = None
         self.epochs = 1
         self.t = 0
+        self.l = []
+
+    def frame_processx(self, frame):
+        # write to file
+        self.l.append(frame)
 
     def frame_process(self, frame):
         # Iterate through the epochs

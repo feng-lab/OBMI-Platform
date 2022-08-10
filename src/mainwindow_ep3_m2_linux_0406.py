@@ -6,7 +6,7 @@ from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, 
                                QHBoxLayout, QLabel)
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
-from PySide2.QtCore import QObject, Signal, Slot
+from PySide2.QtCore import QObject, Signal, Slot, QThread
 
 from PySide2.QtUiTools import QUiLoader  ### +++++++++++++++++++++++++++++++++++++
 
@@ -46,6 +46,7 @@ import pandas as pd
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
+from src.data_receiver import DataReceiver, ReceiverThread
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -2742,6 +2743,7 @@ class MainWindow(QMainWindow):
             else:
                 self.on_scope.start()
 
+
             self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
             print('connection')
 
@@ -2757,8 +2759,12 @@ class MainWindow(QMainWindow):
             ## need to check process status of processing (motion corrected | ROI selected)
         else:
             print('check X - motion correction ')
-
-        self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
+        self.thread = ReceiverThread(self.ontrace_viewer, self)
+        # self.data_receiver = DataReceiver(self.ontrace_viewer)
+        # self.on_scope.frameG.connect(self.data_receiver.recieve_img)
+        # self.data_receiver.moveToThread(self.thread)
+        self.thread.start()
+        #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()
         # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
 

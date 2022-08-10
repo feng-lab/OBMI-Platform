@@ -13,6 +13,9 @@ import h5py
 import datetime
 # Trace Viewer for displaying trace
 # param: brightlist - a list contains all brightness info of each ROI circle
+from src.ROI import ROIType
+
+
 class OnTraceviewer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -46,13 +49,14 @@ class OnTraceviewer(QWidget):
         # parent.on_scope.frameG.connect(self.update_s)
         # stretch remaining blank
         # self.layout.addStretch(1)
-        self.filename = datetime.datetime.now().strftime('%F %T')+'.h5'
+
 
         self.save_file = h5py.File('trace_data_2.h5', 'w')
         self.save_file["version"] = 1.0
         self.save_file.close()
 
-
+    def trace_update(self):
+        pass
 
 
     def timer_init(self):
@@ -104,7 +108,12 @@ class OnTraceviewer(QWidget):
             c_size = item.c_size
             contours.extend(item.contours.tolist())
 
-            data[i] = np.array([item.id, x, y, item.type, c_size, avg])
+            if item.type == ROIType.CIRCLE:
+                type = 1
+            else:
+                type = 2
+
+            data[i] = np.array([item.id, x, y, type, c_size, avg])
 
             # if i < 5:
             #     chart = self.chartlist[i].chart()
