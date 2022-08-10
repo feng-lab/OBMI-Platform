@@ -32,7 +32,6 @@ class ROI(QGraphicsPolygonItem):
         self.name = None
         self.noise = None
         self.size = size
-        self.c_size = 0
 
         if self.type == ROIType.CIRCLE: # circle type ROI
             circle = QGraphicsEllipseItem(0,0,size,size)
@@ -43,7 +42,6 @@ class ROI(QGraphicsPolygonItem):
             print('not here')
             pass
 
-        self.contours = self.contourUpdate()
         self.mat = self.matUpdate()
 
     def setName(self, str):
@@ -65,7 +63,7 @@ class ROI(QGraphicsPolygonItem):
     def wheelEvent(self, event):
         super().wheelEvent(event)
         if self.type == ROIType.CIRCLE:
-            size = int(self.boundingRect().width())
+            size = int(self.rect().width())
             if event.delta() > 0:
                 size += 1
             else:
@@ -73,31 +71,30 @@ class ROI(QGraphicsPolygonItem):
 
             self.circleSizeChange(size)
             self.signals.sizeChange.emit(size)
-            self.contours = self.contourUpdate()
             self.mat = self.matUpdate()
 
     def circleSizeChange(self, size):
         circle = QGraphicsEllipseItem(0, 0, size, size)
         self.setPolygon(circle.shape().toFillPolygon())
-        self.contours = self.contourUpdate()
-        self.mat = self.matUpdate()
 
-    # contour update
-    def contourUpdate(self):
+    # 获取轮廓
+    def getContuor(self):
         l = self.polygon().toList()
-        pts = [[int(p.x()), int(p.y())] for p in l]
+        pts = [[int(p.x()),int(p.y())] for p in l]
         ret = np.array(pts).flatten()
-        self.c_size = len(ret)
+
         return ret
 
-    # update mapping matrix
+    # 更新矩阵
     def matUpdate(self):
-        contour = self.contours.reshape(int(self.c_size / 2), 2)
+        contour = self.getContuor()
+        contour = contour.reshape(int(len(contour) / 2), 2)
         height = self.boundingRect().height()
         width = self.boundingRect().width()
 
         new_mat = np.zeros((int(width), int(height)))
         cv2.drawContours(new_mat, [contour], 0, 1, cv2.FILLED)
         mat = np.array(new_mat, np.uint8).T
-        self.noise = -(mat.copy() - 1).flatten()
-        return mat.flatten()
+        self.noise = -(mat.copy() - 1)
+        print(mat.shape, self.noise.shape)
+        return mat

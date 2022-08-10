@@ -705,8 +705,6 @@ class MainWindow(QMainWindow):
         itemlist = self.player_scene2.items()
         print('item_after: ', itemlist)
 
-        self.init_onchart()
-
     ## functions ------------------------------------------------------------------------------------------------------------------------
     #########################################################################
     #                                                                       #
@@ -737,17 +735,14 @@ class MainWindow(QMainWindow):
 
         print(f'load project file: {path}')
         with h5py.File(path, 'r') as f:
-            version = f['info']['version'].value
-            # check version number
-            if version == 1.0:
+            version = f['info']['version']
+            if version == '1.0':
                 g = f['offline']
-                # read offline video data
                 if len(g.keys()) > 0:
                     self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
-                    self.player2.frame_list = g['video'].value
-                    self.player2.total_frame = g['total_frame'].value
-                    self.player2.fps = g['fps'].value
-                    self.player2.load_mode = True
+                    self.player2.frame_list = g['video']
+                    self.player2.total_frame = g['total_frame']
+                    self.player2.fps = g['fps']
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
 
@@ -757,42 +752,9 @@ class MainWindow(QMainWindow):
                     self.s_total2 = int(self.s_totalframe2 / self.player2.fps)
 
                     self.update_v_duration2(self.s_total2, self.s_totalframe2)
-
-                    # read offline roi data
-                    if len(g.keys()) > 3:
-                        data = g['roi_data'].value
-                        contours = g['roi_contours'].value
-                        idx = 0
-                        for roi_data in data:
-                            roi_id, x, y, type, c_size = roi_data
-                            contour = contours[idx:idx+int(c_size)]
-                            idx += int(c_size)
-                            contour = [QtCore.QPointF(contour[i], contour[i+1]) for i in range(len(contour)-1) if i % 2 == 0]
-                            roi = self.addRoiPolygon(x, y, contour)
-                            roi.setId(roi_id)
-                            if type == 1:
-                                roi.type = ROIType.CIRCLE
-                                roi.size = roi.boundingRect().width()
-
-                g = f['online']
-                # read online roi data
-                if len(g.keys()) > 1:
-                    self.on_scope = OPlayer(0, lock=self.data_lock, parent=self)
-                    data = g['roi_data'].value
-                    contours = g['roi_contours'].value
-                    idx = 0
-                    for roi_data in data:
-                        roi_id, x, y, type, c_size = roi_data
-                        contour = contours[idx:idx + int(c_size)]
-                        idx += int(c_size)
-                        contour = [QtCore.QPointF(contour[i], contour[i + 1]) for i in range(len(contour) - 1) if
-                                   i % 2 == 0]
-                        roi = self.addOnRoiPolygon(x, y, contour)
-                        roi.setId(roi_id)
-                        if type == 1:
-                            roi.type = ROIType.CIRCLE
-                            roi.size = roi.boundingRect().width()
-                    self.on_scope = None
+                    if len(g.keys() > 3):
+                        # TODO: implement
+                        pass
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -806,12 +768,12 @@ class MainWindow(QMainWindow):
             name_msg.exec_()
             return
 
-        fileurl = path + '/' + name + '.obmiproject'
+        fileurl = path + '/' + name
         print(fileurl)
 
         with h5py.File(fileurl, 'w') as f:
             g = f.create_group('info')
-            g['version'] = 1.0
+            g['version'] = '1.0'
 
             g = f.create_group('offline')
             if self.player2 is not None:
@@ -823,42 +785,40 @@ class MainWindow(QMainWindow):
                 if self.roi_table is not None:
                     size = self.roi_table.size()
                     if size > 0:
-                        shape_data = []
                         data = np.empty((size, 5))
+                        mat_data = np.empty(shape=(1, 0))
                         roi_list = self.roi_table.itemlist
                         for i in range(len(roi_list)):
                             roi = roi_list[i]
                             x = int(roi.pos().x())
                             y = int(roi.pos().y())
-                            if roi.type == ROIType.CIRCLE:
-                                type = 1
-                            else:
-                                type = 2
-                            data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                            shape_data.extend(roi.contours.tolist())
+                            w = int(roi.rect().width())
+                            h = int(roi.rect().height())
+                            data[i] = np.array([roi.id, x, y, w, h])
+                            np.append(mat_data, roi.mat.flatten())
                         g['roi_data'] = data
-                        g['roi_contours'] = np.array(shape_data)
+                        g['roi_mat'] = mat_data
+
+                    if self.trace_viewer is not None:
+                        pass
 
             g = f.create_group('online')
             if self.onroi_table is not None:
                 size = self.onroi_table.size()
                 if size > 0:
-                    shape_data = []
                     data = np.empty((size, 5))
-                    roi_list = self.onroi_table.itemlist
+                    mat_data = np.empty(shape=(1, 0))
+                    roi_list = self.roi_table.itemlist
                     for i in range(len(roi_list)):
                         roi = roi_list[i]
                         x = int(roi.pos().x())
                         y = int(roi.pos().y())
-                        if roi.type == ROIType.CIRCLE:
-                            type = 1
-                        else:
-                            type = 2
-                        data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                        shape_data.extend(roi.contours.tolist())
+                        w = int(roi.rect().width())
+                        h = int(roi.rect().height())
+                        data[i] = np.array([roi.id, x, y, w, h])
+                        np.append(mat_data, roi.mat.flatten())
                     g['roi_data'] = data
-                    g['roi_contours'] = np.array(shape_data)
-        print('save success!')
+                    g['roi_mat'] = mat_data
 
     def button_recentfile(self):
         pass
@@ -1875,8 +1835,8 @@ class MainWindow(QMainWindow):
     def online_frame(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
         self.onplayer_view_item.setPixmap(pixmap)
-        # if self.on_scope.rtProcess:
-        #     self.update_onplayer_slider(self.on_scope.cur_frame, self.on_scope.total_frame, self.on_scope.s_timer)
+        if self.on_scope.rtProcess:
+            self.update_onplayer_slider(self.on_scope.cur_frame, self.on_scope.total_frame, self.on_scope.s_timer)
 
     # ------------------------------------------------------------------------
     #
@@ -2048,7 +2008,6 @@ class MainWindow(QMainWindow):
         roi_circle = self.create_circle(colr, scenePos, size)
         self.player_scene2.addItem(roi_circle)
         self.roi_table.add_to_table(roi_circle, colr)
-        return roi_circle
 
     #
     def addRoiPolygon(self, x, y, shape):
@@ -2057,7 +2016,6 @@ class MainWindow(QMainWindow):
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.player_scene2.addItem(roi_polygon)
         self.roi_table.add_to_table(roi_polygon, colr)
-        return roi_polygon
 
     def deleteRoi(self):
         roi_circle = self.roi_table.deleteRoi()
@@ -2687,8 +2645,6 @@ class MainWindow(QMainWindow):
                 coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
             shapeY = coors.T[1]
-
-            # smooth polygon
             tck, u = scipy.interpolate.splprep([shapeX, shapeY], s=50)
             out = scipy.interpolate.splev(u, tck)
             shapeX = out[0]
@@ -2705,7 +2661,6 @@ class MainWindow(QMainWindow):
         self.onplayer_scene.addItem(roi_circle)
         self.onroi_table.add_to_table(roi_circle, colr)
         self.ontrace_viewer.add_trace(roi_circle)
-        return roi_circle
 
     # Online Tab add ROI Polygon
     def addOnRoiPolygon(self, x, y, shape):
@@ -2715,7 +2670,6 @@ class MainWindow(QMainWindow):
         self.onplayer_scene.addItem(roi_polygon)
         self.onroi_table.add_to_table(roi_polygon, colr)
         self.ontrace_viewer.add_trace(roi_polygon)
-        return roi_polygon
 
     def deleteOnRoi(self):
         roi_circle = self.onroi_table.deleteRoi()

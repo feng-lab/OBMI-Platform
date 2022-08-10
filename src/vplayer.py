@@ -34,24 +34,22 @@ class VPlayer(QtCore.QThread):
         self.next_frame = 0 # buffer for interacting slider
         self.data_lock = lock
         self.fps = 0
-        self.vplayer_status = VPlayerStatus.PAUSING
+        self.vplayer_status = VPlayerStatus.STOPPED
         self.ui = parent.ui
         self.capture = None
         self.frame_list = []
-        self.load_mode = False
         # lock mul
         
 
     def run(self):
         t1 = time.time()
         ## thread run - player on
-        if not self.load_mode:
-            if self.v_path.__contains__('.tiff'):
-                self.load_tiff()
-            elif self.v_path.__contains__('.avi'):
-                self.load_avi()
-            else:
-                self.load_avi() # pending for other file type
+        if self.v_path.__contains__('.tiff'):
+            self.load_tiff()
+        elif self.v_path.__contains__('.avi'):
+            self.load_avi()
+        else:
+            self.load_avi() # pending for other file type
 
         try:
             wtime = round(1 / self.fps, 3)

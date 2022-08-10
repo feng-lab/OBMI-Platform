@@ -167,7 +167,6 @@ class Caiman_OnACID_mes(QtCore.QThread):
                        'motion_correct': True,  # flag for performing motion correction
                        'gSig_filt': (3, 3),  # size of high pass spatial filtering, used in 1p data
                        'use_cnn': False}
-
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
     # %% fit online
