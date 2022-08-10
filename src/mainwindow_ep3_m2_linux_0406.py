@@ -2591,9 +2591,12 @@ class MainWindow(QMainWindow):
         init_batch = param_list[11]
         frames = []
         for i in range(init_batch):
-            ret, frame = self.on_scope.capture.read()
+            capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie_out.avi")
+            ret, frame = capture.read()
+            # ret, frame = self.on_scope.capture.read()
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frames.append(frame.data.obj)
+        capture.release()
         frames = np.array(frames)
 
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
@@ -2602,6 +2605,7 @@ class MainWindow(QMainWindow):
         self.on_scope.setAutoROI(cm.online_runner)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
+        self.on_scope.capture.set(cv2.CAP_PROP_POS_FRAMES, 200)
         print('Auto ROI init done')
 
     # Online Tab add ROI button clicked
