@@ -23,12 +23,24 @@ from scipy.sparse import csc_matrix, coo_matrix
 import os
 
 class CaimanLaucher(QObject):
-    def __init__(self):
+    def __init__(self, param_list=None, open_video_path="", mainwin=None):
         super(CaimanLaucher, self).__init__()
         # TODO: implement caiman
+        self.param_list = param_list
+        self.open_video_path = open_video_path
+        from caiman_OnACID_batch import Caiman_OnACID_batch
+        self.cm = Caiman_OnACID_batch(self, self.param_list, self.open_video_path)
+        self.cm.roi_pos.connect(mainwin.addAutoOnRoi)
+        print('caiman init')
+
+    def online_batch(self):
+        print('caiman start')
+        self.cm.start_pipeline()
+
+
 
 class OnlineRunner():
-    def __init__(self, cnmf=None, Y=None, parent=None):
+    def __init__(self, cnmf=None, Y=None, parent=None, param_list=None):
         self.cnmf = cnmf
         self.Y = Y
         self.model_LN = None
@@ -38,6 +50,7 @@ class OnlineRunner():
         self.parent = parent
         self.frame_count = 0
         self.file_size = 0
+        self.param_list = param_list
 
     def tempFile(self, fps, width, height, size):
         self.path = os.path.abspath('.') + '\\' + 'temp.avi'
@@ -56,8 +69,9 @@ class OnlineRunner():
             self.file.release()
             print('saved file: ', self.path)
             self.thread = QThread()
-            self.laucher = CaimanLaucher()
+            self.laucher = CaimanLaucher(self.param_list, self.path, self.parent)
             self.laucher.moveToThread(self.thread)
+            self.thread.started.connect(self.laucher.online_batch)
             self.thread.start()
             return
 

@@ -2600,23 +2600,52 @@ class MainWindow(QMainWindow):
                 self.onacidmes(param_list)
             else:
                 print('cancel')
+        elif self.ui.comboBox_23.currentText() == 'OnACID_batch':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_batch.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # ds_factor
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+
+                if dialog.checkBox.isChecked():  # mot_corr
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_2.isChecked():  # pw_rigid
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_3.isChecked():  # sniper_mode
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                param_list.append(float(dialog.lineEdit_12.text()))  # rval_thr
+                param_list.append(int(dialog.lineEdit_13.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_14.text()))  # K
+                param_list.append(int(dialog.lineEdit_15.text()))  # epochs
+
+                if dialog.checkBox_4.isChecked():  # show_movie
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                self.onacidbatch(param_list)
+            else:
+                print('cancel')
 
     def onacid(self, param_list):
-        self.online_runner = OnlineRunner(parent=self)
-        if self.on_scope is None:
-            print('start online scope')
-            self.online_scope()
-
-        fps = int(self.on_scope.capture.get(cv2.CAP_PROP_FPS))
-        height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        size = 600
-
-        self.online_runner.tempFile(fps, width, height, size)
-
-
-
-    def onacidx(self, param_list):
         if self.on_scope is None:
             camera_ID = self.cameraID
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
@@ -2648,14 +2677,30 @@ class MainWindow(QMainWindow):
                 self.on_scope.ged_template = self.on_template
 
         init_batch = param_list[11]
+        # 强制使用原视频的前200帧初始化，并从201帧开始处理
+        # frames = []
+        # for i in range(init_batch):
+        #     capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie_out.avi")
+        #     ret, frame = capture.read()
+        #     # ret, frame = self.on_scope.capture.read()
+        #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #     frames.append(frame.data.obj)
+        # capture.release()
+        #
+        # from caiman_OnACID_mesoscope import Caiman_OnACID_mes
+        # cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
+        # cm.start_pipeline(frames)
+        # self.on_scope.setAutoROI(cm.online_runner)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
+        # self.on_scope.capture.set(cv2.CAP_PROP_POS_FRAMES, 200)
+        # print('Auto ROI init done')
+
         frames = []
         for i in range(init_batch):
-            capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie_out.avi")
-            ret, frame = capture.read()
-            # ret, frame = self.on_scope.capture.read()
+            ret, frame = self.on_scope.capture.read()
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frames.append(frame.data.obj)
-        capture.release()
         frames = np.array(frames)
 
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
@@ -2664,8 +2709,24 @@ class MainWindow(QMainWindow):
         self.on_scope.setAutoROI(cm.online_runner)
         self.on_scope.roi_pos.connect(self.addAutoOnRoi)
         self.on_scope.isAutoROI = True
-        self.on_scope.capture.set(cv2.CAP_PROP_POS_FRAMES, 200)
         print('Auto ROI init done')
+
+    def onacidbatch(self, param_list):
+        self.online_runner = OnlineRunner(parent=self, param_list=param_list)
+        if self.on_scope is None:
+            print('start online scope')
+            self.online_scope()
+
+        fps = int(self.on_scope.capture.get(cv2.CAP_PROP_FPS))
+        height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
+        size = 1    # for test
+
+        self.online_runner.tempFile(fps, width, height, size)
+
+
+
 
     # Online Tab add ROI button clicked
     def addOnRoi(self):

@@ -8970,6 +8970,11 @@ Process</string>
           <string>OnACID_mes</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>OnACID_batch</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="widget_82" native="true">

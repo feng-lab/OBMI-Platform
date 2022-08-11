@@ -31,7 +31,7 @@ from caiman.utils.visualization import get_contours
 from src.caiman_online_runner import OnlineRunner
 
 
-class Caiman_OnACID_mes(QtCore.QThread):
+class Caiman_OnACID_batch(QtCore.QThread):
     roi_pos = QtCore.Signal(list)
 
     def __init__(self, parent: QtCore.QObject, param_list, path=""):
@@ -40,7 +40,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
                             "%(relativeCreated)12d [%(filename)s:%(funcName)20s():%(lineno)s]" \
                             "[%(process)d] %(message)s",
                             level=logging.INFO)
-
+        self.path = path
         self.fr = param_list[0]  # frame rate (Hz)
         self.decay_time = param_list[1]  # approximate length of transient event in seconds
         self.gSig = param_list[2]  # expected half size of neurons
@@ -63,7 +63,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
 
         self.online_runner = None
 
-    def start_pipeline(self, frames):
+    def start_pipeline(self):
         pass # For compatibility between running under Spyder and the CLI
 
         # folder inside ./example_movies where files will be saved
@@ -73,8 +73,9 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # fnames.append(download_demo('Tolias_mesoscope_2.hdf5', fld_name))
         # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
-        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.avi')]
-        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.mp4')]
+        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.avi')]
+        # fnames = [self.path]
 
         # your list of files should look something like this
         #logging.info(fnames)
@@ -100,88 +101,105 @@ class Caiman_OnACID_mes(QtCore.QThread):
         # epochs = 1  # number of passes over the data
         # show_movie = False  # show the movie as the data gets processed
 
-        params_dict = {'fr': self.fr,
-                       'decay_time': self.decay_time,
-                       'gSig': self.gSig,
-                       'p': self.p,
-                       'min_SNR': self.min_SNR,
-                       'rval_thr': self.rval_thr,
-                       'ds_factor': self.ds_factor,
-                       'nb': self.gnb,
-                       'motion_correct': self.mot_corr,
-                       'init_batch': self.init_batch,
-                       'init_method': 'bare',
-                       'normalize': True,
-                       'sniper_mode': False,
-                       'K': self.K,
-                       'epochs': self.epochs,
-                       'max_shifts_online': self.max_shifts_online,
-                       'pw_rigid': self.pw_rigid,
-                       'dist_shape_update': True,
-                       'min_num_trial': 10,
-                       'show_movie': self.show_movie,
-                        'border_pix': 50}
+        # params_dict = {
+        #                'fr': self.fr,
+        #                'decay_time': self.decay_time,
+        #                'gSig': self.gSig,
+        #                'p': self.p,
+        #                'min_SNR': self.min_SNR,
+        #                'rval_thr': self.rval_thr,
+        #                'ds_factor': self.ds_factor,
+        #                'nb': self.gnb,
+        #                'motion_correct': self.mot_corr,
+        #                'init_batch': self.init_batch,
+        #                'init_method': 'bare',
+        #                'normalize': True,
+        #                'sniper_mode': False,
+        #                'K': self.K,
+        #                'epochs': self.epochs,
+        #                'max_shifts_online': self.max_shifts_online,
+        #                'pw_rigid': self.pw_rigid,
+        #                'dist_shape_update': True,
+        #                'min_num_trial': 10,
+        #                'show_movie': self.show_movie,
+        #                 'border_pix': 50}
+        # opts = cnmf.params.CNMFParams(params_dict=params_dict)
+
+        init_batch = 500  # number of frames to use for initialization
+        fr = 10  # frame rate (Hz)
+
+        # m = cm.movie(frames)
+        #
+        # fname_init = m.save('init.mmap', order='C')
+        # print(fname_init)
+
+        params_dict = {'fnames': fnames,
+                       'fr': fr,
+                       'method_init': 'corr_pnr',
+                       'K': 20,
+                       'gSig': (3, 3),
+                       'gSiz': (13, 13),
+                       'merge_thr': .65,
+                       'p': 1,
+                       'tsub': 1,
+                       'ssub': 1,
+                       'only_init': True,
+                       'nb': 0,
+                       'min_corr': .65,
+                       'min_pnr': 6,
+                       'normalize_init': False,
+                       'ring_size_factor': 1.4,
+                       'center_psf': True,
+                       'ssub_B': 2,
+                       'init_iter': 1,
+                       's_min': -10,
+                       'init_batch': init_batch,
+                       'init_method': 'cnmf',
+                       'batch_update_suff_stat': True,
+                       'update_freq': 200,
+                       'expected_comps': 600,
+                       'update_num_comps': True,
+                       'rval_thr': .55,
+                       'thresh_fitness_raw': -130,
+                       'thresh_fitness_delta': -20,
+                       'min_SNR': 2.5,
+                       'min_num_trial': 5,
+                       'max_num_added': 5,
+                       'use_corr_img': False,
+                       'use_dense': False,
+                       'motion_correct': True,  # flag for performing motion correction
+                       'gSig_filt': (3, 3),  # size of high pass spatial filtering, used in 1p data
+                       'use_cnn': False}
+
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
-        # init_batch = 500  # number of frames to use for initialization
-        # fr = 10  # frame rate (Hz)
-        #
-        # # m = cm.movie(frames)
-        # #
-        # # fname_init = m.save('init.mmap', order='C')
-        # # print(fname_init)
-        #
-        # params_dict = {'fr': fr,
-        #                'method_init': 'corr_pnr',
-        #                'K': 20,
-        #                'gSig': (3, 3),
-        #                'gSiz': (13, 13),
-        #                'merge_thr': .65,
-        #                'p': 1,  # # order of AR indicator dynamics
-        #                'tsub': 1,
-        #                'ssub': 1,
-        #                'only_init': True,
-        #                'nb': 0,
-        #                'min_corr': .65,
-        #                'min_pnr': 6,
-        #                'normalize_init': False,
-        #                'ring_size_factor': 1.4,
-        #                'center_psf': True,
-        #                'ssub_B': 2,
-        #                'init_iter': 1,
-        #                's_min': -10,
-        #                'init_batch': init_batch,
-        #                'init_method': 'cnmf',
-        #                'batch_update_suff_stat': True,
-        #                'update_freq': 200,
-        #                'expected_comps': 600,
-        #                'update_num_comps': True,
-        #                'rval_thr': .55,
-        #                'thresh_fitness_raw': -130,
-        #                'thresh_fitness_delta': -20,
-        #                'min_SNR': 2.5,
-        #                'min_num_trial': 5,
-        #                'max_num_added': 5,
-        #                'use_corr_img': False,
-        #                'use_dense': False,
-        #                'motion_correct': True,  # flag for performing motion correction
-        #                'gSig_filt': (3, 3),  # size of high pass spatial filtering, used in 1p data
-        #                'use_cnn': False}
+        try:
+            cm.stop_server()  # stop it if it was running
+        except():
+            pass
 
-        opts = cnmf.params.CNMFParams(params_dict=params_dict)
+        c, dview, n_processes = cm.cluster.setup_cluster(backend='local',
+                                                         n_processes=24,
+                                                         # number of process to use, if you go out of memory try to reduce this one
+                                                         single_thread=False)
+
+        fname_new = cm.save_memmap(fnames, base_name='memmap_',
+                                   order='C', border_to_0=0, dview=dview)
+
+        # load memory mappable file
+        Yr, dims, T = cm.load_memmap(fname_new)
 
     # %% fit online
         cnm = cnmf.online_cnmf.OnACID(dview=None, params=opts)
-        #
-        self.online_runner = OnlineRunner(cnm, frames)
-        self.online_runner.fit_online()
+
+        # self.online_runner = OnlineRunner(cnm, frames)
+        # self.online_runner.fit_online()
 
         #
-        # cnm.fit_online()
-        # dims = frames[0].shape
-        # print("dims:", dims)
-        # comps = get_contours(cnm.estimates.A, dims)
-        # self.roi_pos.emit(comps)
+        cnm.fit_online()
+        comps = get_contours(cnm.estimates.A, dims)
+        cm.stop_server(dview=dview)
+        self.roi_pos.emit(comps)
 
     # # %% plot contours (this may take time)
     #     logging.info('Number of components: ' + str(cnm.estimates.A.shape[-1]))

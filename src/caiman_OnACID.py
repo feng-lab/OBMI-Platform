@@ -63,7 +63,7 @@ class Caiman_OnACID(QtCore.QThread):
 
     def start_pipeline(self, frames):
         pass  # For compatibility between running under Spyder and the CLI
-        # fname = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
+        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
 
         # fr = 30
         # decay_time = .75  # approximate length of transient event in seconds
@@ -81,7 +81,8 @@ class Caiman_OnACID(QtCore.QThread):
         # stride = 3  # amount of overlap between patches
         # K = 4  # max number of components in each patch
 
-        params_dict = {'fr': self.fr,
+        params_dict = {'fnames': fnames,
+                        'fr': self.fr,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
                        'min_num_trial': 12,
@@ -96,11 +97,34 @@ class Caiman_OnACID(QtCore.QThread):
                        'sniper_mode': True,
                        'thresh_CNN_noisy': self.thresh_CNN_noisy,
                        'K': self.K}
+        # params_dict = {'fr': self.fr,
+        #                'decay_time': self.decay_time,
+        #                'gSig': (8,8),
+        #                'min_num_trial': 30,
+        #                # 'gSiz': (60, 60),
+        #                'p': self.p,
+        #                'min_SNR': 10,
+        #                'rval_lowest': 0.3,
+        #                'SNR_lowest': 1.5,
+        #                'nb': self.gnb,
+        #                'init_batch': self.init_batch,
+        #                'init_method': self.init_method,
+        #                'rf': self.patch_size // 2,
+        #                'stride': self.stride,
+        #                'sniper_mode': False,
+        #                'thresh_CNN_noisy': 3,
+        #                'K': 8,
+        #                'use_cnn': False}
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
         cnm = cnmf.online_cnmf.OnACID(params=opts)
         self.online_runner = OnlineRunner(cnm, frames)
         self.online_runner.fit_online()
+        # cnm.fit_online()
+        # dims = frames[0].shape
+        # print("dims:", dims)
+        # comps = get_contours(cnm.estimates.A, dims)
+        # self.roi_pos.emit(comps)
 
     #     Cn = cm.load(fname[0], subindices=slice(0,500)).local_correlations(swap_dim=False)
     #     cnm.estimates.plot_contours(img=Cn)
