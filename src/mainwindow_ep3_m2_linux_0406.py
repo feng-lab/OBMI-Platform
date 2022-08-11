@@ -46,6 +46,7 @@ import pandas as pd
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
+from src.caiman_online_runner import OnlineRunner
 from src.data_receiver import DataReceiver, ReceiverThread
 from vplayer import VPlayer, VPlayerStatus
 
@@ -2601,6 +2602,21 @@ class MainWindow(QMainWindow):
                 print('cancel')
 
     def onacid(self, param_list):
+        self.online_runner = OnlineRunner(parent=self)
+        if self.on_scope is None:
+            print('start online scope')
+            self.online_scope()
+
+        fps = int(self.on_scope.capture.get(cv2.CAP_PROP_FPS))
+        height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        size = 600
+
+        self.online_runner.tempFile(fps, width, height, size)
+
+
+
+    def onacidx(self, param_list):
         if self.on_scope is None:
             camera_ID = self.cameraID
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)

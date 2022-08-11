@@ -29,6 +29,10 @@ class DataReceiver(QObject):
         self.img_buffer = []
         self.filename = datetime.datetime.now().strftime('%F %T') + '.h5'
 
+        self.save_file = h5py.File('trace_data_2.h5', 'w') # change to self.filename
+        self.save_file["version"] = 1.0
+        self.save_file.close()
+
 
     def recieve_img(self, img):
         self.img_buffer.append(img)

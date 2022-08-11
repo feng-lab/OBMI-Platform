@@ -35,8 +35,6 @@ class OnTraceviewer(QWidget):
         self.layout.setContentsMargins(0, 2, 0, 0)
         self.layout.setSpacing(15)
 
-        self.buffer = [[],[]] # temporary store image data
-        self.buffer_index = 0
 
         self.chartlist = [] # store charts
         self.pause = False # pause updating series
@@ -50,10 +48,6 @@ class OnTraceviewer(QWidget):
         # stretch remaining blank
         # self.layout.addStretch(1)
 
-
-        self.save_file = h5py.File('trace_data_2.h5', 'w')
-        self.save_file["version"] = 1.0
-        self.save_file.close()
 
     def trace_update(self):
         pass

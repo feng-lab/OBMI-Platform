@@ -1,3 +1,4 @@
+import datetime
 import logging
 from datetime import time
 from multiprocessing import cpu_count
@@ -5,6 +6,7 @@ from multiprocessing import cpu_count
 import caiman
 import cv2
 import numpy as np
+from PySide2.QtCore import QThread, QObject
 from caiman import mmapping
 from caiman.motion_correction import sliding_window
 from caiman.source_extraction import cnmf as cnmf
@@ -18,20 +20,46 @@ from numpy import hstack
 from typing import List, Tuple
 from scipy.sparse import csc_matrix, coo_matrix
 
+import os
 
+class CaimanLaucher(QObject):
+    def __init__(self):
+        super(CaimanLaucher, self).__init__()
+        # TODO: implement caiman
 
 class OnlineRunner():
-    def __init__(self, cnmf, Y):
+    def __init__(self, cnmf=None, Y=None, parent=None):
         self.cnmf = cnmf
         self.Y = Y
         self.model_LN = None
         self.epochs = 1
         self.t = 0
         self.l = []
+        self.parent = parent
+        self.frame_count = 0
+        self.file_size = 0
 
-    def frame_processx(self, frame):
-        # write to file
-        self.l.append(frame)
+    def tempFile(self, fps, width, height, size):
+        self.path = os.path.abspath('.') + '\\' + 'temp.avi'
+        self.file = cv2.VideoWriter(self.path, cv2.VideoWriter_fourcc('M','J','P','G'), fps, (width, height), True)
+        self.file_size = size
+        self.parent.on_scope.frameG.connect(self.frame_to_file)
+
+
+    def frame_to_file(self, frame):
+        print('get frame: ', self.frame_count)
+        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        self.file.write(frame)
+        self.frame_count += 1
+        if self.file_size == self.frame_count:
+            self.parent.on_scope.frameG.disconnect(self.frame_to_file)
+            self.file.release()
+            print('saved file: ', self.path)
+            self.thread = QThread()
+            self.laucher = CaimanLaucher()
+            self.laucher.moveToThread(self.thread)
+            self.thread.start()
+            return
 
     def frame_process(self, frame):
         # Iterate through the epochs
