@@ -20,6 +20,7 @@ import numpy as np
 import os
 import logging
 import matplotlib.pyplot as plt
+import cv2
 
 import caiman as cm
 from caiman.paths import caiman_datadir
@@ -66,15 +67,10 @@ class Caiman_OnACID_batch(QtCore.QThread):
     def start_pipeline(self):
         pass # For compatibility between running under Spyder and the CLI
 
-        # folder inside ./example_movies where files will be saved
-        # fld_name = 'Mesoscope'
-        # fnames = []
-        # fnames.append(download_demo('Tolias_mesoscope_1.hdf5', fld_name))
-        # fnames.append(download_demo('Tolias_mesoscope_2.hdf5', fld_name))
-        # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.mp4')]
-        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.avi')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'data_endoscope.avi')]
         # fnames = [self.path]
 
         # your list of files should look something like this
@@ -125,18 +121,54 @@ class Caiman_OnACID_batch(QtCore.QThread):
         #                 'border_pix': 50}
         # opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
+
+        #************************************avi-to-mmap************************************
+        # def get_iterator(device=0, fr=None):
+        #     """
+        #     device: device number (int) or filename (string) for reading from camera or file respectively
+        #     fr: frame rate
+        #     """
+        #     if isinstance(device, int):  # capture from camera
+        #         def capture_iter(device=device, fr=fr):
+        #             cap = cv2.VideoCapture(device)
+        #             if fr is not None:  # set frame rate
+        #                 cap.set(cv2.CAP_PROP_FPS, fr)
+        #             while True:
+        #                 yield cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY)
+        #
+        #         iterator = capture_iter(device, fr)
+        #     else:  # read frame by frame from file
+        #         iterator = cm.base.movies.load_iter(device, var_name_hdf5='Y')
+        #     return iterator
+        #
+        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi"
+        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi"
+        # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo_out.avi"
+        # iterator = get_iterator(fnames)
+        #
+        # init_batch = 500  # number of frames to use for initialization
+        # fr = 10  # frame rate (Hz)
+        # T = 6000
+        #
+        # m = cm.movie(np.array([next(iterator) for t in range(T)], dtype='float32'))
+        # fnames = m.save('init.mmap', order='C')
+        # print(fnames)
+        # ************************************avi-to-mmap************************************
+
+        # *************************************direct-mmap***********************************
         init_batch = 500  # number of frames to use for initialization
         fr = 10  # frame rate (Hz)
+        T = 6000
+        fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
+        print(fnames)
+        # *************************************direct-mmap***********************************
 
-        # m = cm.movie(frames)
-        #
-        # fname_init = m.save('init.mmap', order='C')
-        # print(fname_init)
+        # fnames = cm.save_memmap(fnames, base_name='memmap_', order='C', border_to_0=0, dview=dview)
 
         params_dict = {'fnames': fnames,
                        'fr': fr,
                        'method_init': 'corr_pnr',
-                       'K': 20,
+                       'K': 500,
                        'gSig': (3, 3),
                        'gSiz': (13, 13),
                        'merge_thr': .65,
@@ -173,21 +205,13 @@ class Caiman_OnACID_batch(QtCore.QThread):
 
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
-        try:
-            cm.stop_server()  # stop it if it was running
-        except():
-            pass
+        # del iterator
 
-        c, dview, n_processes = cm.cluster.setup_cluster(backend='local',
-                                                         n_processes=24,
-                                                         # number of process to use, if you go out of memory try to reduce this one
-                                                         single_thread=False)
-
-        fname_new = cm.save_memmap(fnames, base_name='memmap_',
-                                   order='C', border_to_0=0, dview=dview)
+        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=24, single_thread=False)
 
         # load memory mappable file
-        Yr, dims, T = cm.load_memmap(fname_new)
+        Yr, dims, T = cm.load_memmap(fnames)
+
 
     # %% fit online
         cnm = cnmf.online_cnmf.OnACID(dview=None, params=opts)
@@ -197,6 +221,49 @@ class Caiman_OnACID_batch(QtCore.QThread):
 
         #
         cnm.fit_online()
+
+        # ************************************test final result***************************************
+        images = Yr.T.reshape((T,) + dims, order='F')
+        cnm2 = cnm
+        cnm2.estimates.A = cnm2.estimates.Ab
+        cnm2.estimates.C = cnm2.estimates.C_on[:cnm2.N]
+        cnm2.estimates.YrA = cnm2.estimates.noisyC[:cnm2.N] - cnm2.estimates.C
+
+        print('cnm2.estimates.A.shape: ', cnm2.estimates.A.shape)
+        print('cnm2.N:', cnm2.N)
+
+        # %% plot contours
+        cn, pnr = cm.summary_images.correlation_pnr(images[::1], gSig=3, swap_dim=False)
+        cnm2.estimates.coordinates = None
+        cnm2.estimates.plot_contours(img=cn, thr=.6)
+
+        # %% view components
+
+        min_SNR = 2  # adaptive way to set threshold on the transient size
+        r_values_min = 0.85  # threshold on space consistency (if you lower more components
+        #                        will be accepted, potentially with worst quality)
+        cnm2.params.set('quality', {'min_SNR': min_SNR,
+                                    'rval_thr': r_values_min,
+                                    'use_cnn': False})
+        cnm2.estimates.evaluate_components(images, cnm2.params, dview=dview)
+
+        # use_CNN = True
+        # if use_CNN:
+        #     # threshold for CNN classifier
+        #     opts.set('quality', {'min_cnn_thr': 0.05})
+        #     cnm2.estimates.evaluate_components_CNN(opts)
+        #     cnm2.estimates.plot_contours(img=cn, idx=cnm2.estimates.idx_components)
+
+        # %% plot results
+        cnm2.estimates.view_components(img=cn, idx=cnm2.estimates.idx_components)
+
+        print(' ***** ')
+        print('Number of total components: ', len(cnm2.estimates.C))
+        print('Number of accepted components: ', len(cnm2.estimates.idx_components))
+        print('len of idx_components:', len(cnm2.estimates.idx_components))
+        cnm2.estimates.plot_contours(img=cn, idx=cnm2.estimates.idx_components)
+        # ************************************test final result***************************************
+
         comps = get_contours(cnm.estimates.A, dims)
         cm.stop_server(dview=dview)
         self.roi_pos.emit(comps)
