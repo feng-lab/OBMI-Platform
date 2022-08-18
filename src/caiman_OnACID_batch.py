@@ -74,8 +74,8 @@ class Caiman_OnACID_batch(QtCore.QThread):
         # fnames.append(download_demo('Tolias_mesoscope_3.hdf5', fld_name))
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.mp4')]
-        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.avi')]
-        # fnames = [self.path]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.avi')]
+        fnames = [self.path]
 
         # your list of files should look something like this
         #logging.info(fnames)
@@ -173,10 +173,6 @@ class Caiman_OnACID_batch(QtCore.QThread):
 
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
-        try:
-            cm.stop_server()  # stop it if it was running
-        except():
-            pass
 
         c, dview, n_processes = cm.cluster.setup_cluster(backend='local',
                                                          n_processes=24,
@@ -189,6 +185,7 @@ class Caiman_OnACID_batch(QtCore.QThread):
         # load memory mappable file
         Yr, dims, T = cm.load_memmap(fname_new)
 
+        print('fit online')
     # %% fit online
         cnm = cnmf.online_cnmf.OnACID(dview=None, params=opts)
 
@@ -197,6 +194,7 @@ class Caiman_OnACID_batch(QtCore.QThread):
 
         #
         cnm.fit_online()
+        print('process done')
         comps = get_contours(cnm.estimates.A, dims)
         cm.stop_server(dview=dview)
         self.roi_pos.emit(comps)

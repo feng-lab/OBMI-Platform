@@ -22,9 +22,9 @@ from scipy.sparse import csc_matrix, coo_matrix
 
 import os
 
-class CaimanLaucher(QObject):
+class CaimanLauncher(QObject):
     def __init__(self, param_list=None, open_video_path="", mainwin=None):
-        super(CaimanLaucher, self).__init__()
+        super(CaimanLauncher, self).__init__()
         # TODO: implement caiman
         self.param_list = param_list
         self.open_video_path = open_video_path
@@ -69,10 +69,11 @@ class OnlineRunner():
             self.file.release()
             print('saved file: ', self.path)
             self.thread = QThread()
-            self.laucher = CaimanLaucher(self.param_list, self.path, self.parent)
-            self.laucher.moveToThread(self.thread)
-            self.thread.started.connect(self.laucher.online_batch)
+            self.launcher = CaimanLauncher(self.param_list, self.path, self.parent)
+            self.launcher.moveToThread(self.thread)
+            self.thread.started.connect(self.launcher.online_batch)
             self.thread.start()
+            self.parent.online_scope()
             return
 
     def frame_process(self, frame):

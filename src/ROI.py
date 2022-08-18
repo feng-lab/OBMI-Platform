@@ -65,16 +65,15 @@ class ROI(QGraphicsPolygonItem):
     def wheelEvent(self, event):
         super().wheelEvent(event)
         if self.type == ROIType.CIRCLE:
-            size = int(self.boundingRect().width())
+            size = int(self.boundingRect().width())-1
             if event.delta() > 0:
                 size += 1
             else:
-                size -= 1
+                if size > 1:
+                    size -= 1
 
             self.circleSizeChange(size)
             self.signals.sizeChange.emit(size)
-            self.contours = self.contourUpdate()
-            self.mat = self.matUpdate()
 
     def circleSizeChange(self, size):
         circle = QGraphicsEllipseItem(0, 0, size, size)
@@ -85,14 +84,15 @@ class ROI(QGraphicsPolygonItem):
     # contour update
     def contourUpdate(self):
         l = self.polygon().toList()
-        pts = [[int(p.x()), int(p.y())] for p in l]
+        pts = [[p.x(), p.y()] for p in l]
         ret = np.array(pts).flatten()
         self.c_size = len(ret)
         return ret
 
     # update mapping matrix
     def matUpdate(self):
-        contour = self.contours.reshape(int(self.c_size / 2), 2)
+        contour = self.contours.astype(int)
+        contour = contour.reshape(int(self.c_size / 2), 2)
         height = self.boundingRect().height()
         width = self.boundingRect().width()
 

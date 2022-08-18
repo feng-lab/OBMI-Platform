@@ -1,6 +1,7 @@
 import h5py
 import numpy
 import scipy
+import torch
 from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
                                QHBoxLayout, QLabel)
@@ -779,7 +780,7 @@ class MainWindow(QMainWindow):
                 g = f['online']
                 # read online roi data
                 if len(g.keys()) > 1:
-                    self.on_scope = OPlayer(0, lock=self.data_lock, parent=self)
+                    self.on_scope = None
                     data = g['roi_data'].value
                     contours = g['roi_contours'].value
                     idx = 0
@@ -794,7 +795,6 @@ class MainWindow(QMainWindow):
                         if type == 1:
                             roi.type = ROIType.CIRCLE
                             roi.size = roi.boundingRect().width()
-                    self.on_scope = None
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -2239,14 +2239,22 @@ class MainWindow(QMainWindow):
         height = int(item.boundingRect().height())
 
         # extract gray value
-        imgmat = frame[y:y + height, x:x + width]
+        imgmat = frame[y:y + height, x:x + width].flatten()
 
-        noise = imgmat * item.noise
-        noise_exist = (item.noise != 0)
+        if torch.cuda.is_available():
+            imgmat = torch.tensor(imgmat)
+            item_noise = torch.tensor(item.noise)
+            item_mat = torch.tensor(item.mat)
+        else:
+            item_noise = item.noise
+            item_mat = item.mat
+
+        noise = imgmat * item_noise
+        noise_exist = (item_noise != 0)
         noise_avg = int(noise.sum() / noise_exist.sum())
 
         # res = imgmat * item.mat
-        res = imgmat * item.mat - noise_avg
+        res = imgmat * item_mat - noise_avg
         res[res < 0] = 0
         exist = (res != 0)
         if exist.sum() == 0:
@@ -2721,7 +2729,7 @@ class MainWindow(QMainWindow):
         height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
         # size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
-        size = 1    # for test
+        size = 600   # for test
 
         self.online_runner.tempFile(fps, width, height, size)
 
