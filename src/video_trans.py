@@ -19,6 +19,10 @@ def matTrans():
     fps = 30
     sav = cv2.VideoWriter(out_path, fourcc, fps, (width, height), isColor=False)
 
+    for frame in mat:
+        sav.write(frame.T)
+    sav.release()
+
 if __name__ == "__main__":
     # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')
     # out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi'
