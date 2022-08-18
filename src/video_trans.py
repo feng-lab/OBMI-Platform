@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def matTrans():
     import h5py
     path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz.mat'
@@ -17,10 +18,6 @@ def matTrans():
     width = 256
     fps = 30
     sav = cv2.VideoWriter(out_path, fourcc, fps, (width, height), isColor=False)
-
-    for frame in mat:
-        sav.write(frame.T)
-    sav.release()
 
 if __name__ == "__main__":
     # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')
@@ -43,5 +40,4 @@ if __name__ == "__main__":
     # cap.release()
     # sav.release()
     matTrans()
-    
 
