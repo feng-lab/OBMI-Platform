@@ -2541,7 +2541,7 @@ class MainWindow(QMainWindow):
         # if not self.player2:
         #     return
         if self.ui.comboBox_23.currentText() == 'OnACID':
-            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid.ui')
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_for_msCam1.ui')
             if dialog.exec() == QDialog.Accepted:
                 param_list = []
 

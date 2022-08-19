@@ -63,7 +63,7 @@ class Caiman_OnACID(QtCore.QThread):
 
     def start_pipeline(self, frames):
         pass  # For compatibility between running under Spyder and the CLI
-        fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
+        # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'demoMovie.avi')]
 
         # fr = 30
         # decay_time = .75  # approximate length of transient event in seconds
@@ -81,12 +81,9 @@ class Caiman_OnACID(QtCore.QThread):
         # stride = 3  # amount of overlap between patches
         # K = 4  # max number of components in each patch
 
-        params_dict = {'fnames': fnames,
-                        'fr': self.fr,
+        params_dict = {'fr': self.fr,
                        'decay_time': self.decay_time,
                        'gSig': self.gSig,
-                       'min_num_trial': 12,
-                       # 'gSiz': (60, 60),
                        'p': self.p,
                        'min_SNR': self.min_SNR,
                        'nb': self.gnb,
@@ -97,24 +94,22 @@ class Caiman_OnACID(QtCore.QThread):
                        'sniper_mode': True,
                        'thresh_CNN_noisy': self.thresh_CNN_noisy,
                        'K': self.K}
+
+        # good for msCam1.avi
         # params_dict = {'fr': self.fr,
         #                'decay_time': self.decay_time,
-        #                'gSig': (8,8),
-        #                'min_num_trial': 30,
-        #                # 'gSiz': (60, 60),
+        #                'gSig': (11, 11),
         #                'p': self.p,
-        #                'min_SNR': 10,
-        #                'rval_lowest': 0.3,
-        #                'SNR_lowest': 1.5,
+        #                'min_SNR': 2.8,
         #                'nb': self.gnb,
         #                'init_batch': self.init_batch,
         #                'init_method': self.init_method,
-        #                'rf': self.patch_size // 2,
-        #                'stride': self.stride,
-        #                'sniper_mode': False,
-        #                'thresh_CNN_noisy': 3,
-        #                'K': 8,
-        #                'use_cnn': False}
+        #                'rf': 128,
+        #                'stride': 6,
+        #                'sniper_mode': True,
+        #                'thresh_CNN_noisy': 0.98,
+        #                'K': 6}
+
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
         cnm = cnmf.online_cnmf.OnACID(params=opts)
