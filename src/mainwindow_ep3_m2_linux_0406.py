@@ -2729,7 +2729,7 @@ class MainWindow(QMainWindow):
         height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
         # size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
-        size = 600   # for test
+        size = 1   # for test
 
         self.online_runner.tempFile(fps, width, height, size)
 

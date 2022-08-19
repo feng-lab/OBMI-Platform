@@ -4,7 +4,8 @@ import numpy as np
 
 def matTrans():
     import h5py
-    path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz.mat'
+    # path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz.mat'
+    path = 'C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz.mat'
     data = h5py.File(path, 'r')
     mat = data['Y']
     mat = np.array(mat)
@@ -12,7 +13,8 @@ def matTrans():
     mat = (mat - mat.min()) / dis * 255
     mat = mat.astype('uint8')
 
-    out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz.avi'
+    # out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz.avi'
+    out_path = 'C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz.avi'
     fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
     height = 256
     width = 256

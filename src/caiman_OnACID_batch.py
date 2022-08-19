@@ -71,7 +71,7 @@ class Caiman_OnACID_batch(QtCore.QThread):
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'msCam1.avi')]
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'CaImAn_demo.mp4')]
         # fnames = [os.path.join(caiman_datadir(), 'example_movies', 'data_endoscope.avi')]
-        # fnames = [self.path]
+
 
 
         # your list of files should look something like this
@@ -122,6 +122,12 @@ class Caiman_OnACID_batch(QtCore.QThread):
         #                 'border_pix': 50}
         # opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
+        # *************************************direct-avi-from-scope, still-need-mmap***********************************
+        # fnames = [self.path]
+        # init_batch = 500
+        # fr = 30
+        # *************************************direct-avi-from-scope***********************************
+
 
         #************************************avi-to-mmap************************************
         # def get_iterator(device=0, fr=None):
@@ -144,11 +150,11 @@ class Caiman_OnACID_batch(QtCore.QThread):
         #
         # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi"
         # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi"
-        # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo_out.avi"
+        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\CaImAn_demo_out.avi"
         # iterator = get_iterator(fnames)
         #
         # init_batch = 500  # number of frames to use for initialization
-        # fr = 10  # frame rate (Hz)
+        # fr = 30  # frame rate (Hz)
         # T = 6000
         #
         # m = cm.movie(np.array([next(iterator) for t in range(T)], dtype='float32'))
@@ -160,11 +166,10 @@ class Caiman_OnACID_batch(QtCore.QThread):
         init_batch = 500  # number of frames to use for initialization
         fr = 10  # frame rate (Hz)
         T = 6000
-        fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
+        # 视频和分割的数据都转置了，为了匹配论文图片方向
+        fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap-T\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
         print(fnames)
         # *************************************direct-mmap***********************************
-
-        # fnames = cm.save_memmap(fnames, base_name='memmap_', order='C', border_to_0=0, dview=dview)
 
         params_dict = {'fnames': fnames,
                        'fr': fr,
@@ -211,6 +216,7 @@ class Caiman_OnACID_batch(QtCore.QThread):
         c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=24, single_thread=False)
 
         # load memory mappable file
+        # fnames_mmap = "C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
         Yr, dims, T = cm.load_memmap(fnames)
 
 
