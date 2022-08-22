@@ -160,7 +160,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         #                'thresh_fitness_raw': -130,
         #                'thresh_fitness_delta': -20,
         #                'min_SNR': 2.5,
-        #                'min_num_trial': 5,
+        #                'min_num_trial': 5,·
         #                'max_num_added': 5,
         #                'use_corr_img': False,
         #                'use_dense': False,
