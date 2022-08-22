@@ -22,7 +22,7 @@ from caiman.paths import caiman_datadir
 from PySide2 import QtCore
 from caiman.utils.visualization import get_contours
 
-from src.caiman_online_runner import OnlineRunner
+from src.caiman_online_runner import OnlineRunner, CaimanThread
 import cv2
 
 
@@ -60,6 +60,8 @@ class Caiman_OnACID(QtCore.QThread):
         self.patch_size = param_list[9]  # size of patch
         self.stride = param_list[10]  # amount of overlap between patches
         self.K = param_list[11]  # max number of components in each patch
+
+        self.parent = parent
 
     def start_pipeline(self, frames):
         pass  # For compatibility between running under Spyder and the CLI
@@ -113,8 +115,12 @@ class Caiman_OnACID(QtCore.QThread):
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
         cnm = cnmf.online_cnmf.OnACID(params=opts)
-        self.online_runner = OnlineRunner(cnm, frames)
-        self.online_runner.fit_online()
+        # self.online_runner = OnlineRunner(cnm, frames)
+        # self.online_runner.fit_online()
+
+        self.online_runner = CaimanThread(self.parent, cnmf=cnm, Y=frames)
+        self.online_runner.start()
+
         # cnm.fit_online()
         # dims = frames[0].shape
         # print("dims:", dims)

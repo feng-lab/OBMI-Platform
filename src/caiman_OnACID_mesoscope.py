@@ -28,7 +28,7 @@ from caiman.utils.utils import download_demo
 from PySide2 import QtCore
 from caiman.utils.visualization import get_contours
 
-from src.caiman_online_runner import OnlineRunner
+from src.caiman_online_runner import OnlineRunner, CaimanThread
 
 
 class Caiman_OnACID_mes(QtCore.QThread):
@@ -61,6 +61,7 @@ class Caiman_OnACID_mes(QtCore.QThread):
         self.epochs = param_list[13]  # number of passes over the data
         self.show_movie = param_list[14]  # show the movie as the data gets processed
 
+        self.parent = parent
         self.online_runner = None
 
     def start_pipeline(self, frames):
@@ -173,8 +174,12 @@ class Caiman_OnACID_mes(QtCore.QThread):
     # %% fit online
         cnm = cnmf.online_cnmf.OnACID(dview=None, params=opts)
         #
-        self.online_runner = OnlineRunner(cnm, frames)
-        self.online_runner.fit_online()
+        # self.online_runner = OnlineRunner(cnm, frames)
+        # self.online_runner.fit_online()
+
+        self.online_runner = CaimanThread(self.parent, cnmf=cnm, Y=frames)
+        self.online_runner.start()
+
 
         #
         # cnm.fit_online()

@@ -61,7 +61,7 @@ class OPlayer(QtCore.QThread):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.updates)
-        self.timer.setInterval(30)
+        self.timer.setInterval(1)
 
         self.ptime = None
         self.timelist = []
@@ -168,7 +168,6 @@ class OPlayer(QtCore.QThread):
 
         if self.isAutoROI:
             t0 = time.time()
-            self.autoROI.frame_process(gray.data.obj)
             if self.autoROI.cnmf.N > self.ROItable.size():
                 self.ROIupdate()
             t1 = time.time()
@@ -194,9 +193,9 @@ class OPlayer(QtCore.QThread):
             self.timelist.append(ct)
             if len(self.timelist) > 100:
                 self.timelist.pop(0)
-            # print('current fps:', 1 / tt)
-            # print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
-            # print('frame cycle time: ', tt)
+            print('current fps:', 1 / tt)
+            print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
+            print('frame cycle time: ', tt)
 
         et = time.time()
         # print('frame end: ', et)

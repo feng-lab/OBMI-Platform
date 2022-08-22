@@ -2672,9 +2672,9 @@ class MainWindow(QMainWindow):
         from caiman_OnACID import Caiman_OnACID
         cm = Caiman_OnACID(self, param_list, self.open_video_path)
         cm.start_pipeline(frames)
-        self.on_scope.setAutoROI(cm.online_runner)
-        self.on_scope.roi_pos.connect(self.addAutoOnRoi)
-        self.on_scope.isAutoROI = True
+        self.on_scope.setAutoROI(cm.online_runner.caiman)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
 
     def onacidmes(self, param_list):
         if self.on_scope is None:
@@ -2714,9 +2714,9 @@ class MainWindow(QMainWindow):
         from caiman_OnACID_mesoscope import Caiman_OnACID_mes
         cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
         cm.start_pipeline(frames)
-        self.on_scope.setAutoROI(cm.online_runner)
-        self.on_scope.roi_pos.connect(self.addAutoOnRoi)
-        self.on_scope.isAutoROI = True
+        self.on_scope.setAutoROI(cm.online_runner.caiman)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
         print('Auto ROI init done')
 
     def onacidbatch(self, param_list):

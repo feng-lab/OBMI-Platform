@@ -4,6 +4,7 @@ import time
 import h5py
 import numpy as np
 import torch
+from PySide2 import QtCore
 from PySide2.QtCore import QObject, QThread
 
 from src.ROI import ROIType
@@ -48,7 +49,8 @@ class DataReceiver(QObject):
 
                 num = len(self.itemlist)
                 data = np.empty((num, 6))
-                contours = []
+                #contours = []
+                shape_data = []
 
                 for i in range(num):
                     item = self.itemlist[i]
@@ -85,11 +87,24 @@ class DataReceiver(QObject):
                         self.trace_viewer.traces[i].pop(0)
                     self.trace_viewer.traces[i].append(avg)
 
+                    if i < 5:
+                        chart = self.trace_viewer.chartlist[i].chart()
+                        chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
+                        chart.axisX().setMax(self.frame_count + 1)
+                        self.trace_viewer.chartlist[i].max = self.frame_count + 1
+                        if self.frame_count + 1 > 500:
+                            chart.axisX().setMin(self.frame_count + 1 - 499)
+                            if chart.series()[0].count() > 500:
+                                chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
+                        if avg > chart.axisY().max():
+                            chart.axisY().setMax(avg)
+
                     # data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
 
                     c_size = item.c_size
-                    contours.append(item.contours)
+                    #contours.append(item.contours)
                     #contours.extend(item.contours.tolist())
+                    shape_data.extend(item.contours.tolist())
 
                     if item.type == ROIType.CIRCLE:
                         type = 1
@@ -104,7 +119,7 @@ class DataReceiver(QObject):
                     g = f.create_group(str)
                     g["image"] = img
                     g["data"] = data
-                    g["contours"] = np.array(contours).flatten()
+                    g["contours"] = np.array(shape_data)
                     #g["contours"] = np.array(contours)
                 self.frame_count += 1
                 t1 = time.time()
