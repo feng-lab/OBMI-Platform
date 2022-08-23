@@ -15,10 +15,12 @@ class ReceiverThread(QThread):
         super(ReceiverThread, self).__init__()
         self.data_receiver = DataReceiver(trace_viewer)
         self.parent = parent
+
     def run(self):
         self.data_receiver.moveToThread(self)
         self.parent.on_scope.frameG.connect(self.data_receiver.recieve_img)
         self.data_receiver.data_handler()
+
 
 class DataReceiver(QObject):
 
@@ -30,10 +32,10 @@ class DataReceiver(QObject):
         self.img_buffer = []
         self.filename = datetime.datetime.now().strftime('%F %T') + '.h5'
 
-        self.save_file = h5py.File('trace_data_2.h5', 'w') # change to self.filename
+        self.save_file = h5py.File('trace_data_2.h5', 'w')  # change to self.filename
         self.save_file["version"] = 1.0
         self.save_file.close()
-
+        self.window_size = 300
 
     def recieve_img(self, img):
         self.img_buffer.append(img)
@@ -49,7 +51,7 @@ class DataReceiver(QObject):
 
                 num = len(self.itemlist)
                 data = np.empty((num, 6))
-                #contours = []
+                # contours = []
                 shape_data = []
 
                 for i in range(num):
@@ -83,27 +85,27 @@ class DataReceiver(QObject):
                         if noise_avg != 0:
                             avg = avg / noise_avg
 
-                    if len(self.trace_viewer.traces[i]) > 100:
+                    if len(self.trace_viewer.traces[i]) > self.window_size:
                         self.trace_viewer.traces[i].pop(0)
                     self.trace_viewer.traces[i].append(avg)
 
                     if i < 5:
                         chart = self.trace_viewer.chartlist[i].chart()
-                        chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
+                        chart.series()[0].append(QtCore.QPointF(self.frame_count + 1, avg))
                         chart.axisX().setMax(self.frame_count + 1)
                         self.trace_viewer.chartlist[i].max = self.frame_count + 1
-                        if self.frame_count + 1 > 100:
-                            chart.axisX().setMin(self.frame_count + 1 - 99)
-                            if chart.series()[0].count() > 100:
-                                chart.series()[0].removePoints(0, chart.series()[0].count() - 100)
+                        if self.frame_count + 1 > self.window_size:
+                            chart.axisX().setMin(self.frame_count - self.window_size + 2)
+                            if chart.series()[0].count() > self.window_size:
+                                chart.series()[0].removePoints(0, chart.series()[0].count() - self.window_size)
                         if avg > chart.axisY().max():
                             chart.axisY().setMax(avg)
 
                     # data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
 
                     c_size = item.c_size
-                    #contours.append(item.contours)
-                    #contours.extend(item.contours.tolist())
+                    # contours.append(item.contours)
+                    # contours.extend(item.contours.tolist())
                     shape_data.extend(item.contours.tolist())
 
                     if item.type == ROIType.CIRCLE:
@@ -120,7 +122,7 @@ class DataReceiver(QObject):
                     g["image"] = img
                     g["data"] = data
                     g["contours"] = np.array(shape_data)
-                    #g["contours"] = np.array(contours)
+                    # g["contours"] = np.array(contours)
                 self.frame_count += 1
                 t1 = time.time()
                 print(f'recieve extraction: {t2 - t0}\n'

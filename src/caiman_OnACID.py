@@ -83,21 +83,21 @@ class Caiman_OnACID(QtCore.QThread):
         # stride = 3  # amount of overlap between patches
         # K = 4  # max number of components in each patch
 
-        params_dict = {'fr': self.fr,
-                       'decay_time': self.decay_time,
-                       'gSig': self.gSig,
-                       'p': self.p,
-                       'min_SNR': self.min_SNR,
-                       'nb': self.gnb,
-                       'init_batch': self.init_batch,
-                       'init_method': self.init_method,
-                       'rf': self.patch_size//2,
-                       'stride': self.stride,
-                       'sniper_mode': True,
-                       'thresh_CNN_noisy': self.thresh_CNN_noisy,
-                       'K': self.K}
+        # params_dict = {'fr': self.fr,
+        #                'decay_time': self.decay_time,
+        #                'gSig': self.gSig,
+        #                'p': self.p,
+        #                'min_SNR': self.min_SNR,
+        #                'nb': self.gnb,
+        #                'init_batch': self.init_batch,
+        #                'init_method': self.init_method,
+        #                'rf': self.patch_size//2,
+        #                'stride': self.stride,
+        #                'sniper_mode': True,
+        #                'thresh_CNN_noisy': self.thresh_CNN_noisy,
+        #                'K': self.K}
 
-        # good for msCam1.avi
+        # good for msCam1.avi without online motion correction
         # params_dict = {'fr': self.fr,
         #                'decay_time': self.decay_time,
         #                'gSig': (11, 11),
@@ -111,6 +111,21 @@ class Caiman_OnACID(QtCore.QThread):
         #                'sniper_mode': True,
         #                'thresh_CNN_noisy': 0.98,
         #                'K': 6}
+        #
+        # good for msCam1.avi with online motion correction by Li mingkang
+        params_dict = {'fr': self.fr,
+                       'decay_time': self.decay_time,
+                       'gSig': (11, 11),
+                       'p': self.p,
+                       'min_SNR': 2.8,
+                       'nb': self.gnb,
+                       'init_batch': self.init_batch,
+                       'init_method': self.init_method,
+                       'rf': 128,
+                       'stride': 6,
+                       'sniper_mode': True,
+                       'thresh_CNN_noisy': 0.98,
+                       'K': 6}
 
         opts = cnmf.params.CNMFParams(params_dict=params_dict)
     # %% fit with online object
