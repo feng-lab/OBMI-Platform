@@ -199,11 +199,11 @@ class OPlayer(QtCore.QThread):
 
         et = time.time()
         # print('frame end: ', et)
-        # delay = (et-st)*1000
-        # if delay < 0:
-        #     self.timer.setInterval(0)
-        # else:
-        #     self.timer.setInterval(int(delay))
+        delay = 33-(et-st)*1000
+        if delay < 0:
+            self.timer.setInterval(0)
+        else:
+            self.timer.setInterval(int(delay))
 
     def ROIupdate(self):
         t0 = time.time()

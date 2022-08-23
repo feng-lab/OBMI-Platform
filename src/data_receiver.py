@@ -83,7 +83,7 @@ class DataReceiver(QObject):
                         if noise_avg != 0:
                             avg = avg / noise_avg
 
-                    if len(self.trace_viewer.traces[i]) > 500:
+                    if len(self.trace_viewer.traces[i]) > 100:
                         self.trace_viewer.traces[i].pop(0)
                     self.trace_viewer.traces[i].append(avg)
 
@@ -92,10 +92,10 @@ class DataReceiver(QObject):
                         chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
                         chart.axisX().setMax(self.frame_count + 1)
                         self.trace_viewer.chartlist[i].max = self.frame_count + 1
-                        if self.frame_count + 1 > 500:
-                            chart.axisX().setMin(self.frame_count + 1 - 499)
-                            if chart.series()[0].count() > 500:
-                                chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
+                        if self.frame_count + 1 > 100:
+                            chart.axisX().setMin(self.frame_count + 1 - 99)
+                            if chart.series()[0].count() > 100:
+                                chart.series()[0].removePoints(0, chart.series()[0].count() - 100)
                         if avg > chart.axisY().max():
                             chart.axisY().setMax(avg)
 

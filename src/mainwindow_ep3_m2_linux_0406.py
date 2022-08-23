@@ -2311,7 +2311,10 @@ class MainWindow(QMainWindow):
 
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
-
+            if self.MC is not None and self.on_template is not None:
+                self.MC.c_onmc = 0
+                self.on_scope.MC = self.MC
+                self.on_scope.ged_template = self.on_template
 
             if self.timermode:
                 self.on_scope.timer.start()
@@ -2494,15 +2497,19 @@ class MainWindow(QMainWindow):
             ## video stop
             if text == 'Scope\nDisconnect' and self.on_scope is not None:
                 self.on_scope.frameI.disconnect(self.online_frame)
-                self.on_scope.stop()
+                if self.timermode:
+                    self.on_scope.timer.stop()
+                else:
+                    self.on_scope.stop()
                 self.on_scope = None
 
                 self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
-            ## test
+            # test
             # filepath = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
-            # self.MC = MCC(filepath, self)
-            self.MC = MCC(scope_num, self)
+            filepath = "C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi"
+            self.MC = MCC(filepath, self)
+            # self.MC = MCC(scope_num, self)
 
             # d_i ### update policy - 다되면 없애는 거 등 필요 ##
             self.mccbar = QtWidgets.QProgressBar()
@@ -2657,9 +2664,20 @@ class MainWindow(QMainWindow):
         if self.on_scope is None:
             camera_ID = self.cameraID
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
-            if self.MC and self.on_template:
+            if self.MC is not None and self.on_template is not None:
+                self.MC.c_onmc = 0
                 self.on_scope.MC = self.MC
                 self.on_scope.ged_template = self.on_template
+            self.on_scope.frameI.connect(self.online_frame)
+
+            if self.timermode:
+                self.on_scope.timer.start()
+            else:
+                # self.moveToThread(self.on_scope)
+                self.on_scope.start()
+
+            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+
 
         init_batch = param_list[8]
         frames = []
