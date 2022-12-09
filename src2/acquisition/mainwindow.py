@@ -359,6 +359,7 @@ class MainWindow(QMainWindow):
 
 	def setupUi(self):
 		self.daq = QUiLoader().load('210927_DAQ.ui')
+		#self.daq = QUiLoader().load('220621_DAQ_edited_fonted.ui')
 		self.setCentralWidget(self.daq)
 
 

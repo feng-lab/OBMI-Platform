@@ -49,6 +49,7 @@ from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
 from src.caiman_online_runner import OnlineRunner
 from src.data_receiver import DataReceiver, ReceiverThread
+from src.decoding.Decoder import DecodingThread
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -94,6 +95,7 @@ class MainWindow(QMainWindow):
         self.data_lock = QtCore.QMutex()  # thread-vari.
 
         self.MC = None
+        self.decoder = None
 
         ## Behavior Camera Connection
         self.ui.connectBehaviorCameraButton.clicked.connect(self.connect_behavior_camera_button_clicked)
@@ -352,7 +354,7 @@ class MainWindow(QMainWindow):
         ## on player
         self.onplayer_scene = QGraphicsScene()
         self.ui.scope_camera_view_item_3.setScene(self.onplayer_scene)
-        self.onplayer_view = QGraphicsView(self.onplayer_scene, parent=self.ui.scope_camera_view_item_3)
+        #self.onplayer_view = QGraphicsView(self.onplayer_scene, parent=self.ui.scope_camera_view_item_3)
         self.ui.scope_camera_view_item_3.setStyleSheet("background-color: rgb(0,0,0);")
         self.onplayer_view_item = QGraphicsPixmapItem()
         self.onplayer_scene.addItem(self.onplayer_view_item)
@@ -371,6 +373,8 @@ class MainWindow(QMainWindow):
         self.ui.horizontalSlider_6.sliderPressed.connect(self.onplayer_slider_pressed)
         self.ui.horizontalSlider_6.valueChanged.connect(self.onplayer_slider_valueChanged)
         self.ui.horizontalSlider_6.sliderReleased.connect(self.onplayer_slider_released)
+
+        self.ui.DecodingButton.clicked.connect(self.decoding)
         ## -------------------------------------------------------------------------------------------
 
         # x#
@@ -1228,6 +1232,17 @@ class MainWindow(QMainWindow):
         if a == '' and b == '':
             self.ui.statusbar.showMessage('--no camera detected--')
 
+    def get_devlist(self):
+        self.dev_list = []  ### temp
+        graph = FilterGraph()
+        try:
+            self.dev_list = graph.get_input_devices()
+        except ValueError:
+            print("-- No device found --")  ## cn sys_info_data
+            self.ui.statusbar.showMessage('-- No device found --', 7000)
+            self.mnotice.setText("no device found ")  ##
+            self.mnotice.exec_()
+
     def get_cam_n(self):
         if 'MINISCOPE' in self.dev_list:
             self.mini_num = self.dev_list.index('MINISCOPE')
@@ -1765,16 +1780,6 @@ class MainWindow(QMainWindow):
         if self.open_video_path != "":
             self.startPlayer2()  # init
 
-    def get_devlist(self):
-        self.dev_list = []  ### temp
-        graph = FilterGraph()
-        try:
-            self.dev_list = graph.get_input_devices()
-        except ValueError:
-            print("-- No device found --")  ## cn sys_info_data
-            self.ui.statusbar.showMessage('-- No device found --', 7000)
-            self.mnotice.setText("no device found ")  ##
-            self.mnotice.exec_()
 
     # player initialization
     # TODO: potential bugs, logic optimization req
@@ -1875,8 +1880,8 @@ class MainWindow(QMainWindow):
 
     @Slot(QtGui.QImage)
     def online_frame(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
-        self.onplayer_view_item.setPixmap(pixmap)
+        self.pixmap = QtGui.QPixmap.fromImage(image)
+        self.onplayer_view_item.setPixmap(self.pixmap)
         # if self.on_scope.rtProcess:
         #     self.update_onplayer_slider(self.on_scope.cur_frame, self.on_scope.total_frame, self.on_scope.s_timer)
 
@@ -2505,9 +2510,10 @@ class MainWindow(QMainWindow):
 
                 self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
+
             # test
-            # filepath = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
-            filepath = "C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi"
+            filepath = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
+            # filepath = "C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi"
             self.MC = MCC(filepath, self)
             # self.MC = MCC(scope_num, self)
 
@@ -2540,13 +2546,6 @@ class MainWindow(QMainWindow):
 
     # TODO:implement algorithm
     def on_auto_roi(self):
-        # x = [267, 119, 106, 211, 229, 49, 206]
-        # y = [81, 94, 169, 235, 133, 17, 202]
-        # for i in range(len(x)):
-        #     self.addOnR(QtCore.QPointF(x[i] + 15.0, y[i] + 15.0))
-        ## need to think about how many/ data for input will be used
-        # if not self.player2:
-        #     return
         if self.ui.comboBox_23.currentText() == 'OnACID':
             dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_for_msCam1.ui')
             if dialog.exec() == QDialog.Accepted:
@@ -2850,30 +2849,31 @@ class MainWindow(QMainWindow):
             self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
             print('connection')
 
-        if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
-            if type(self.on_template) != type(None):
-                print('yes you have template')
-                self.MC.c_onmc = 0  ##
-                self.on_scope.MC = self.MC
-                self.on_scope.ged_template = self.on_template  ###
-                ##self.MCC.on_mc(self.on_template, )
+            if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
+                if type(self.on_template) != type(None):
+                    print('yes you have template')
+                    self.MC.c_onmc = 0  ##
+                    self.on_scope.MC = self.MC
+                    self.on_scope.ged_template = self.on_template  ###
+                    ##self.MCC.on_mc(self.on_template, )
+                else:
+                    print('no template')
+                ## need to check process status of processing (motion corrected | ROI selected)
             else:
-                print('no template')
-            ## need to check process status of processing (motion corrected | ROI selected)
-        else:
-            print('check X - motion correction ')
-        self.thread = ReceiverThread(self.ontrace_viewer, self)
-        # self.data_receiver = DataReceiver(self.ontrace_viewer)
-        # self.on_scope.frameG.connect(self.data_receiver.recieve_img)
-        # self.data_receiver.moveToThread(self.thread)
-        self.thread.start()
+                print('check X - motion correction ')
+
+        self.receive_thread = QThread()
+        self.receiver = DataReceiver(self.ontrace_viewer, self)
+        self.receive_thread.started.connect(self.receiver.start)
+        self.receive_thread.start()
+
         #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()
         # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
 
-        self.ui.horizontalSlider_7.setMaximum(1)
-        self.ui.horizontalSlider_7.setValue(1)
-        self.ui.pushButton_129.setText('pause')
+        # self.ui.horizontalSlider_7.setMaximum(1)
+        # self.ui.horizontalSlider_7.setValue(1)
+        # self.ui.pushButton_129.setText('pause')
         self.on_scope.rtProcess = True
 
     # initialize online trace viewer
@@ -2887,6 +2887,26 @@ class MainWindow(QMainWindow):
         self.ui.scrollAreaWidgetContents_7.setLayout(trace_layout)
         # random addition for testing
         self.onroi_table.btn1.clicked.connect(self.onroi_table.randomAdd)
+
+    #########################################################################
+    #                                                                       #
+    #                                                                       #
+    #                                Decoding                               #
+    #                                                                       #
+    #                                                                       #
+    #########################################################################
+
+    def decoding(self):
+        print('decoding pressed')
+        if not self.on_scope.rtProcess:
+            print('Start reat time process before decoding')
+            return
+
+        if self.decoder is None:
+            self.decoder = DecodingThread()
+            self.decoder.start()
+
+        pass
 
     #########################################################################
     #                                                                       #

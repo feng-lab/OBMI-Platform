@@ -1,0 +1,3484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1451</width>
+    <height>791</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1280</width>
+    <height>720</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QStatusBar::tab{height:32}
+</string>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="minimumSize">
+    <size>
+     <width>1280</width>
+     <height>720</height>
+    </size>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QWidget" name="widget_33" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>1280</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(4, 51, 94);</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QWidget" name="widget_36" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>1920</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(4, 51, 94);</string>
+           </property>
+           <widget class="QPushButton" name="dec_button">
+            <property name="geometry">
+             <rect>
+              <x>572</x>
+              <y>4</y>
+              <width>120</width>
+              <height>37</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>13</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/home/tab_decoding_2.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="daq_button">
+            <property name="geometry">
+             <rect>
+              <x>102</x>
+              <y>4</y>
+              <width>130</width>
+              <height>37</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>13</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/home/tab_acq_2.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="offl_button">
+            <property name="geometry">
+             <rect>
+              <x>232</x>
+              <y>4</y>
+              <width>170</width>
+              <height>37</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>13</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/home/tab_off_2.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="home_button">
+            <property name="geometry">
+             <rect>
+              <x>2</x>
+              <y>4</y>
+              <width>100</width>
+              <height>37</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>13</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/home/tab_home_2.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="onl_button">
+            <property name="geometry">
+             <rect>
+              <x>402</x>
+              <y>4</y>
+              <width>170</width>
+              <height>37</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>13</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/home/tab_on_1.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="Online">
+         <layout class="QGridLayout" name="gridLayout_9">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QWidget" name="widget_82" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>62</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>62</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="baseSize">
+               <size>
+                <width>0</width>
+                <height>881</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(245, 248, 250);</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_2">
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <property name="verticalSpacing">
+                  <number>20</number>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QPushButton" name="OnBehCamPanelButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 6.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QPushButton" name="OnScopeCamPanelButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 8.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="Line" name="line_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>2</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>2</height>
+                    </size>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QPushButton" name="OnLeverPanelButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 9.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="Line" name="line_6">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>2</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>2</height>
+                    </size>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="OnLayoutOneButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 10.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QPushButton" name="OnLayoutTwoButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 11.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QPushButton" name="OnLayoutThreeButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>44</width>
+                     <height>44</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-image: url(:/sidebar/Asset 12.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="widget_84" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>1218</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="widget_83" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>1218</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(169, 202, 247);</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_4">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_170">
+                    <property name="font">
+                     <font>
+                      <pointsize>11</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Project 20210112</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,2,1">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QTabWidget" name="tabWidget_7">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>253</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QTabBar::tab{height:29}
+border-color: rgb(0, 0, 0);
+QTabBar::tab{width:71}
+background-color: rgb(255, 255, 255);</string>
+                   </property>
+                   <property name="currentIndex">
+                    <number>1</number>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>29</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                   <widget class="QWidget" name="tab_11">
+                    <attribute name="title">
+                     <string>History</string>
+                    </attribute>
+                   </widget>
+                   <widget class="QWidget" name="roi_tab">
+                    <attribute name="title">
+                     <string>ROI List</string>
+                    </attribute>
+                   </widget>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="widget_85" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>1550</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-color: rgb(0, 0, 0);
+border-color: rgb(0, 0, 0);</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_5">
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <item row="0" column="0">
+                     <widget class="QWidget" name="widget_90" native="true">
+                      <property name="styleSheet">
+                       <string notr="true">border-color: rgb(0, 0, 0);</string>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,0,0">
+                       <item row="0" column="2">
+                        <spacer name="horizontalSpacer_14">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeType">
+                          <enum>QSizePolicy::Preferred</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item row="0" column="0">
+                        <spacer name="horizontalSpacer_13">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeType">
+                          <enum>QSizePolicy::Fixed</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QGraphicsView" name="scope_camera_view_item_3">
+                         <property name="maximumSize">
+                          <size>
+                           <width>890</width>
+                           <height>552</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">background-color: rgb(0, 0, 0);</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QWidget" name="widget_92" native="true">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>1550</width>
+                        <height>260</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">border-color: rgb(0, 0, 0);</string>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_3">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QWidget" name="widget_94" native="true">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>217</width>
+                           <height>260</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+                         </property>
+                         <layout class="QGridLayout" name="gridLayout_7">
+                          <item row="0" column="0">
+                           <widget class="QLabel" name="label_179">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <family>Arial</family>
+                              <pointsize>10</pointsize>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>00:00</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="0">
+                           <spacer name="verticalSpacer_15">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Expanding</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>211</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QWidget" name="widget_97" native="true">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>1241</width>
+                           <height>260</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);</string>
+                         </property>
+                         <layout class="QFormLayout" name="formLayout_6">
+                          <property name="horizontalSpacing">
+                           <number>0</number>
+                          </property>
+                          <property name="verticalSpacing">
+                           <number>0</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item row="0" column="0" colspan="2">
+                           <layout class="QGridLayout" name="gridLayout_21" columnstretch="0,0,0,1,0,2">
+                            <item row="0" column="0" colspan="6">
+                             <widget class="QSlider" name="horizontalSlider_9">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>1241</width>
+                                <height>12</height>
+                               </size>
+                              </property>
+                              <property name="toolTip">
+                               <string>Scope Player</string>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true"/>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="0">
+                             <widget class="QLabel" name="DePlayerRate_3">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Rate: 1x  </string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="3">
+                             <spacer name="horizontalSpacer_16">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>40</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item row="1" column="2">
+                             <widget class="QLabel" name="DePlayerTime_3">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Time: 00.0/000.0 sec</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="4">
+                             <layout class="QGridLayout" name="gridLayout_22">
+                              <property name="horizontalSpacing">
+                               <number>5</number>
+                              </property>
+                              <property name="verticalSpacing">
+                               <number>0</number>
+                              </property>
+                              <item row="0" column="0">
+                               <widget class="QPushButton" name="DePlayerLastButton_3">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <pointsize>10</pointsize>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">#DePlayerLastButton_3{
+background-color: transparent; 
+border-image: url(:/media/previous.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#DePlayerLastButton_3:pressed
+{
+border-image:url(:/media/previous_pre.png);
+background-repeat: no-repeat;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="1">
+                               <widget class="QPushButton" name="DePlayerSlowButton_3">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <pointsize>10</pointsize>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">#DePlayerSlowButton_3{
+background-color: transparent; 
+border-image: url(:/media/rw.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#DePlayerSlowButton_3:pressed
+{
+border-image:url(:/media/rw_pre.png);
+background-repeat: no-repeat;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="2">
+                               <widget class="QPushButton" name="DePlayerPlayButton_3">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <pointsize>10</pointsize>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">border-image: url(:/media/play.png);</string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="3">
+                               <widget class="QPushButton" name="DePlayerFastButton_3">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <pointsize>10</pointsize>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">#DePlayerFastButton_3{
+background-color: transparent; 
+border-image: url(:/media/ff.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#DePlayerFastButton_3:pressed
+{
+border-image:url(:/media/ff_pre.png);
+background-repeat: no-repeat;
+}
+</string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="4">
+                               <widget class="QPushButton" name="DePlayerNextButton_3">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>40</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <pointsize>10</pointsize>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">#DePlayerNextButton_3{
+background-color: transparent; 
+border-image: url(:/media/next.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#DePlayerNextButton_3:pressed
+{
+border-image:url(:/media/next_pre.png);
+background-repeat: no-repeat;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item row="1" column="5">
+                             <spacer name="horizontalSpacer_17">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeType">
+                               <enum>QSizePolicy::Expanding</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>40</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item row="1" column="1">
+                             <widget class="QLabel" name="DePlayerFrame_3">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Frame: 0</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item row="1" column="1">
+                           <spacer name="verticalSpacer_33">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Fixed</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item row="3" column="0" colspan="2">
+                           <widget class="QGraphicsView" name="DeSelectTraceView_3">
+                            <property name="styleSheet">
+                             <string notr="true">background-color: rgb(245, 248, 250);</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="4" column="1">
+                           <spacer name="verticalSpacer_34">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Fixed</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item row="6" column="0" colspan="2">
+                           <widget class="QGraphicsView" name="DeLeverPressureViewLarge_3">
+                            <property name="styleSheet">
+                             <string notr="true">background-color: rgb(245, 248, 250);</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="7" column="1">
+                           <spacer name="verticalSpacer_19">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Fixed</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item row="2" column="1">
+                           <widget class="QLabel" name="label">
+                            <property name="font">
+                             <font>
+                              <family>Arial</family>
+                              <pointsize>8</pointsize>
+                              <weight>75</weight>
+                              <bold>true</bold>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>Selected Neuron Trace Graph: </string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="5" column="1">
+                           <widget class="QLabel" name="label_2">
+                            <property name="font">
+                             <font>
+                              <family>Arial</family>
+                              <pointsize>8</pointsize>
+                              <weight>75</weight>
+                              <bold>true</bold>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>Lever Pressure Gauge: </string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QWidget" name="widget_96" native="true">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>92</width>
+                           <height>260</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+                         </property>
+                         <layout class="QGridLayout" name="gridLayout_23">
+                          <item row="1" column="0">
+                           <spacer name="verticalSpacer_20">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Expanding</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>210</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item row="0" column="0">
+                           <widget class="QLabel" name="label_183">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <family>Arial</family>
+                              <pointsize>10</pointsize>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>00:00</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QTabWidget" name="tabWidget_8">
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QTabBar::tab{height:29}
+QTabBar::tab{width:103}</string>
+                   </property>
+                   <property name="currentIndex">
+                    <number>0</number>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>30</width>
+                     <height>60</height>
+                    </size>
+                   </property>
+                   <widget class="QWidget" name="tab_13">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(255, 255, 255);</string>
+                    </property>
+                    <attribute name="title">
+                     <string>Multi-Trace</string>
+                    </attribute>
+                    <layout class="QGridLayout" name="gridLayout_25">
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item row="0" column="0">
+                      <layout class="QVBoxLayout" name="verticalLayout_9">
+                       <item>
+                        <widget class="QScrollArea" name="scrollArea_7">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="widgetResizable">
+                          <bool>true</bool>
+                         </property>
+                         <widget class="QWidget" name="scrollAreaWidgetContents_7">
+                          <property name="geometry">
+                           <rect>
+                            <x>0</x>
+                            <y>0</y>
+                            <width>353</width>
+                            <height>287</height>
+                           </rect>
+                          </property>
+                          <layout class="QVBoxLayout" name="verticalLayout_10"/>
+                         </widget>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="verticalSpacer_21">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeType">
+                          <enum>QSizePolicy::Fixed</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>12</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QGraphicsView" name="OffLeverPressureViewSmall">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>60</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>60</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">background-color: rgb(245, 248, 250);</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QWidget" name="widget_86" native="true">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">border-color: rgb(0, 0, 0);</string>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_2">
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="0,1,0">
+                            <property name="spacing">
+                             <number>0</number>
+                            </property>
+                            <property name="sizeConstraint">
+                             <enum>QLayout::SetMinimumSize</enum>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="OffPlayerStartTimeRight">
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>00:00</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <spacer name="horizontalSpacer_34">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>278</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="OffPlayerFinishTimeRight">
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>00:00</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <widget class="QSlider" name="horizontalSlider_6">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>12</height>
+                             </size>
+                            </property>
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="0,0,0,1">
+                            <item>
+                             <widget class="QLabel" name="OffPlayerRateRight">
+                              <property name="minimumSize">
+                               <size>
+                                <width>60</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Rate: 1x</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="OffPlayerFrameRight">
+                              <property name="minimumSize">
+                               <size>
+                                <width>60</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Frame: 0</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="OffPlayerTimeRight">
+                              <property name="minimumSize">
+                               <size>
+                                <width>130</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Time: 00.0/000.0 sec</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <spacer name="horizontalSpacer_45">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>40</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QGridLayout" name="gridLayout_24">
+                            <item row="0" column="2">
+                             <widget class="QPushButton" name="OffPlayerSlowButtonRight">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">#OffPlayerSlowButtonRight{
+background-color: transparent; 
+border-image: url(:/media/rw.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffPlayerSlowButtonRight:pressed
+{
+border-image:url(:/media/rw_pre.png);
+background-repeat: no-repeat;
+}</string>
+                              </property>
+                              <property name="text">
+                               <string/>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="0">
+                             <spacer name="horizontalSpacer_46">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>40</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item row="0" column="3">
+                             <widget class="QPushButton" name="OffPlayerPlayButtonRight">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">border-image: url(:/media/play.png);</string>
+                              </property>
+                              <property name="text">
+                               <string/>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="6">
+                             <spacer name="horizontalSpacer_47">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>40</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item row="0" column="1">
+                             <widget class="QPushButton" name="OffPlayerLastButtonRight">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">#OffPlayerLastButtonRight{
+background-color: transparent; 
+border-image: url(:/media/previous.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffPlayerLastButtonRight:pressed
+{
+border-image:url(:/media/previous_pre.png);
+background-repeat: no-repeat;
+}</string>
+                              </property>
+                              <property name="text">
+                               <string/>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="5">
+                             <widget class="QPushButton" name="OffPlayerNextButtonRight">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">#OffPlayerNextButtonRight{
+background-color: transparent; 
+border-image: url(:/media/next.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffPlayerNextButtonRight:pressed
+{
+border-image:url(:/media/next_pre.png);
+background-repeat: no-repeat;
+}</string>
+                              </property>
+                              <property name="text">
+                               <string/>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="4">
+                             <widget class="QPushButton" name="OffPlayerFastButtonRight">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>40</width>
+                                <height>30</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>9</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">#OffPlayerFastButtonRight{
+background-color: transparent; 
+border-image: url(:/media/ff.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffPlayerFastButtonRight:pressed
+{
+border-image:url(:/media/ff_pre.png);
+background-repeat: no-repeat;
+}</string>
+                              </property>
+                              <property name="text">
+                               <string/>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item row="1" column="0">
+                      <spacer name="verticalSpacer_22">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::Fixed</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>20</width>
+                         <height>10</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="tab_14">
+                    <attribute name="title">
+                     <string>Visualization</string>
+                    </attribute>
+                   </widget>
+                   <widget class="QWidget" name="tab_9">
+                    <attribute name="title">
+                     <string>System</string>
+                    </attribute>
+                   </widget>
+                   <widget class="QWidget" name="tab_10">
+                    <attribute name="title">
+                     <string>Note</string>
+                    </attribute>
+                   </widget>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <widget class="QWidget" name="widget_68" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>1280</width>
+              <height>126</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>126</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(245, 248, 250);</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="4">
+              <widget class="QWidget" name="widget_4" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>120</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(255, 255, 127);
+background-color: rgb(245, 248, 250);</string>
+               </property>
+               <widget class="QToolButton" name="OnRealtimeProcessButton">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>16</y>
+                  <width>102</width>
+                  <height>74</height>
+                 </rect>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OnRealtimeProcessButton{
+background-color: transparent; 
+border-image: url(:/online/Asset 24.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OnRealtimeProcessButton:pressed
+{
+border-image:url(:/online/Asset 24_pre.png);
+background-repeat: no-repeat;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QWidget" name="widget_5" native="true">
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(170, 255, 255);
+background-color: rgb(245, 248, 250);</string>
+               </property>
+               <widget class="QPushButton" name="DeDecodingButton_2">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>16</y>
+                  <width>80</width>
+                  <height>74</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>74</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>74</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#DeDecodingButton_2{
+background-color: transparent; 
+border-image: url(:/decoding/Asset 28.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#DeDecodingButton_2:pressed
+{
+border-image:url(:/decoding/Asset 28_pre.png);
+background-repeat: no-repeat;
+}
+
+</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QLabel" name="Decoding_label">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>100</y>
+                  <width>121</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QWidget" name="widget_2" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>322</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>322</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(170, 255, 127);
+background-color: rgb(245, 248, 250);</string>
+               </property>
+               <widget class="QCheckBox" name="OnMotionCorrectionCheck">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>10</y>
+                  <width>158</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Motion Correction</string>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="OnCropSizeValue">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>40</y>
+                  <width>62</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>62</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>62</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>150</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>300</string>
+                 </property>
+                </item>
+               </widget>
+               <widget class="QLabel" name="label_161">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>40</y>
+                  <width>71</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>CropSize:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_160">
+                <property name="geometry">
+                 <rect>
+                  <x>160</x>
+                  <y>40</y>
+                  <width>18</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>px</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_163">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>70</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Preview Duration</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="OnPreDurationValue">
+                <property name="geometry">
+                 <rect>
+                  <x>115</x>
+                  <y>70</y>
+                  <width>50</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_219">
+                <property name="geometry">
+                 <rect>
+                  <x>170</x>
+                  <y>70</y>
+                  <width>27</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>sec</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_159">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>101</y>
+                  <width>301</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>11</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(67, 114, 193);</string>
+                </property>
+                <property name="text">
+                 <string>Processing Option</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QToolButton" name="OnPreProcessingButton">
+                <property name="geometry">
+                 <rect>
+                  <x>210</x>
+                  <y>16</y>
+                  <width>102</width>
+                  <height>74</height>
+                 </rect>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OnPreProcessingButton{
+background-color: transparent; 
+border-image: url(:/online/Asset 23_pre.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OnPreProcessingButton:pressed
+{
+border-image:url(:/online/Asset 23.png);
+background-repeat: no-repeat;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+               <widget class="Line" name="line_2">
+                <property name="geometry">
+                 <rect>
+                  <x>319</x>
+                  <y>12</y>
+                  <width>2</width>
+                  <height>106</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QWidget" name="widget_3" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>280</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>280</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(0, 255, 127);
+background-color: rgb(245, 248, 250);
+</string>
+               </property>
+               <widget class="QToolButton" name="OnAutoROIButton">
+                <property name="geometry">
+                 <rect>
+                  <x>170</x>
+                  <y>16</y>
+                  <width>80</width>
+                  <height>74</height>
+                 </rect>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OnAutoROIButton{
+background-color: transparent; 
+border-image: url(:/online/Asset 17.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OnAutoROIButton:pressed
+{
+border-image:url(:/online/Asset 17_pre.png);
+background-repeat: no-repeat;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_166">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>50</y>
+                  <width>93</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Algorithm：</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="comboBox_23">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>50</y>
+                  <width>75</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>75</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>75</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>OnACID</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>OnACID_mes</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>OnACID_batch</string>
+                 </property>
+                </item>
+               </widget>
+               <widget class="QLabel" name="label_164">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>101</y>
+                  <width>261</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>261</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>11</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(67, 114, 193);</string>
+                </property>
+                <property name="text">
+                 <string>ROI Selection</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="OnROIShowButton">
+                <property name="geometry">
+                 <rect>
+                  <x>260</x>
+                  <y>51</y>
+                  <width>8</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border-image: url(:/online/Arrow.png);</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="Line" name="line_3">
+                <property name="geometry">
+                 <rect>
+                  <x>275</x>
+                  <y>12</y>
+                  <width>2</width>
+                  <height>106</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QWidget" name="widget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>152</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>152</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(170, 255, 0);
+background-color: rgb(245, 248, 250);</string>
+               </property>
+               <widget class="QToolButton" name="OnScopeCamButton">
+                <property name="geometry">
+                 <rect>
+                  <x>25</x>
+                  <y>16</y>
+                  <width>94</width>
+                  <height>72</height>
+                 </rect>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OnScopeCamButton{
+background-color: transparent; 
+border-image: url(:/online/Asset 14.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OnScopeCamButton:pressed
+{
+border-image:url(:/online/Asset 14_pre.png);
+background-repeat: no-repeat;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="OnScopeShowButton">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>51</y>
+                  <width>8</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border-image: url(:/online/Arrow.png);</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QWidget" name="OnScopeCamSign" native="true">
+                <property name="geometry">
+                 <rect>
+                  <x>20</x>
+                  <y>101</y>
+                  <width>16</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(85, 85, 127);</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="OnScopeCamStatusLabel">
+                <property name="geometry">
+                 <rect>
+                  <x>40</x>
+                  <y>101</y>
+                  <width>97</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>11</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(67, 114, 193);</string>
+                </property>
+                <property name="text">
+                 <string>Connected</string>
+                </property>
+               </widget>
+               <widget class="Line" name="line">
+                <property name="geometry">
+                 <rect>
+                  <x>150</x>
+                  <y>12</y>
+                  <width>2</width>
+                  <height>106</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QWidget" name="widget_7" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>396</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>396</width>
+                 <height>126</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(170, 170, 255);
+background-color: rgb(245, 248, 250);</string>
+               </property>
+               <widget class="Line" name="line_22">
+                <property name="geometry">
+                 <rect>
+                  <x>392</x>
+                  <y>12</y>
+                  <width>2</width>
+                  <height>106</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>2</width>
+                  <height>106</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_134">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>10</y>
+                  <width>69</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Location:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_135">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>10</y>
+                  <width>33</width>
+                  <height>18</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Size</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QSpinBox" name="OnROILocationXValue_5">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>30</y>
+                  <width>44</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>44</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>44</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+               </widget>
+               <widget class="QSpinBox" name="OnROISizeValue_5">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>30</y>
+                  <width>45</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>45</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>45</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+               </widget>
+               <widget class="QSpinBox" name="OnROILocationYValue_5">
+                <property name="geometry">
+                 <rect>
+                  <x>60</x>
+                  <y>30</y>
+                  <width>44</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>44</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>44</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_216">
+                <property name="geometry">
+                 <rect>
+                  <x>180</x>
+                  <y>30</y>
+                  <width>18</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>px</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_223">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>50</y>
+                  <width>40</width>
+                  <height>17</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Style:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="OnROIStyleValue_5">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>70</y>
+                  <width>75</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>75</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>75</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                 </font>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Round</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Square</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Freehand</string>
+                 </property>
+                </item>
+               </widget>
+               <widget class="QSlider" name="OnROISizeSlider_5">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>70</y>
+                  <width>100</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_49">
+                <property name="geometry">
+                 <rect>
+                  <x>160</x>
+                  <y>101</y>
+                  <width>96</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>11</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(67, 114, 193);</string>
+                </property>
+                <property name="text">
+                 <string>ROI Editing</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="pushButton_134">
+                <property name="geometry">
+                 <rect>
+                  <x>210</x>
+                  <y>20</y>
+                  <width>38</width>
+                  <height>38</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#pushButton_134{
+background-color: transparent; 
+border-image: url(:/offline/Asset 18.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#pushButton_134:pressed
+{
+border-image:url(:/offline/Asset 18_pre.png);
+background-repeat: no-repeat;
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="OffROITranButton_5">
+                <property name="geometry">
+                 <rect>
+                  <x>270</x>
+                  <y>20</y>
+                  <width>38</width>
+                  <height>38</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OffROITranButton_5{
+background-color: transparent; 
+border-image: url(:/offline/Asset 19.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffROITranButton_5:pressed
+{
+border-image:url(:/offline/Asset 19_pre.png);
+background-repeat: no-repeat;
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="OffROIDeleteButton_5">
+                <property name="geometry">
+                 <rect>
+                  <x>330</x>
+                  <y>20</y>
+                  <width>38</width>
+                  <height>38</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>38</width>
+                  <height>38</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">#OffROIDeleteButton_5{
+background-color: transparent; 
+border-image: url(:/offline/Asset 20.png);
+background:none;
+border:none;
+background-repeat:none;
+}
+#OffROIDeleteButton_5:pressed
+{
+border-image:url(:/offline/Asset 20_pre.png);
+background-repeat: no-repeat;
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_227">
+                <property name="geometry">
+                 <rect>
+                  <x>215</x>
+                  <y>60</y>
+                  <width>28</width>
+                  <height>35</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string>Add
+(A)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_228">
+                <property name="geometry">
+                 <rect>
+                  <x>250</x>
+                  <y>60</y>
+                  <width>74</width>
+                  <height>35</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string>Transform
+(T)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_229">
+                <property name="geometry">
+                 <rect>
+                  <x>327</x>
+                  <y>60</y>
+                  <width>45</width>
+                  <height>35</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string>Delete
+(D)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+               <widget class="QPushButton" name="OnROIHideButton_5">
+                <property name="geometry">
+                 <rect>
+                  <x>376</x>
+                  <y>51</y>
+                  <width>8</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>8</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border-image: url(:/online/LeftArrow.png);</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+            <zorder>widget_7</zorder>
+            <zorder>widget</zorder>
+            <zorder>widget_2</zorder>
+            <zorder>widget_3</zorder>
+            <zorder>widget_4</zorder>
+            <zorder>widget_5</zorder>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>26</height>
+    </size>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../150ppi/iconlist.qrc"/>
+ </resources>
+ <connections/>
+</ui>

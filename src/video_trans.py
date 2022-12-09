@@ -25,6 +25,29 @@ def matTrans():
         sav.write(frame.T)
     sav.release()
 
+def videocut():
+    cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\\2.mp4')
+    out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\behavior.avi'
+    fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    print(height, width)
+    sav = cv2.VideoWriter(out_path, fourcc, fps, (int(width/2), height), True)
+    out_frame = np.zeros((height,int(width/2),3), 'uint8')
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        out_frame = frame[:,:int(width/2),:]
+        #out_frame = cv2.resize(frame, dsize=(200, 150), interpolation=cv2.INTER_CUBIC)
+        sav.write(out_frame)
+
+    cap.release()
+    sav.release()
+
 if __name__ == "__main__":
     # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')
     # out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi'
@@ -45,5 +68,6 @@ if __name__ == "__main__":
     #
     # cap.release()
     # sav.release()
-    matTrans()
+    #matTrans()
+    videocut()
 

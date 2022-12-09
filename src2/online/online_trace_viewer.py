@@ -1,6 +1,7 @@
 import time
 
 import cv2
+import torch
 from PySide2 import QtCore
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QGraphicsLineItem, QGraphicsTextItem, QLabel
 from PySide2.QtCharts import QtCharts
@@ -12,6 +13,9 @@ import h5py
 import datetime
 # Trace Viewer for displaying trace
 # param: brightlist - a list contains all brightness info of each ROI circle
+from src.ROI import ROIType
+
+
 class OnTraceviewer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,8 +35,6 @@ class OnTraceviewer(QWidget):
         self.layout.setContentsMargins(0, 2, 0, 0)
         self.layout.setSpacing(15)
 
-        self.buffer = [[],[]] # temporary store image data
-        self.buffer_index = 0
 
         self.chartlist = [] # store charts
         self.pause = False # pause updating series
@@ -45,12 +47,10 @@ class OnTraceviewer(QWidget):
         # parent.on_scope.frameG.connect(self.update_s)
         # stretch remaining blank
         # self.layout.addStretch(1)
-        self.filename = datetime.datetime.now().strftime('%F %T')+'.h5'
-
-        self.save_file = h5py.File('trace_data.h5', 'w')
-        self.save_file.close()
 
 
+    def trace_update(self):
+        pass
 
 
     def timer_init(self):
@@ -60,44 +60,83 @@ class OnTraceviewer(QWidget):
         self.timer.start(200)
 
     def recieve_img(self, img):
-        # self.buffer[self.buffer_index].append(img)
         t0 = time.time()
 
         num = len(self.itemlist)
-        data = np.empty((num, 5))
+        data = np.empty((num, 6))
+        contours = []
 
         for i in range(num):
             item = self.itemlist[i]
             x = int(item.pos().x())
             y = int(item.pos().y())
-            width = int(item.rect().width())
-            height = int(item.rect().height())
+            width = int(item.boundingRect().width())
+            height = int(item.boundingRect().height())
 
             # extract gray value
-            imgmat = img[y:y+height, x:x+width]
+            imgmat = img[y:y+height, x:x+width].flatten()
+            if torch.cuda.is_available():
+                imgmat = torch.tensor(imgmat)
+                item_noise = torch.tensor(item.noise)
+                item_mat = torch.tensor(item.mat)
+            else:
+                item_noise = item.noise
+                item_mat = item.mat
 
-            noise = imgmat * item.noise
-            noise_exist = (item.noise != 0)
+            noise = imgmat * item_noise
+            noise_exist = (item_noise != 0)
             noise_avg = int(noise.sum() / noise_exist.sum())
 
-            res = imgmat * item.mat - noise_avg
+            res = imgmat * item_mat - noise_avg
             res[res < 0] = 0
             exist = (res != 0)
             if exist.sum() == 0:
                 avg = 0
             else:
                 avg = int(res.sum() / exist.sum())
+                if noise_avg != 0:
+                    avg = avg / noise_avg
 
-            data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
+            #data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
 
+            c_size = item.c_size
+            contours.extend(item.contours.tolist())
+
+            if item.type == ROIType.CIRCLE:
+                type = 1
+            else:
+                type = 2
+
+            data[i] = np.array([item.id, x, y, type, c_size, avg])
+
+            # if i < 5:
+            #     chart = self.chartlist[i].chart()
+            #     chart.series()[0].append(QtCore.QPointF(self.frame_count+1, avg))
+            #     if not self.pause:
+            #         chart.axisX().setMax(self.frame_count + 1)
+            #         self.chartlist[i].max = self.frame_count + 1
+            #         if self.frame_count + 1 > 500:
+            #             chart.axisX().setMin(self.frame_count + 1 - 499)
+            #             if chart.series()[0].count() > 500:
+            #                 chart.series()[0].removePoints(0, chart.series()[0].count() - 500)
+            #         if avg > chart.axisY().max():
+            #             chart.axisY().setMax(avg)
+
+        t2 = time.time()
         str = f'{self.frame_count:06}'
-        with h5py.File('trace_data.h5', 'a') as f:
+        with h5py.File('trace_data_2.h5', 'a') as f:
             g = f.create_group(str)
             g["image"] = img
             g["data"] = data
+            g["contours"] = np.array(contours)
         self.frame_count += 1
         t1 = time.time()
-        print('recieve time: ', t1 - t0)
+        print(f'recieve start: {t0}\n'
+              f'recieve extraction: {t2-t0}\n'
+              f'recieve saving: {t1-t2}\n'
+              f'recieve total: {t1-t0}\n'
+              f'recieve end: {t1}')
+        #print('recieve time: ', t1 - t0)
 
 
     def updates(self):
@@ -169,8 +208,10 @@ class OnTraceviewer(QWidget):
         self.editlock = False
 
     def add_trace(self, circle):
-        self.numchart += 1
-        self.add_chart(circle.name)
+        # test
+        if self.numchart < 5:
+            self.numchart += 1
+            self.add_chart(circle.name)
         self.itemlist.append(circle)
         self.traces.append([])
 
@@ -220,7 +261,8 @@ class OnTraceviewer(QWidget):
     def add_chart(self, title=None):
         # series setting
         series = QtCharts.QLineSeries()
-        series.setPen(QPen(QBrush(Qt.blue), 1, Qt.SolidLine))
+        series.setPen(QPen(QBrush(Qt.blue), 2, Qt.SolidLine))
+        series.setUseOpenGL(True)
 
         # chart setting
         chart = QtCharts.QChart()
@@ -235,15 +277,16 @@ class OnTraceviewer(QWidget):
 
         # axis setting
         axisY = QtCharts.QValueAxis()
-        axisY.setRange(0, 255)
+        axisY.setRange(0, 0.1)
         #axisY.setVisible(False)
         axisY.setTickCount(2)
-        axisY.setLabelFormat("%d")
+        axisY.setLabelFormat("%f")
         chart.addAxis(axisY, Qt.AlignRight)
         series.attachAxis(axisY)
 
         axisX = QtCharts.QValueAxis()
         #axisX.setVisible(False)
+        axisX.setRange(0, 1)
         axisX.setTickCount(5)
         axisX.setLabelFormat("%d")
         chart.addAxis(axisX, Qt.AlignBottom)

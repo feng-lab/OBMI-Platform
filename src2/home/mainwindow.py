@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
 # 		## Project Window
 
 	def setupUi(self):
-		self.home = QUiLoader().load('210810_Home_edited_fonted.ui')
+		self.home = QUiLoader().load('220524_Home_edited_fonted.ui')
 		self.setCentralWidget(self.home)
 
 	'''

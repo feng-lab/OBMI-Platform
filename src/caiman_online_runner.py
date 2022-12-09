@@ -28,7 +28,6 @@ import os
 class CaimanLauncher(QObject):
     def __init__(self, param_list=None, open_video_path="", mainwin=None):
         super(CaimanLauncher, self).__init__()
-        # TODO: implement caiman
         self.param_list = param_list
         self.open_video_path = open_video_path
         from caiman_OnACID_batch import Caiman_OnACID_batch
@@ -134,7 +133,7 @@ class CaimanFrameProcess(QObject):
 
             self.t += 1
             self.cnmf.Ab_epoch.append(self.cnmf.estimates.Ab.copy())
-            print('success, number of ROI: ', self.cnmf.N)
+            # print('success, number of ROI: ', self.cnmf.N)
 
             if self.cnmf.params.get('online', 'normalize'):
                 Ab = csc_matrix(self.cnmf.estimates.Ab.multiply(
@@ -158,7 +157,7 @@ class CaimanFrameProcess(QObject):
                 comps = get_contours(mat, dims)
                 self.roi_pos.emit(comps)
             t_2 = time.time() - t_1
-            print('ROI time:', t_2)
+            # print('ROI time:', t_2)
 
     # replace original fit_online in online_cnmf.py
     def fit_online(self, **kwargs):

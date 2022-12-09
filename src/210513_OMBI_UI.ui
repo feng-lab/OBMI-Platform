@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -8975,6 +8975,31 @@ Process</string>
           <string>OnACID_batch</string>
          </property>
         </item>
+       </widget>
+       <widget class="QPushButton" name="DecodingButton">
+        <property name="geometry">
+         <rect>
+          <x>1680</x>
+          <y>20</y>
+          <width>103</width>
+          <height>75</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>103</width>
+          <height>75</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Decoding</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="widget_82" native="true">

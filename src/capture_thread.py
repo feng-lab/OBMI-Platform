@@ -57,16 +57,16 @@ class CaptureThread(QtCore.QThread):
         self.hue_status = 0
         self.tfps = 0
 
-        self.fakecapture = False
+        self.fakecapture = True
 
     def run(self):
         cap = cv2.VideoCapture(self.camera_ID)
         if self.fakecapture:
             #cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             if self.camera_ID == 701:
-                cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
+                cap = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\\msCam1.avi")
             else:
-                cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie2.avi")
+                cap = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\\msCam1.avi")
 
         self.frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import queue
 
-from PySide2.QtCore import QTimer
+from PySide2.QtCore import QTimer, QObject, Qt
 
 from mccc import MCC
 import time
@@ -33,6 +33,7 @@ class OPlayer(QtCore.QThread):
         self.ged_template = None
         self.MC = None
         self.ROItable = parent.onroi_table
+        self.parent = parent
 
         self.fps = 0.0
         self.cfps = 30.0
@@ -60,11 +61,16 @@ class OPlayer(QtCore.QThread):
         self.cap_init()
 
         self.timer = QTimer(self)
+        self.timer.setInterval(30)
         self.timer.timeout.connect(self.updates)
-        self.timer.setInterval(1)
+        self.timer.setTimerType(Qt.PreciseTimer)
+
+
+        self.setPriority(QtCore.QThread.HighPriority)
 
         self.ptime = None
         self.timelist = []
+
 
     def cap_init(self):
         self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
@@ -74,8 +80,8 @@ class OPlayer(QtCore.QThread):
             #self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\msCam13_mcc.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie2.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
+            self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi")
@@ -108,11 +114,15 @@ class OPlayer(QtCore.QThread):
             if self.fakecapture:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 return
+        if self.ptime is not None:
+            print('Interval:', time.time() - self.ptime)
 
         if self.rtProcess:
-            if self.status == VideoSavingStatus.STARTING:
-                self.cur_frame += 1
-            self.total_frame += 1
+            self.timer.setInterval(1)
+        # if self.rtProcess:
+        #     if self.status == VideoSavingStatus.STARTING:
+        #         self.cur_frame += 1
+        #     self.total_frame += 1
 
         # frame = cv2.resize(frame, dsize=(400, 300), interpolation=cv2.INTER_CUBIC)
 
@@ -165,13 +175,15 @@ class OPlayer(QtCore.QThread):
         # print('1:',1/(time.time() - S))
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.frameG.emit(gray)
+        #
+        # if self.isAutoROI:
+        #     t0 = time.time()
+        #     if self.autoROI.cnmf.N > self.ROItable.size():
+        #         self.ROIupdate()
+        #     t1 = time.time()
+        #     print('ROI process time: ', t1 - t0)
 
-        if self.isAutoROI:
-            t0 = time.time()
-            if self.autoROI.cnmf.N > self.ROItable.size():
-                self.ROIupdate()
-            t1 = time.time()
-            print('ROI process time: ', t1 - t0)
+        t3 = time.time()
 
         tmp_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.data_lock.lock()
@@ -195,15 +207,16 @@ class OPlayer(QtCore.QThread):
                 self.timelist.pop(0)
             print('current fps:', 1 / tt)
             print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
-            print('frame cycle time: ', tt)
+            # print('frame cycle time: ', tt)
 
         et = time.time()
         # print('frame end: ', et)
-        delay = 33-(et-st)*1000
-        if delay < 0:
-            self.timer.setInterval(0)
-        else:
-            self.timer.setInterval(int(delay))
+        # delay = 23-(et-st)*1000
+        # print('delay:', delay)
+        # if delay < 0:
+        #     self.timer.setInterval(1)
+        # else:
+        #     self.timer.setInterval(int(delay))
 
     def ROIupdate(self):
         t0 = time.time()
@@ -223,6 +236,7 @@ class OPlayer(QtCore.QThread):
             #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
             capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo_out.avi")
+
         self.exposure = int(capture.get(cv2.CAP_PROP_EXPOSURE))
         self.s_gain = int(capture.get(cv2.CAP_PROP_GAIN))
         self.hue_value = 0
@@ -293,7 +307,6 @@ class OPlayer(QtCore.QThread):
 
             if type(self.ged_template) != type(None):
                 t0 = time.time()
-                # frame, _ = MCC(self.c_number, self).on_mc(self.ged_template, frame) ##,self.ged_template 
                 frame, _ = self.MC.on_mc(self.ged_template, frame)
                 self.MC.c_onmc += 1
                 print('processed ', self.MC.c_onmc)
@@ -316,12 +329,14 @@ class OPlayer(QtCore.QThread):
 
             dis = time.time() - ptime
             # print(f'online player frame {self.total_frame} start at {S}')
-            # print('frame duration: ', dis)
+            print('frame duration: ', dis)
             if self.fakecapture:
                 st = 1/30 - dis - 0.005
                 if st > 0:
-                    time.sleep(st)
+                    self.msleep(st*1000)
                     print('delayed: ', st)
+                else:
+                    self.msleep(1)
             else:
                 self.fps_delay(dis)
             et = time.time()
@@ -393,8 +408,9 @@ class OPlayer(QtCore.QThread):
         self.fpsChanged.emit(self.fps)
 
     def fps_delay(self, dis):
-        if self.loop_time - 0.005 > dis:
-            time.sleep(self.loop_time-dis - 0.005)
+        delay = self.loop_time - 0.005 - dis
+        if delay > 0:
+            self.msleep(delay*1000)
 
     def change_exposure(self, cap: cv2.VideoCapture, exp_value):
 
@@ -413,6 +429,7 @@ class OPlayer(QtCore.QThread):
         outV = np.uint16(l_value * (0x0FFF) / 1000) | (0x3000)
         print(outV)
         return outV
+
 
     def pause(self):
         self.status = VideoSavingStatus.PAUSING

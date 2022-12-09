@@ -8,10 +8,13 @@ class MainWindow(QMainWindow):
 
 	def setupUi(self):
 
-		## expand version -> default hide 방식으로. 
-		self.online1 = QUiLoader().load('210802_Online_1_Hide.ui')
-		self.online2 = QUiLoader().load('210802_Online_2_ROIEditShow.ui')
-		self.online3 = QUiLoader().load('210802_Online_3_ScopeConnectShow.ui')
+		# ## expand version -> default hide 방식으로.
+		# self.online1 = QUiLoader().load('210802_Online_1_Hide.ui')
+		# self.online2 = QUiLoader().load('210802_Online_2_ROIEditShow.ui')
+		# self.online3 = QUiLoader().load('210802_Online_3_ScopeConnectShow.ui')
+		self.online1 = QUiLoader().load('220705_Online_1_Hide_edited.ui')
+		self.online2 = QUiLoader().load('220705_Online_2_ROIEditShow_edited.ui')
+		self.online3 = QUiLoader().load('220705_Online_3_ScopeConnectShow_edited.ui')
 		self.setCentralWidget(self.online1)
 
 

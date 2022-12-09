@@ -1,6 +1,7 @@
-from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog,QTableWidget, QTableWidgetItem,
-                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
-                                QHBoxLayout, QLabel)
+import scipy
+from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
+                               QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
+                               QHBoxLayout, QLabel, QDialog)
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QObject, Signal, Slot
@@ -27,8 +28,8 @@ from PySide2.QtCore import QUrl, Qt, QSize
 
 ## from ui_mainwindow6 import Ui_MainWindow ############----------------------------++++
 # from ui_mainwindow7 import Ui_MainWindow ############----------------------------++++ 0316
-
-
+from ROI import ROI, ROIType
+from caiman_online_runner import OnlineRunner
 from capture_thread import VideoSavingStatus, CaptureThread
 import cv2, random
 import platform
@@ -52,6 +53,7 @@ from PySide2.QtWidgets import QMessageBox
 
 
 ## motion correction
+from data_receiver import ReceiverThread
 from mccc import MCC
 
 
@@ -89,7 +91,8 @@ class MainWindow(QMainWindow):
 
         # Processing Option
         self.ui.OnPreProcessingButton.clicked.connect(self.pre_process)
-        self.ui.OnRealtimeProcessButton.clicked.connect(self.rt_process)
+        # self.ui.OnRealtimeProcessButton.clicked.connect(self.rt_process)
+        self.ui.toolButton.clicked.connect(self.rt_process)
         self.ui.OnAutoROIButton.clicked.connect(self.on_auto_roi)
 ##      ## online processing tab -----------------------------------------------------------------
 
@@ -115,9 +118,12 @@ class MainWindow(QMainWindow):
         self.scope_connect = False
         self.on_template = None
         self.playing = False
+        self.MC = None
+        self.timermode = True
+        self.cameraID = 0
 #         on player buttons
-        self.ui.DePlayerPlayButton_3.clicked.connect(self.onplayer_pause)
-        self.ui.DePlayerNextButton_3.clicked.connect(self.onplayer_rt)
+#         self.ui.DePlayerPlayButton_3.clicked.connect(self.onplayer_pause)
+#         self.ui.DePlayerNextButton_3.clicked.connect(self.onplayer_rt)
 
         # on_ROI
         from roi_table import Table
@@ -127,18 +133,19 @@ class MainWindow(QMainWindow):
         self.ui.tab_3.setLayout(onroilist_layout)
 
         self.check_onROI_add = False
-        self.ui.pushButton_75.clicked.connect(self.addOnRoi)
-        self.ui.OnROIDeleteButton.clicked.connect(self.deleteOnRoi)
+        self.ui.pushButton_134.clicked.connect(self.addOnRoi)
+        self.ui.OffROIDeleteButton_5.clicked.connect(self.deleteOnRoi)
 
         # on_player slider
         self.slider_lock = False
-        self.ui.horizontalSlider_9.sliderPressed.connect(self.onplayer_slider_pressed)
-        self.ui.horizontalSlider_9.valueChanged.connect(self.onplayer_slider_valueChanged)
-        self.ui.horizontalSlider_9.sliderReleased.connect(self.onplayer_slider_released)
-
-        self.ui.horizontalSlider_6.sliderPressed.connect(self.onplayer_slider_pressed)
-        self.ui.horizontalSlider_6.valueChanged.connect(self.onplayer_slider_valueChanged)
-        self.ui.horizontalSlider_6.sliderReleased.connect(self.onplayer_slider_released)
+        # self.ui.horizontalSlider_9.sliderPressed.connect(self.onplayer_slider_pressed)
+        # self.ui.horizontalSlider_9.valueChanged.connect(self.onplayer_slider_valueChanged)
+        # self.ui.horizontalSlider_9.sliderReleased.connect(self.onplayer_slider_released)
+        #
+        # self.ui.horizontalSlider_6.sliderPressed.connect(self.onplayer_slider_pressed)
+        # self.ui.horizontalSlider_6.valueChanged.connect(self.onplayer_slider_valueChanged)
+        # self.ui.horizontalSlider_6.sliderReleased.connect(self.onplayer_slider_released)
+        self.init_onchart()
 
 
 # ## neuron extraction
@@ -204,7 +211,7 @@ class MainWindow(QMainWindow):
     def setupUi(self):
         # self.ui = QUiLoader().load('210513_OMBI_UI.ui') ##'210202_ui.ui') ## "1011_ui.ui")  ##
         # self.ui = QUiLoader().load('220216_Offline_edited.ui')  ##'210202_ui.ui') ## "1011_ui.ui")  ##
-        self.ui = QUiLoader().load('220216_Online_2_ROIEditShow_updated.ui')
+        self.ui = QUiLoader().load('220705_Online_2_ROIEditShow_edited.ui')
         self.setCentralWidget(self.ui)
         ## self.show()
 #
@@ -226,101 +233,101 @@ class MainWindow(QMainWindow):
     #     mccdone.exec_()
     #     return
 
-    def motion_corr(self):
-        # loading bar signal
-        # motion correction
-        from mccc import MCC
-        mcstart=time.time()
-        self.play_finished2()
-        print('playfinished2: ', time.time()-mcstart)
-        self.wait = None
-        self.mccbar = QtWidgets.QProgressBar()
-        ## self.mccbar.setMininum(0)
-
-        mccdone = QMessageBox()
-        mccdone.setWindowTitle("notice")
-        mccdone.setWindowIcon(QtGui.QPixmap("info.png"))
-        mccdone.setStandardButtons(QMessageBox.Apply|QMessageBox.Close)
-        mccdone.setDefaultButton(QMessageBox.Apply)
-        mccdone.setIcon(QMessageBox.Information)
-        mccdone.setText("!")
-
-        @Slot(str)
-        def get_path(path):
-            self.wait = path
-            self.ui.statusbar.showMessage('-- MCC process done --')
-
-            mccdone.setText("MCC process finished") ## temporary  ## button
-            if mccdone.exec_() == QMessageBox.Apply:
-                self.open_video_path = path
-
-            ## player restart
-            self.startPlayer2()
-
-
-        @Slot(int)
-        def totallen(maxn):
-            ## self.total_len = nums
-            self.mccbar.setMaximum(maxn)
-            ##self.ui.statusbar.showMessage('-- template generated --')
-
-        @Slot(int)
-        def prclen(nums):
-            ## self.prc_len = nums
-            self.mccbar.setValue(nums)
-
-        mccth = MCC(self.open_video_path, parent=self)
-        print('mccth videopath: ', time.time()-mcstart)
-        mccth.signalLen.connect(totallen)
-        mccth.signalPath.connect(get_path)
-        mccth.signalPrc.connect(prclen)
-
-        self.ui.statusbar.addWidget(self.mccbar)
-        print('addedwidget: ', time.time() - mcstart)
-        mccth.mc()
-        print('template generated')
-        self.ui.statusbar.showMessage('-- MCC process done(2) --')
+    # def motion_corr(self):
+    #     # loading bar signal
+    #     # motion correction
+    #     from mccc import MCC
+    #     mcstart=time.time()
+    #     self.play_finished2()
+    #     print('playfinished2: ', time.time()-mcstart)
+    #     self.wait = None
+    #     self.mccbar = QtWidgets.QProgressBar()
+    #     ## self.mccbar.setMininum(0)
+    #
+    #     mccdone = QMessageBox()
+    #     mccdone.setWindowTitle("notice")
+    #     mccdone.setWindowIcon(QtGui.QPixmap("info.png"))
+    #     mccdone.setStandardButtons(QMessageBox.Apply|QMessageBox.Close)
+    #     mccdone.setDefaultButton(QMessageBox.Apply)
+    #     mccdone.setIcon(QMessageBox.Information)
+    #     mccdone.setText("!")
+    #
+    #     @Slot(str)
+    #     def get_path(path):
+    #         self.wait = path
+    #         self.ui.statusbar.showMessage('-- MCC process done --')
+    #
+    #         mccdone.setText("MCC process finished") ## temporary  ## button
+    #         if mccdone.exec_() == QMessageBox.Apply:
+    #             self.open_video_path = path
+    #
+    #         ## player restart
+    #         self.startPlayer2()
+    #
+    #
+    #     @Slot(int)
+    #     def totallen(maxn):
+    #         ## self.total_len = nums
+    #         self.mccbar.setMaximum(maxn)
+    #         ##self.ui.statusbar.showMessage('-- template generated --')
+    #
+    #     @Slot(int)
+    #     def prclen(nums):
+    #         ## self.prc_len = nums
+    #         self.mccbar.setValue(nums)
+    #
+    #     mccth = MCC(self.open_video_path, parent=self)
+    #     print('mccth videopath: ', time.time()-mcstart)
+    #     mccth.signalLen.connect(totallen)
+    #     mccth.signalPath.connect(get_path)
+    #     mccth.signalPrc.connect(prclen)
+    #
+    #     self.ui.statusbar.addWidget(self.mccbar)
+    #     print('addedwidget: ', time.time() - mcstart)
+    #     mccth.mc()
+    #     print('template generated')
+    #     self.ui.statusbar.showMessage('-- MCC process done(2) --')
 
         #addPermanetWidget()
 #     ## ---------   online player    ---------------------------------------------------
-    def onplayer_pause(self):
-        if self.on_scope == None or not self.on_scope.rtProcess:
-            return
-        if self.playing:
-            self.on_scope.pause()
-            self.playing = False
-            self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/play.png\")")
-        else:
-            self.on_scope.play()
-            self.playing = True
-            self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
-
-    def onplayer_rt(self):
-        if self.on_scope == None or not self.on_scope.rtProcess:
-            return
-        self.on_scope.cur_frame = self.on_scope.total_frame
-
-        if not self.playing:
-            self.on_scope.play()
-            self.playing = True
-            self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
-
-#     # on_player sliders
-    def onplayer_slider_pressed(self):
-        if self.on_scope is not None:
-            if self.on_scope.isPlaying:
-                self.on_scope.pause()
-                self.playing = False
-                self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/play.png\")")
-            self.slider_lock = True
-
-    def onplayer_slider_released(self):
-        self.slider_lock = False
-
-    def onplayer_slider_valueChanged(self, slider_value):
-        if self.on_scope is not None:
-            if self.slider_lock:
-                self.on_scope.cur_frame = slider_value
+#     def onplayer_pause(self):
+#         if self.on_scope == None or not self.on_scope.rtProcess:
+#             return
+#         if self.playing:
+#             self.on_scope.pause()
+#             self.playing = False
+#             self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/play.png\")")
+#         else:
+#             self.on_scope.play()
+#             self.playing = True
+#             self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
+#
+#     def onplayer_rt(self):
+#         if self.on_scope == None or not self.on_scope.rtProcess:
+#             return
+#         self.on_scope.cur_frame = self.on_scope.total_frame
+#
+#         if not self.playing:
+#             self.on_scope.play()
+#             self.playing = True
+#             self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
+#
+# #     # on_player sliders
+#     def onplayer_slider_pressed(self):
+#         if self.on_scope is not None:
+#             if self.on_scope.isPlaying:
+#                 self.on_scope.pause()
+#                 self.playing = False
+#                 self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/play.png\")")
+#             self.slider_lock = True
+#
+#     def onplayer_slider_released(self):
+#         self.slider_lock = False
+#
+#     def onplayer_slider_valueChanged(self, slider_value):
+#         if self.on_scope is not None:
+#             if self.slider_lock:
+#                 self.on_scope.cur_frame = slider_value
 
 #     ## ---------   online processing   -------------------------------------------------
 #     ## scope LED slider
@@ -413,8 +420,16 @@ class MainWindow(QMainWindow):
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
 
-            self.on_scope.start()
-            # self.on_scope.timer.start()
+            if self.MC is not None and self.on_template is not None:
+                self.MC.c_onmc = 0
+                self.on_scope.MC = self.MC
+                self.on_scope.ged_template = self.on_template
+
+            if self.timermode:
+                self.on_scope.timer.start()
+            else:
+                # self.moveToThread(self.on_scope)
+                self.on_scope.start()
 
             self.scope_connect = True
             self.playing = True
@@ -423,8 +438,10 @@ class MainWindow(QMainWindow):
         elif self.scope_connect and self.on_scope is not None:
             self.on_scope.frameI.disconnect(self.online_frame)
 
-            self.on_scope.stop()
-            #self.on_scope.timer.stop()
+            if self.timermode:
+                self.on_scope.timer.stop()
+            else:
+                self.on_scope.stop()
 
             self.on_scope = None
             self.scope_connect = False
@@ -444,18 +461,16 @@ class MainWindow(QMainWindow):
 #
     def pre_process(self):
         print('preprocess clicked')
-        if self.fakeCapture:
-            scope_num = self.open_video_path ##0
-        else:
-            scope_num = 0
-        #self.on_template = None
-        # motion correction box - Hwa? pre-definition
+        scope_num = self.cameraID + cv2.CAP_DSHOW
 
         if self.ui.OnMotionCorrectionCheck.isChecked():
             ## video stop
             if self.scope_connect and self.on_scope is not None:
                 self.on_scope.frameI.disconnect(self.online_frame)
-                self.on_scope.stop()
+                if self.timermode:
+                    self.on_scope.timer.stop()
+                else:
+                    self.on_scope.stop()
                 self.on_scope = None
                 self.scope_connect = False
                 self.playing = False
@@ -473,12 +488,6 @@ class MainWindow(QMainWindow):
             self.on_template = self.MC.g_temp(scope_num)
             print('button preprocess done')
             self.ui.statusbar.showMessage('-- preprocess done --')
-        # get crop size
-        ## crop_size=self.ui.comboBox_5.currentText()
-
-        # get Neuron Size ##?
-
-        # generate template
 
     def hhmmss(self, ms):
         ## 1000/60000/360000
@@ -489,32 +498,226 @@ class MainWindow(QMainWindow):
 
 #     ##prebar
     def prebar(self, n): ## 중복해결필요    ## 200 template
-
-        #d_i
-        #c
         self.mccbar.setValue(n)
 
     def on_auto_roi(self):
-        x = [267, 119, 106, 211, 229, 49, 206]
-        y = [81, 94, 169, 235, 133, 17, 202]
-        for i in range(len(x)):
-            self.addOnR(QtCore.QPointF(x[i] + 15.0, y[i] + 15.0))
+        if self.ui.comboBox_23.currentText() == 'OnACID':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_for_msCam1.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # thresh_CNN_noisy
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+                param_list.append(str(dialog.lineEdit_8.text()))  # init_method
+                param_list.append(int(dialog.lineEdit_9.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_10.text()))  # patch_size
+                param_list.append(int(dialog.lineEdit_11.text()))  # stride
+                param_list.append(int(dialog.lineEdit_12.text()))  # K
+
+                self.onacid(param_list)
+            else:
+                print('cancel')
+        elif self.ui.comboBox_23.currentText() == 'OnACID_mes':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_mes.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # ds_factor
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+
+                if dialog.checkBox.isChecked():  # mot_corr
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_2.isChecked():  # pw_rigid
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_3.isChecked():  # sniper_mode
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                param_list.append(float(dialog.lineEdit_12.text()))  # rval_thr
+                param_list.append(int(dialog.lineEdit_13.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_14.text()))  # K
+                param_list.append(int(dialog.lineEdit_15.text()))  # epochs
+
+                if dialog.checkBox_4.isChecked():  # show_movie
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                self.onacidmes(param_list)
+            else:
+                print('cancel')
+        elif self.ui.comboBox_23.currentText() == 'OnACID_batch':
+            dialog = QUiLoader().load('220324_AutoROI_Dialog_onacid_batch.ui')
+            if dialog.exec() == QDialog.Accepted:
+                param_list = []
+
+                param_list.append(int(dialog.lineEdit.text()))  # fr
+                param_list.append(float(dialog.lineEdit_2.text()))  # decay_time
+
+                sig = int(dialog.lineEdit_3.text())
+                param_list.append((sig, sig))  # gSig
+
+                param_list.append(int(dialog.lineEdit_4.text()))  # p
+                param_list.append(float(dialog.lineEdit_5.text()))  # min_SNR
+                param_list.append(float(dialog.lineEdit_6.text()))  # ds_factor
+                param_list.append(int(dialog.lineEdit_7.text()))  # gnb
+
+                if dialog.checkBox.isChecked():  # mot_corr
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_2.isChecked():  # pw_rigid
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                if dialog.checkBox_3.isChecked():  # sniper_mode
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                param_list.append(float(dialog.lineEdit_12.text()))  # rval_thr
+                param_list.append(int(dialog.lineEdit_13.text()))  # init_batch
+                param_list.append(int(dialog.lineEdit_14.text()))  # K
+                param_list.append(int(dialog.lineEdit_15.text()))  # epochs
+
+                if dialog.checkBox_4.isChecked():  # show_movie
+                    param_list.append(True)
+                else:
+                    param_list.append(False)
+
+                self.onacidbatch(param_list)
+            else:
+                print('cancel')
+
+    def onacid(self, param_list):
+        if self.on_scope is None:
+            camera_ID = self.cameraID
+            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
+            if self.MC is not None and self.on_template is not None:
+                self.MC.c_onmc = 0
+                self.on_scope.MC = self.MC
+                self.on_scope.ged_template = self.on_template
+            self.on_scope.frameI.connect(self.online_frame)
+
+            if self.timermode:
+                self.on_scope.timer.start()
+            else:
+                # self.moveToThread(self.on_scope)
+                self.on_scope.start()
+
+            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+
+        init_batch = param_list[8]
+        frames = []
+        for i in range(init_batch):
+            ret, frame = self.on_scope.capture.read()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frames.append(frame.data.obj)
+        frames = np.array(frames)
+
+        from caiman_OnACID import Caiman_OnACID
+        cm = Caiman_OnACID(self, param_list, self.open_video_path)
+        cm.start_pipeline(frames)
+        self.on_scope.setAutoROI(cm.online_runner.caiman)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
+
+    def onacidmes(self, param_list):
+        if self.on_scope is None:
+            camera_ID = self.cameraID
+            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
+            if self.MC and self.on_template:
+                self.on_scope.MC = self.MC
+                self.on_scope.ged_template = self.on_template
+
+        init_batch = param_list[11]
+        # 强制使用原视频的前200帧初始化，并从201帧开始处理
+        # frames = []
+        # for i in range(init_batch):
+        #     capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie_out.avi")
+        #     ret, frame = capture.read()
+        #     # ret, frame = self.on_scope.capture.read()
+        #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #     frames.append(frame.data.obj)
+        # capture.release()
+        #
+        # from caiman_OnACID_mesoscope import Caiman_OnACID_mes
+        # cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
+        # cm.start_pipeline(frames)
+        # self.on_scope.setAutoROI(cm.online_runner)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
+        # self.on_scope.capture.set(cv2.CAP_PROP_POS_FRAMES, 200)
+        # print('Auto ROI init done')
+
+        frames = []
+        for i in range(init_batch):
+            ret, frame = self.on_scope.capture.read()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frames.append(frame.data.obj)
+        frames = np.array(frames)
+
+        from caiman_OnACID_mesoscope import Caiman_OnACID_mes
+        cm = Caiman_OnACID_mes(self, param_list, self.open_video_path)
+        cm.start_pipeline(frames)
+        self.on_scope.setAutoROI(cm.online_runner.caiman)
+        # self.on_scope.roi_pos.connect(self.addAutoOnRoi)
+        # self.on_scope.isAutoROI = True
+        print('Auto ROI init done')
+
+    def onacidbatch(self, param_list):
+        self.online_runner = OnlineRunner(parent=self, param_list=param_list)
+        if self.on_scope is None:
+            print('start online scope')
+            self.online_scope()
+
+        fps = int(self.on_scope.capture.get(cv2.CAP_PROP_FPS))
+        height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
+        size = 1  # for test
+
+        self.online_runner.tempFile(fps, width, height, size)
 
 
     def rt_process(self):
         ## video start
 
         if not self.scope_connect and self.on_scope is None:
-            if self.fakeCapture:
-                camera_ID = self.open_video_path ### temp
-            else:
-                camera_ID = 0
+            camera_ID = self.cameraID
 
             self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
 
-            # self.on_scope.timer.start()
-            self.on_scope.start()
+            if self.timermode:
+                self.on_scope.timer.start()
+            else:
+                self.on_scope.start()
 
             self.scope_connect = True
             self.playing = True
@@ -537,8 +740,8 @@ class MainWindow(QMainWindow):
         # rangelist = []  # store area for each item
         #
         # for i in range(len(itemlist) - 1, -1, -1):
-        #     if itemlist[i].__class__.__name__ == "ROIcircle":
-        #         rangelist.append(self.getItemRange(itemlist[i]))
+        #     if itemlist[i].__class__.__name__ == "ROIcircle":0
+        #         rangeli0000st.append(self.getItemRange(itemlist[i]))
         #     else:
         #         itemlist.pop(i)
         #
@@ -546,10 +749,11 @@ class MainWindow(QMainWindow):
         #     return
         # itemlist.reverse()
 
-        self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
+        #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()
         # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
-
+        self.thread = ReceiverThread(self.ontrace_viewer, self)
+        self.thread.start()
         self.ui.horizontalSlider_9.setMaximum(1)
         self.ui.horizontalSlider_9.setValue(1)
         self.on_scope.rtProcess = True
@@ -598,7 +802,7 @@ class MainWindow(QMainWindow):
         if not self.check_onROI_add:
             self.on_roi_clicked = self.roi_click(self.onplayer_scene, self.on_filter)
             self.on_roi_clicked.connect(self.addOnR)
-            self.ui.pushButton_75.setStyleSheet("background-color: gray")
+            self.ui.pushButton_134.setStyleSheet("background-color: gray")
             self.check_onROI_add = True
 
             if not self.ontrace_viewer:
@@ -608,7 +812,35 @@ class MainWindow(QMainWindow):
             self.on_roi_clicked.disconnect()
             self.on_roi_clicked = None
             self.onplayer_scene.removeEventFilter(self.on_filter)
-            self.ui.pushButton_75.setStyleSheet("border-image: url(\"150ppi/Asset 18.png\")")
+            self.ui.pushButton_134.setStyleSheet("border-image: url(\"150ppi/Asset 18.png\")")
+
+    def addAutoOnRoi(self, comps):
+        for item in comps:
+            coors = item['coordinates']
+            nanIdx = np.where(np.isnan(coors))[0]
+            maxRange = nanIdx[1] - nanIdx[0]
+            idx = 0
+            if len(nanIdx) > 2:
+                for i in range(2,len(nanIdx)):
+                    r = nanIdx[i] - nanIdx[i-1]
+                    if r > maxRange:
+                        idx = i-1
+                        maxRange = r
+                coors = coors[nanIdx[idx]+1:nanIdx[idx+1], :]
+            else:
+                coors = coors[~np.isnan(coors).any(axis=1)]
+            shapeX = coors.T[0]
+            shapeY = coors.T[1]
+
+            # smooth polygon
+            tck, u = scipy.interpolate.splprep([shapeX, shapeY], s=50)
+            out = scipy.interpolate.splev(u, tck)
+            shapeX = out[0]
+            shapeY = out[1]
+            minx = min(shapeX)
+            miny = min(shapeY)
+            shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
+            self.addOnRoiPolygon(minx, miny, shape)
 
     def roi_click(self, widget, filter): ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
@@ -640,82 +872,40 @@ class MainWindow(QMainWindow):
         self.onroi_table.add_to_table(roi_circle, colr)
         self.ontrace_viewer.add_trace(roi_circle)
 
+    # Online Tab add ROI Polygon
+    def addOnRoiPolygon(self, x, y, shape):
+        # shape: list of QPointF
+        colr = self.onroi_table.randcolr()
+        roi_polygon = self.create_polygon(colr, x, y, shape)
+        self.onplayer_scene.addItem(roi_polygon)
+        self.onroi_table.add_to_table(roi_polygon, colr)
+        self.ontrace_viewer.add_trace(roi_polygon)
+        return roi_polygon
+
     def deleteOnRoi(self):
         roi_circle = self.onroi_table.deleteRoi()
         self.ontrace_viewer.remove_trace(roi_circle)
         self.onplayer_scene.removeItem(roi_circle)
 
-    def create_circle(self, c, pos, size):  ## circle 별도 class 만들어줄지
-        class ROIconnect(QObject):
-            selected = Signal(str)
-            moved = Signal(list)
-            sizeChange = Signal(int)
-
-        class ROIcircle(QtWidgets.QGraphicsEllipseItem):
-            def __init__(self, x, y, w, h):
-                super().__init__(x, y, w, h)
-                self.signals = ROIconnect()
-                self.id = 0
-                self.name = None
-                self.noise = None
-                self.mat = self.matUpdate()
-
-            def setName(self, str):
-                self.name = str
-
-            def setId(self, n):
-                self.id = n
-
-            def mousePressEvent(self, event):
-                super().mousePressEvent(event)
-                self.signals.selected.emit(self.name)
-
-            def mouseReleaseEvent(self, event):
-                super().mouseReleaseEvent(event)
-                x = self.pos().x()
-                y = self.pos().y()
-                self.signals.moved.emit([x, y])
-
-            def wheelEvent(self, event):
-                super().wheelEvent(event)
-                size = int(self.rect().width())
-                if event.delta() > 0:
-                    size += 1
-                else:
-                    size -= 1
-                self.setRect(0, 0, size, size)
-                self.signals.sizeChange.emit(size)
-                self.mat = self.matUpdate()
-
-            def matUpdate(self):
-                h = int(self.rect().height())
-                w = int(self.rect().width())
-                mat = np.zeros((h, w))
-                for i in range(h):
-                    for j in range(w):
-                        pt = QtCore.QPoint(j, i)
-                        if self.contains(pt):
-                            mat[i, j] = 1
-                self.noise = (mat.copy() - 1) * (-1)
-                return mat
-
+    def create_circle(self, c, pos, size=30):  ## circle 별도 class 만들어줄지
         r, g, b = c
         # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
-        roi_circle = ROIcircle(0, 0, size, size)
-        roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 2, Qt.SolidLine))
+        roi_circle = ROI(type=ROIType.CIRCLE, size=size)
+        roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 1, Qt.SolidLine))
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
         roi_circle.setPos(pos.x() - size / 2, pos.y() - size / 2)
         return roi_circle
-#
-#     def auto_roi(self):
-#         if not self.player2:
-#             return
-#
-#         from caiman_pipeline import Caiman
-#         cm = Caiman(self.open_video_path)
-#         cm.start_pipeline()
-#
+
+    def create_polygon(self, c, x, y, shape):
+        r, g, b = c
+        roi_polygon = ROI(type=ROIType.POLYGON, shape=shape)
+        roi_polygon.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 1, Qt.SolidLine))
+        roi_polygon.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        roi_polygon.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
+        roi_polygon.setPos(x, y)
+        return roi_polygon
+
 #     ## ------------------- Extraction -------------------------##
 
     def init_onchart(self):
@@ -726,29 +916,3 @@ class MainWindow(QMainWindow):
         trace_layout.setContentsMargins(0, 0, 0, 0)
 
         self.ui.scrollArea_7.setLayout(trace_layout)
-
-    # pre-process for getting item range
-    def getItemRange(self, item):
-        timer = time.time()
-        topleft = item.boundingRect().topLeft()
-        pos = item.pos()
-        bottomright = item.boundingRect().bottomRight()
-        rangelist = []
-
-        for i in range(int(topleft.x()),int(bottomright.x())):
-            for j in range(int(topleft.y()), int(bottomright.y())):
-                pt = QtCore.QPoint(i,j)
-                if item.contains(pt):
-                    rangelist.append([i+int(pos.x()),j+int(pos.y())])
-
-        print(f'Size: {len(rangelist)}')
-        print(f'Item Range time: {time.time()-timer}')
-        return rangelist
-
-    # process for getting average brightness in one frame for a single item
-    def getBrightness(self, frame, item, area):
-        sum = 0
-        for pos in area:
-            sum += frame[pos[1]][pos[0]][2]
-        mean = sum/len(area)
-        return mean

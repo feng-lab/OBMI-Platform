@@ -25,9 +25,9 @@ class OldWindow(QMainWindow):
 		super().__init__()
 		self.setupUi()
 
-		self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video) ### UI - need to change the name
+		self.ui.OffLoadVideoButton.clicked.connect(self.load_video) ### UI - need to change the name
 		## motion correction --------------------------------------*****--------------------------
-		self.ui.connectBehaviorCameraButton_4.clicked.connect(self.motion_corr)
+		self.ui.OffMotionCorrectionButton.clicked.connect(self.motion_corr)
 		self.open_video_path = ''
 
 		## player2
@@ -45,7 +45,7 @@ class OldWindow(QMainWindow):
 		self.pl_width2 = 0
 
 		self.player_scene2 = QGraphicsScene()
-		self.ui.scope_camera_view_item_2.setScene(self.player_scene2) ##-
+		self.ui.scope_video_view_item.setScene(self.player_scene2) ##-
 		self.player_view2 = None
 		self.player_view_item_i2 = QGraphicsPixmapItem()
 		self.player_scene2.addItem(self.player_view_item_i2)
@@ -61,10 +61,10 @@ class OldWindow(QMainWindow):
 		# self.ui.pushButton_2.setText('play')
 		# self.ui.pushButton_6.setText('stop')
 
-		self.ui.pushButton_2.clicked.connect(self.play_button_clicked2)
-		self.ui.pushButton_6.clicked.connect(self.stop_button_clicked2)
-		self.ui.pushButton_4.clicked.connect(self.play_finished2)
-		self.ui.pushButton_68.clicked.connect(self.after_player2)
+		self.ui.off_play_button.clicked.connect(self.play_button_clicked2)
+		self.ui.off_stop_button.clicked.connect(self.stop_button_clicked2)
+		self.ui.off_faster_button.clicked.connect(self.play_finished2)
+		self.ui.off_next_button.clicked.connect(self.after_player2)
 
 		## player2 slider
 		self.ui.horizontalSlider_10.sliderPressed.connect(self.player2slider_pressed)
@@ -77,21 +77,21 @@ class OldWindow(QMainWindow):
 		## ---- ROI
 		from roi_table import Table
 		self.roi_table = Table(0,self)
-		# self.ui.tab_16.layout = QtWidgets.QVBoxLayout(self)
-		# roilist_layout = QtWidgets.QVBoxLayout()
-		# roilist_layout.addWidget(self.roi_table)
-		# self.ui.tab_16.setLayout(roilist_layout)
-
+		#self.ui.tab_16.layout = QtWidgets.QVBoxLayout(self)
 		roilist_layout = QtWidgets.QVBoxLayout()
 		roilist_layout.addWidget(self.roi_table)
-		self.ui.tab_18.setLayout(roilist_layout)
+		self.ui.tab_16.setLayout(roilist_layout)
+
+		# roilist_layout = QtWidgets.QVBoxLayout()
+		# roilist_layout.addWidget(self.roi_table)
+		# self.ui.tab_18.setLayout(roilist_layout)
 
 ## ROI function
 		self.check_ROI_add = False
 		self.ui.pushButton_75.clicked.connect(self.addRoi)
 		self.ui.OffROIDeleteButton.clicked.connect(self.deleteRoi)
 				
-		boundingRect = self.player_scene2.itemsBoundingRect() ##여기서 하면, frame 좌표로 생성 
+		boundingRect = self.player_scene2.itemsBoundingRect() ##여기서 하면, frame 좌표로 생성
 		self.player_scene2.setSceneRect(0,0,boundingRect.right(), boundingRect.bottom())
 
 ## AUTO ROI function
@@ -401,7 +401,7 @@ class OldWindow(QMainWindow):
 	def update_player_frame2(self, image):
 		pixmap = QtGui.QPixmap.fromImage(image)
 		## width control
-		self.player_view2=self.ui.scope_camera_view_item_2
+		self.player_view2=self.ui.scope_video_view_item
 		pl_width = self.player_view2.width()  # view?
 		if self.pl_width2 != pl_width:
 			self.pl_width2 = pl_width
@@ -474,13 +474,13 @@ class OldWindow(QMainWindow):
 			self.player2.vplayer_status = VPlayerStatus.STARTING
 			print("set starting")
 			self.playing = True
-			self.ui.pushButton_2.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
+			self.ui.off_play_button.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
 		elif self.player2 is not None and self.playing:
 			self.player2.vplayer_status = VPlayerStatus.PAUSING
 			#self.player2.frameC.disconnect(self.update_player_frame2)
 			print("set pausing")
 			self.playing = False
-			self.ui.pushButton_2.setStyleSheet("border-image: url(\"150ppi/play.png\")")
+			self.ui.off_play_button.setStyleSheet("border-image: url(\"150ppi/play.png\")")
 
 		#self.player2.stateCh.connect(self.stop_button_clicked2)
 
@@ -565,7 +565,7 @@ class OldWindow(QMainWindow):
 	def setupUi(self):
 		self.ui = QUiLoader().load(
 #'210802_Offline.ui')
-'220216_Offline_edited.ui')
+'220614_Offline_edited_fonted.ui')
 		self.setCentralWidget(self.ui)
 
 

@@ -208,8 +208,10 @@ class OnTraceviewer(QWidget):
         self.editlock = False
 
     def add_trace(self, circle):
-        self.numchart += 1
-        self.add_chart(circle.name)
+        # test
+        if self.numchart < 5:
+            self.numchart += 1
+            self.add_chart(circle.name)
         self.itemlist.append(circle)
         self.traces.append([])
 
@@ -259,7 +261,8 @@ class OnTraceviewer(QWidget):
     def add_chart(self, title=None):
         # series setting
         series = QtCharts.QLineSeries()
-        series.setPen(QPen(QBrush(Qt.blue), 1, Qt.SolidLine))
+        series.setPen(QPen(QBrush(Qt.blue), 2, Qt.SolidLine))
+        series.setUseOpenGL(True)
 
         # chart setting
         chart = QtCharts.QChart()
@@ -283,6 +286,7 @@ class OnTraceviewer(QWidget):
 
         axisX = QtCharts.QValueAxis()
         #axisX.setVisible(False)
+        axisX.setRange(0, 1)
         axisX.setTickCount(5)
         axisX.setLabelFormat("%d")
         chart.addAxis(axisX, Qt.AlignBottom)
