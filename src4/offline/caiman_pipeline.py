@@ -140,7 +140,8 @@ class Caiman(QtCore.QThread):
     #     ssub_B = 2          # additional downsampling factor in space for background
     #     ring_size_factor = 1.4  # radius of ring is gSiz*ring_size_factor
 
-        opts= params.CNMFParams(params_dict={'dims': dims,
+
+        opts = params.CNMFParams(params_dict={'dims': dims,
                                         'method_init': 'corr_pnr',  # use this for 1 photon
                                         'K': self.K,
                                         'gSig': self.gSig,
@@ -204,7 +205,7 @@ class Caiman(QtCore.QThread):
         comps = get_contours(cnm.estimates.A, dims)
 
         cnm.dims = dims
-        display_images = False  # Set to true to show movies and images
+        display_images = True  # Set to true to show movies and images
         if display_images:
             cnm.estimates.plot_contours(img=cn_filter, idx=cnm.estimates.idx_components)
             cnm.estimates.view_components(images, idx=cnm.estimates.idx_components)
