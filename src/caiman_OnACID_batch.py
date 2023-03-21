@@ -123,52 +123,52 @@ class Caiman_OnACID_batch(QtCore.QThread):
         # opts = cnmf.params.CNMFParams(params_dict=params_dict)
 
         # *************************************direct-avi-from-scope, still-need-mmap***********************************
-        # fnames = [self.path]
-        # init_batch = 500
-        # fr = 30
+        fnames = [self.path]
+        init_batch = 500
+        fr = 30
         # *************************************direct-avi-from-scope***********************************
 
 
         #************************************avi-to-mmap************************************
-        # def get_iterator(device=0, fr=None):
-        #     """
-        #     device: device number (int) or filename (string) for reading from camera or file respectively
-        #     fr: frame rate
-        #     """
-        #     if isinstance(device, int):  # capture from camera
-        #         def capture_iter(device=device, fr=fr):
-        #             cap = cv2.VideoCapture(device)
-        #             if fr is not None:  # set frame rate
-        #                 cap.set(cv2.CAP_PROP_FPS, fr)
-        #             while True:
-        #                 yield cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY)
-        #
-        #         iterator = capture_iter(device, fr)
-        #     else:  # read frame by frame from file
-        #         iterator = cm.base.movies.load_iter(device, var_name_hdf5='Y')
-        #     return iterator
-        #
-        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi"
-        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi"
-        # # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\CaImAn_demo_out.avi"
-        # iterator = get_iterator(fnames)
-        #
-        # init_batch = 500  # number of frames to use for initialization
-        # fr = 30  # frame rate (Hz)
-        # T = 6000
-        #
-        # m = cm.movie(np.array([next(iterator) for t in range(T)], dtype='float32'))
-        # fnames = m.save('init.mmap', order='C')
-        # print(fnames)
+        def get_iterator(device=0, fr=None):
+            """
+            device: device number (int) or filename (string) for reading from camera or file respectively
+            fr: frame rate
+            """
+            if isinstance(device, int):  # capture from camera
+                def capture_iter(device=device, fr=fr):
+                    cap = cv2.VideoCapture(device)
+                    if fr is not None:  # set frame rate
+                        cap.set(cv2.CAP_PROP_FPS, fr)
+                    while True:
+                        yield cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY)
+
+                iterator = capture_iter(device, fr)
+            else:  # read frame by frame from file
+                iterator = cm.base.movies.load_iter(device, var_name_hdf5='Y')
+            return iterator
+
+        # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi"
+        # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi"
+        # fnames = "C:\\Users\zhuqin\caiman_data\example_movies\\CaImAn_demo_out.avi"
+        iterator = get_iterator(fnames)
+
+        init_batch = 500  # number of frames to use for initialization
+        fr = 30  # frame rate (Hz)
+        T = 6000
+
+        m = cm.movie(np.array([next(iterator) for t in range(T)], dtype='float32'))
+        fnames = m.save('init.mmap', order='C')
+        print(fnames)
         # ************************************avi-to-mmap************************************
 
         # *************************************direct-mmap***********************************
-        init_batch = 500  # number of frames to use for initialization
-        fr = 10  # frame rate (Hz)
-        T = 6000
-        # 视频和分割的数据都转置了，为了匹配论文图片方向
-        fnames = "C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap-T\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
-        print(fnames)
+        # init_batch = 500  # number of frames to use for initialization
+        # fr = 10  # frame rate (Hz)
+        # T = 6000
+        # # 视频和分割的数据都转置了，为了匹配论文图片方向
+        # fnames = "C:\\Users\ZJLAB\caiman_data\example_movies\\blood_vessel_10Hz-mat-mmap-T\init_d1_256_d2_256_d3_1_order_C_frames_6000_.mmap"
+        # print(fnames)
         # *************************************direct-mmap***********************************
 
         params_dict = {'fnames': fnames,

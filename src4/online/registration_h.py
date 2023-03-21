@@ -30,7 +30,7 @@ class NCCProject():
 
 
     def NCC_framebyframe(self, frame):
-        #frame = torch.tensor(frame, dtype=torch.float32).cuda()
+        # frame = torch.tensor(frame, dtype=torch.float32).cuda()
         frame = frame.astype(np.float32)
         frame = torch.from_numpy(frame)
         frame = frame.cuda()

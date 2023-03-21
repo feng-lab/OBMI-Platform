@@ -1790,7 +1790,7 @@ class MainWindow(QMainWindow):
         self.player2.start()
         self.player2.frameC.connect(self.update_player_frame2)
 
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         self.s_totalframe2 = self.player2.total_frame
         self.s_total2 = int(self.s_totalframe2 / self.player2.fps)
@@ -2899,7 +2899,7 @@ class MainWindow(QMainWindow):
     def decoding(self):
         print('decoding pressed')
         if not self.on_scope.rtProcess:
-            print('Start reat time process before decoding')
+            print('Start real time process before decoding')
             return
 
         if self.decoder is None:

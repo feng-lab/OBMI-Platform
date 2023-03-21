@@ -71,6 +71,8 @@ class OPlayer(QtCore.QThread):
         self.ptime = None
         self.timelist = []
 
+        self.time_sum = 0
+        self.mc_count = 0
 
     def cap_init(self):
         self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
@@ -80,13 +82,14 @@ class OPlayer(QtCore.QThread):
             #self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\msCam13_mcc.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie2.avi")
-            self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\demoMovie.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\data_endoscope.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\\blood_vessel_10Hz.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo_out.avi")
+            self.capture = cv2.VideoCapture("D:\\project\OBMI-Platform\\2_clip_mcc.avi")
 
 
         capture = self.capture
@@ -114,8 +117,8 @@ class OPlayer(QtCore.QThread):
             if self.fakecapture:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 return
-        if self.ptime is not None:
-            print('Interval:', time.time() - self.ptime)
+        # if self.ptime is not None:
+        #     print('Interval:', time.time() - self.ptime)
 
         if self.rtProcess:
             self.timer.setInterval(1)
@@ -165,9 +168,17 @@ class OPlayer(QtCore.QThread):
             # frame, _ = MCC(self.c_number, self).on_mc(self.ged_template, frame) ##,self.ged_template
             frame, _ = self.MC.on_mc(self.ged_template, frame)
             self.MC.c_onmc += 1
-            print('processed ', self.MC.c_onmc)
+            # print('processed ', self.MC.c_onmc)
             t1 = time.time()
-            print('MC time: ', t1 - t0)
+            # print('MC time: ', t1 - t0)
+            self.time_sum += t1-t0
+            self.mc_count += 1
+            if self.mc_count % 900 == 0:
+                print('MC process frame:', self.mc_count)
+                print('MC current time:', t1-t0)
+                print('MC average time:', self.time_sum/900)
+                self.time_sum = 0
+
 
         t2 = time.time()
 
@@ -205,8 +216,8 @@ class OPlayer(QtCore.QThread):
             self.timelist.append(ct)
             if len(self.timelist) > 100:
                 self.timelist.pop(0)
-            print('current fps:', 1 / tt)
-            print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
+            # print('current fps:', 1 / tt)
+            # print('recent 100 fps:', len(self.timelist) / (ct - self.timelist[0]))
             # print('frame cycle time: ', tt)
 
         et = time.time()

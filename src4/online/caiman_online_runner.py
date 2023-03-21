@@ -79,6 +79,8 @@ class CaimanFrameProcess(QObject):
         self.capacity += 1
 
     def frame_process(self):
+        frame_count = 0
+        time_sum = 0
         while self.running:
             if self.capacity < self.frame_read_cnt:
                 time.sleep(0.01)
@@ -161,7 +163,14 @@ class CaimanFrameProcess(QObject):
                 comps = get_contours(mat, dims)
                 self.roi_pos.emit(comps)
             t_2 = time.time() - t_1
-            print('ROI time:', t_2)
+            #print('ROI time:', t_2)
+            time_sum += t_2
+            frame_count += 1
+            if frame_count % 900 == 0:
+                print('ROI process frame:', frame_count)
+                print('ROI current time:', t_2)
+                print('ROI average time:', time_sum/900)
+                time_sum = 0
 
     # replace original fit_online in online_cnmf.py
     def fit_online(self, **kwargs):

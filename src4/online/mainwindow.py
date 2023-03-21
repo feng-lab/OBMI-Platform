@@ -14,6 +14,7 @@ from online.data_receiver import ReceiverThread
 from PySide2.QtWidgets import QFileDialog, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem
 from PySide2.QtCore import Slot, QObject, Signal, Qt
 from PySide2 import QtCore, QtGui, QtWidgets
+
 from online_player import OPlayer
 #from online_player_multiprocess import OPlayer
 from mccc import MCC
@@ -30,11 +31,12 @@ class MainWindow(QMainWindow):
 		self.data_lock = QtCore.QMutex()
 		self.ui.OnScopeCamButton.clicked.connect(self.online_scope)  ## FTB, saved clip
 
-		self.open_video_path = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam13.avi"
+		self.open_video_path = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
 		# self.open_video_path = "C:\\Users\\ZJLAB\\Desktop\\out_movie.avi"
-		self.fakeCapture = False
+		self.fakeCapture = True
 		self.on_filter = None
 		self.ontrace_viewer = None
+		self.decoder = None
 
 		self.Statusbar = self.ui.statusBar()
 
@@ -93,6 +95,8 @@ class MainWindow(QMainWindow):
 		self.check_onROI_add = False
 		self.ui.pushButton_134.clicked.connect(self.addOnRoi)
 		self.ui.OffROIDeleteButton_5.clicked.connect(self.deleteOnRoi)
+
+		self.ui.DeDecodingButton_2.clicked.connect(self.decoding)
 
 		# on_player slider
 		self.slider_lock = False
@@ -308,7 +312,7 @@ class MainWindow(QMainWindow):
 			if self.fakeCapture:
 				camera_ID = self.open_video_path  ### temp
 			else:
-				camera_ID = 0
+				camera_ID = self.cameraID
 
 			self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
 			self.on_scope.frameI.connect(self.online_frame)
@@ -374,7 +378,11 @@ class MainWindow(QMainWindow):
 				self.playing = False
 				self.ui.DePlayerPlayButton_3.setStyleSheet("border-image: url(\"150ppi/play.png\")")
 
-			self.MC = MCC(scope_num, self)
+			# TODO: test
+			filepath = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
+			# filepath = "C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi"
+			self.MC = MCC(filepath, self)
+			# self.MC = MCC(scope_num, self)
 
 			# d_i ### update policy - 다되면 없애는 거 등 필요 ##
 			self.mccbar = QtWidgets.QProgressBar()
@@ -535,6 +543,8 @@ class MainWindow(QMainWindow):
 		frames = []
 		for i in range(init_batch):
 			ret, frame = self.on_scope.capture.read()
+			if not ret:
+				self.on_scope.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
 			frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 			frames.append(frame.data.obj)
 		frames = np.array(frames)
@@ -601,7 +611,7 @@ class MainWindow(QMainWindow):
 		height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
 		width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
 		# size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
-		size = 1  # for test
+		size = 200  # for test
 
 		self.online_runner.tempFile(fps, width, height, size)
 
@@ -632,9 +642,12 @@ class MainWindow(QMainWindow):
 		if self.ui.OnMotionCorrectionCheck.isChecked():  ## ?could be pre-checked
 			if type(self.on_template) != type(None):
 				print('yes you have template')
-				self.MC.c_onmc = 0  ##
-				self.on_scope.MC = self.MC
-				self.on_scope.ged_template = self.on_template  ###
+				# TODO: demo purpose
+				self.on_scope.MC = None
+				self.on_scope.ged_template = None
+				# self.MC.c_onmc = 0  ##
+				# self.on_scope.MC = self.MC
+				# self.on_scope.ged_template = self.on_template  ###
 			##self.MCC.on_mc(self.on_template, )
 			else:
 				print('no template')
@@ -666,7 +679,6 @@ class MainWindow(QMainWindow):
 
 	@Slot(QtGui.QImage)
 	def online_frame(self, image):
-		print('get image')
 		pixmap = QtGui.QPixmap.fromImage(image)
 		self.onplayer_view_item.setPixmap(pixmap)
 		# if self.on_scope.rtProcess:
@@ -707,7 +719,7 @@ class MainWindow(QMainWindow):
 		if not self.check_onROI_add:
 			self.on_roi_clicked = self.roi_click(self.onplayer_scene, self.on_filter)
 			self.on_roi_clicked.connect(self.addOnR)
-			self.ui.pushButton_134.setStyleSheet("background-color: gray")
+			self.ui.pushButton_134.setStyleSheet("border-image: url(\"150ppi/Asset 18_pre.png\")")
 			self.check_onROI_add = True
 
 			if not self.ontrace_viewer:
@@ -823,6 +835,21 @@ class MainWindow(QMainWindow):
 		trace_layout.setContentsMargins(0, 0, 0, 0)
 
 		self.ui.scrollArea_7.setLayout(trace_layout)
+
+	def decoding(self):
+		from online_decoder import DecodingThread
+		print('decoding pressed')
+		if not self.on_scope.rtProcess:
+			print('Start real time process before decoding')
+			return
+
+		if self.decoder is None:
+			self.decoder = DecodingThread(self.ui.Decoding_label)
+			self.decoder.start()
+		else:
+			self.decoder.stop()
+			self.decoder = None
+
 
 	def indep_path(self, path_):
 		if not self.indep:

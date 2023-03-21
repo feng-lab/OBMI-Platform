@@ -45,6 +45,9 @@ class DataReceiver(QObject):
         self.img_buffer.append(img)
 
     def data_handler(self):
+        time_sum1 = 0
+        time_sum2 = 0
+        fc = 0
         while True:
             if len(self.img_buffer) == 0:
                 time.sleep(0.005)
@@ -107,19 +110,6 @@ class DataReceiver(QObject):
                     #         chart.axisX().setMin(self.frame_count)
                     #         self.range_list_reset()
 
-                    if i < 5:
-                        chart = self.trace_viewer.chartlist[i].chart()
-                        chart.series()[0].append(QtCore.QPointF(self.frame_count, avg))
-                        chart.axisX().setMax(self.frame_count)
-                        self.trace_viewer.chartlist[i].max = self.frame_count
-                        if self.frame_count > 500:
-                            chart.axisX().setMin(self.frame_count - 500)
-                            if chart.series()[0].count() > 500:
-                                chart.series()[0].removePoints(0, chart.series()[0].count() - 501)
-                        if avg > chart.axisY().max():
-                            chart.axisY().setMax(avg)
-
-
                     # data[i] = np.array([item.id, x+width/2, y+height/2, width, avg])
 
                     c_size = item.c_size
@@ -134,7 +124,35 @@ class DataReceiver(QObject):
 
                     data[i] = np.array([item.id, x, y, type, c_size, avg])
 
+
                 t2 = time.time()
+
+                for i in range(5):
+                    chart = self.trace_viewer.chartlist[i].chart()
+                    chart.series()[0].append(QtCore.QPointF(self.frame_count, data[i][5]))
+                    chart.axisX().setMax(self.frame_count)
+                    self.trace_viewer.chartlist[i].max = self.frame_count
+                    if self.frame_count > 500:
+                        chart.axisX().setMin(self.frame_count - 500)
+                        if chart.series()[0].count() > 500:
+                            chart.series()[0].removePoints(0, chart.series()[0].count() - 501)
+                    if data[i][5] > chart.axisY().max():
+                        chart.axisY().setMax(data[i][5])
+
+                t3 = time.time()
+
+                time_sum1 += t2-t0
+                time_sum2 += t3-t2
+                fc += 1
+                if fc % 900 == 0:
+                    print('extraction process frame:', fc)
+                    print('extraction current time:', t2-t0)
+                    print('extraction average time:', time_sum1/900)
+                    print('trace current time:', t3 - t2)
+                    print('trace average time:', time_sum2 / 900)
+                    time_sum1 = 0
+                    time_sum2 = 0
+
                 str = f'{self.frame_count:06}'
                 with h5py.File('trace_data_2.h5', 'a') as f:
                     g = f.create_group(str)

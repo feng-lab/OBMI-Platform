@@ -59,6 +59,11 @@ class MCC(MCCs):
         video = cv2.VideoCapture(path)
         nums = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
+        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        fps = int(video.get(cv2.CAP_PROP_FPS))
+
         ## process
         self.signalLen.emit(nums)
         i=0
@@ -76,7 +81,7 @@ class MCC(MCCs):
         tmpt = time.time() - t
         print('preparing time: ', tmpt)
 
-        writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), 20, (752,480))
+        writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width, height))
         ## np.empty([752,480,nums])
         t = time.time()
 
@@ -108,7 +113,7 @@ class MCC(MCCs):
             ft = t2 - t
             fps = 'fps: ' + str(round(1/ft, 2))
             t = t2
-            print(fps)
+            # print(fps)
 
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
