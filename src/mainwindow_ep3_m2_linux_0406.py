@@ -737,6 +737,7 @@ class MainWindow(QMainWindow):
         self.ui.spinBox_6.setValue(0)
         self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
+    # h5py版本更新，改变读取方式
     def button_load(self):
         path = str(QFileDialog.getOpenFileName(self, "select project file", './', 'Project File (*.obmiproject)')[0])
         if path == "":
@@ -744,16 +745,16 @@ class MainWindow(QMainWindow):
 
         print(f'load project file: {path}')
         with h5py.File(path, 'r') as f:
-            version = f['info']['version'].value
+            version = f['info']['version'][()]
             # check version number
             if version == 1.0:
                 g = f['offline']
                 # read offline video data
                 if len(g.keys()) > 0:
                     self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
-                    self.player2.frame_list = g['video'].value
-                    self.player2.total_frame = g['total_frame'].value
-                    self.player2.fps = g['fps'].value
+                    self.player2.frame_list = g['video'][:]
+                    self.player2.total_frame = g['total_frame'][()]
+                    self.player2.fps = g['fps'][()]
                     self.player2.load_mode = True
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
@@ -767,8 +768,8 @@ class MainWindow(QMainWindow):
 
                     # read offline roi data
                     if len(g.keys()) > 3:
-                        data = g['roi_data'].value
-                        contours = g['roi_contours'].value
+                        data = g['roi_data'][:]
+                        contours = g['roi_contours'][:]
                         idx = 0
                         for roi_data in data:
                             roi_id, x, y, type, c_size = roi_data
@@ -785,8 +786,8 @@ class MainWindow(QMainWindow):
                 # read online roi data
                 if len(g.keys()) > 1:
                     self.on_scope = None
-                    data = g['roi_data'].value
-                    contours = g['roi_contours'].value
+                    data = g['roi_data'][:]
+                    contours = g['roi_contours'][:]
                     idx = 0
                     for roi_data in data:
                         roi_id, x, y, type, c_size = roi_data
