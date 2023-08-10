@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -3649,7 +3649,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>Focus</string>
+               <string>Frame rate</string>
               </property>
              </widget>
              <widget class="QPushButton" name="pushButton_16">
@@ -3817,6 +3817,44 @@ Connect</string>
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
+             <widget class="QLabel" name="label_39">
+              <property name="geometry">
+               <rect>
+                <x>672</x>
+                <y>66</y>
+                <width>21</width>
+                <height>21</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>13</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>5</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_5">
+              <property name="geometry">
+               <rect>
+                <x>810</x>
+                <y>18</y>
+                <width>31</width>
+                <height>21</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>fps</string>
+              </property>
+             </widget>
              <widget class="QLabel" name="label_38">
               <property name="geometry">
                <rect>
@@ -3912,7 +3950,7 @@ Connect</string>
              <widget class="QLabel" name="label_42">
               <property name="geometry">
                <rect>
-                <x>806</x>
+                <x>804</x>
                 <y>66</y>
                 <width>31</width>
                 <height>21</height>
@@ -3925,7 +3963,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>100</string>
+               <string>60</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3947,12 +3985,55 @@ Connect</string>
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
-             <widget class="QLineEdit" name="scopeFocusValue">
+             <widget class="QSlider" name="scopeFRslider">
               <property name="geometry">
                <rect>
-                <x>780</x>
+                <x>671</x>
+                <y>44</y>
+                <width>160</width>
+                <height>23</height>
+               </rect>
+              </property>
+              <property name="mouseTracking">
+               <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>5</number>
+              </property>
+              <property name="singleStep">
+               <number>1</number>
+              </property>
+              <property name="pageStep">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="sliderPosition">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="invertedControls">
+               <bool>false</bool>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksBelow</enum>
+              </property>
+              <property name="tickInterval">
+               <number>1</number>
+              </property>
+             </widget>
+             <widget class="QLineEdit" name="scopeFRvalue">
+              <property name="geometry">
+               <rect>
+                <x>766</x>
                 <y>15</y>
-                <width>47</width>
+                <width>40</width>
                 <height>25</height>
                </rect>
               </property>
@@ -3976,112 +4057,80 @@ Connect</string>
                <string>%</string>
               </property>
              </widget>
-             <widget class="QSlider" name="scopeFocusSlider">
+             <widget class="QLabel" name="label_122">
               <property name="geometry">
                <rect>
-                <x>670</x>
-                <y>44</y>
-                <width>161</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="maximum">
-               <number>255</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_5">
-              <property name="geometry">
-               <rect>
-                <x>119</x>
-                <y>95</y>
-                <width>80</width>
+                <x>695</x>
+                <y>66</y>
+                <width>21</width>
                 <height>21</height>
                </rect>
               </property>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>11</pointsize>
+                <pointsize>13</pointsize>
                </font>
               </property>
               <property name="text">
-               <string>Frame Rate</string>
+               <string>10</string>
               </property>
              </widget>
-             <widget class="QComboBox" name="FRcomboBox">
+             <widget class="QLabel" name="label_133">
               <property name="geometry">
                <rect>
-                <x>224</x>
-                <y>95</y>
-                <width>41</width>
-                <height>22</height>
+                <x>785</x>
+                <y>66</y>
+                <width>21</width>
+                <height>21</height>
                </rect>
               </property>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>13</pointsize>
                </font>
               </property>
-              <property name="currentText">
+              <property name="text">
                <string>30</string>
               </property>
-              <item>
-               <property name="text">
-                <string>5</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>10</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>15</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>20</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>30</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>45</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>60</string>
-               </property>
-              </item>
              </widget>
-             <widget class="QLabel" name="label_8">
+             <widget class="QLabel" name="label_134">
               <property name="geometry">
                <rect>
-                <x>270</x>
-                <y>95</y>
-                <width>30</width>
+                <x>755</x>
+                <y>66</y>
+                <width>21</width>
                 <height>21</height>
                </rect>
               </property>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>11</pointsize>
+                <pointsize>13</pointsize>
                </font>
               </property>
               <property name="text">
-               <string>fps</string>
+               <string>20</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_135">
+              <property name="geometry">
+               <rect>
+                <x>725</x>
+                <y>66</y>
+                <width>21</width>
+                <height>21</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>13</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>15</string>
               </property>
              </widget>
             </widget>
@@ -5410,32 +5459,6 @@ Extraction</string>
        <property name="text">
         <string>Neuron
 Extraction</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="connectBehaviorCameraButton_11">
-       <property name="geometry">
-        <rect>
-         <x>1630</x>
-         <y>20</y>
-         <width>102</width>
-         <height>74</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>102</width>
-         <height>74</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Save
-Trace</string>
        </property>
       </widget>
      </widget>

@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 import scipy
 #import resnet
 #import densenet
-from ReadData import MyDatasetsFitting
+from src.decoder.ReadData import MyDatasetsFitting
 from torch.utils.data import DataLoader
 from torch import nn
 import os
 from scipy.io import loadmat
 #import TCN3D
 #from CalDecoder import CNNTCN
-from CalDecoder import CNNLSTM
+from src.decoder.CalDecoder import CNNLSTM
 
 class DecodingThread(QThread):
 

@@ -71,8 +71,8 @@ def makeList(plist, nlist):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    dir_name_p = 'D:\project\OBMI-Platform\src\decoding\pos\\'
-    dir_name_n = 'D:\project\OBMI-Platform\src\decoding\\neg\\'
+    dir_name_p = '/src/decoder\pos\\'
+    dir_name_n = '/src/decoder\\neg\\'
     p_list, plabel = getFileList_P(dir_name_p)
     n_list, nlabel = getFileList_N(dir_name_n)
 
@@ -88,8 +88,8 @@ if __name__ == '__main__':
 
     BATCH_SIZE = 8
 
-    press_path = 'D:\project\OBMI-Platform\src\decoding\\all_press_filter10.mat'
-    press_path_negative = 'D:\project\OBMI-Platform\src\decoding\\all_press_negative_filter10.mat'
+    press_path = '/src/decoder\\all_press_filter10.mat'
+    press_path_negative = '/src/decoder\\all_press_negative_filter10.mat'
     matdata = loadmat(press_path)
     matdata_negative = loadmat(press_path_negative)
     all_press = matdata['all_press']

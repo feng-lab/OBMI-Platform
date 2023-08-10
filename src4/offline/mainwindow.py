@@ -1,20 +1,20 @@
-import numpy as np
-import torch
-from PySide2.QtWidgets import QDialog
-from PySide2.QtWidgets import QMainWindow, QWidget
-from PySide2.QtUiTools import QUiLoader
-
-from PySide2.QtCore import Slot, Signal, QObject, Qt
-from PySide2.QtWidgets import QFileDialog, QGraphicsScene, QGraphicsPixmapItem, QMessageBox, QTableWidgetItem
-import cv2
-# from vplayer import VPlayerThread, VPlayerStatus
-from PySide2 import QtCore, QtGui, QtWidgets
+import os
 import time
 
+import cv2
+import numpy as np
+import torch
+# from vplayer import VPlayerThread, VPlayerStatus
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtCore import Slot, Signal, QObject, Qt
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWidgets import QDialog
+from PySide2.QtWidgets import QFileDialog, QGraphicsScene, QGraphicsPixmapItem, QMessageBox
+from PySide2.QtWidgets import QMainWindow, QWidget
+
 from offline.ROI import ROIType, ROI
-from vplayer import VPlayerThread, VPlayerStatus, VPlayer
-import iconlist_iconUpdated
-import os
+from vplayer import VPlayerStatus, VPlayer
+
 
 ## scope_video_view_item
 
@@ -83,12 +83,6 @@ class MainWindow(QMainWindow):
 		self.filter = None
 
 		self.data_lock = QtCore.QMutex()  # thread-vari.
-
-		## edit ui - player2
-		# self.ui.pushButton_4.setText('OK')
-		# self.ui.pushButton_68.setText('Next')
-		# self.ui.pushButton_2.setText('play')
-		# self.ui.pushButton_6.setText('stop')
 
 		self.ui.off_play_button.clicked.connect(self.play_button_clicked2)
 		self.ui.off_stop_button.clicked.connect(self.stop_button_clicked2)

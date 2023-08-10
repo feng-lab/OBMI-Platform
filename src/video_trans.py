@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 
@@ -110,8 +112,49 @@ def video_concat():
     sav.release()
     print('process done')
     print('out path:', out_path)
+
+
+def robot_video_generator():
+    dir = 'D:\\robotData\imagePng\imagePng'
+    # dir = 'D:\\robotData\imagePng'
+    files = os.listdir(dir)
+    files.sort()
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    height = 480
+    width = 640
+    fps = 10
+
+    out_path = 'D:\\robotData\imagePng'
+    # rgb_sav = cv2.VideoWriter(os.path.join(out_path, 'rgb.mp4'), fourcc, fps, (width, height), True)
+    d_sav = cv2.VideoWriter(os.path.join(out_path, 'd.mp4'), fourcc, fps, (width, height), True)
+    for f in files:
+        # if '.png' in f:
+        #     img = cv2.imread(os.path.join(dir, f), cv2.IMREAD_COLOR)
+        #     print(img)
+        #     cv2.imshow("img", img)
+        #     cv2.waitKey(1)
+        #     rgb_sav.write(img)
+        if '.raw' in f:
+            img = np.fromfile(os.path.join(dir, f), dtype='uint16')
+            img = img.reshape(height, width, 1)
+            img = img.astype('uint8')
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            print(img.shape)
+            cv2.imshow("img", img)
+            cv2.waitKey(1)
+            for _ in range(200):
+                d_sav.write(img)
+    d_sav.release()
+    # rgb_sav.release()
+
+def loadnpy():
+    p = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-08\\2023-07-12_trace.npy'
+    d = np.load(p)
+    print(d)
+
 if __name__ == "__main__":
-    # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')
+    # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')\
     # out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi'
     # fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
     # height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -132,6 +175,7 @@ if __name__ == "__main__":
     # sav.release()
     #matTrans()
     #videocut()
-    framedrop()
+    # framedrop()
     #video_concat()
-
+    # robot_video_generator()
+    loadnpy()

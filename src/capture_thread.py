@@ -56,11 +56,12 @@ class CaptureThread(QtCore.QThread):
         self.gain_status = 16  ##
         self.hue_status = 0
         self.tfps = 0
+        self.focus_status = 0
 
-        self.fakecapture = True
+        self.fakecapture = False
 
     def run(self):
-        cap = cv2.VideoCapture(self.camera_ID)
+        cap = cv2.VideoCapture(self.camera_ID, cv2.CAP_DSHOW)
         if self.fakecapture:
             #cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
             if self.camera_ID == 701:
@@ -84,6 +85,7 @@ class CaptureThread(QtCore.QThread):
         self.s_gain = int(cap.get(cv2.CAP_PROP_GAIN))
         # self.hue_value = cap.get(cv2.CAP_PROP_HUE)
         self.hue_value = 0
+        self.s_focus = cap.get(cv2.CAP_PROP_FOCUS)
 
         self.ftime = 0  ###
         self.count_frames = 0
@@ -110,6 +112,7 @@ class CaptureThread(QtCore.QThread):
                 self.start_saving_video(tmp_frame)
             if self.video_saving_status == VideoSavingStatus.STARTED:
                 self.video_writer.write(tmp_frame)
+                self.timestamp_file.write(str(time.time())+'\n')
                 self.count_frames = self.count_frames + 1
             if self.video_saving_status == VideoSavingStatus.STOPPING:
                 self.stop_saving_video()
@@ -143,17 +146,19 @@ class CaptureThread(QtCore.QThread):
                 print("LED(v/s/h): ", self.hue_value, self.hue_status, cap.get(cv2.CAP_PROP_HUE))  ##
                 self.hue_status = self.hue_value
 
-            ## self.ftime = time.time() - ttime
-            ## tfps = round(1/self.ftime,3)
-            ## print(f'{self.camera_ID}: {tfps}')
+            if self.focus_status != self.s_focus:
+                self.s_focus = self.focus_status
+                self.change_focus(cap, self.s_focus)
+                print("Focus:", cap.get(cv2.CAP_PROP_FOCUS))
 
             if self.cfps != self.sfps:
                 self.sfps = self.cfps
                 self.fps_switch(cap, self.sfps)
+                cap.set(cv2.CAP_PROP_FPS, self.sfps)
                 print('sfps:', self.sfps)
 
                 #cap.set(cv2.CAP_PROP_FPS, self.sfps)
-                print('fps changed: {self.sfps}')
+                print(f'fps changed: {self.sfps}')
 
             tmp_frame = cv2.cvtColor(tmp_frame, cv2.COLOR_BGR2RGB)
             self.data_lock.lock()
@@ -164,38 +169,18 @@ class CaptureThread(QtCore.QThread):
             self.data_lock.unlock()
             self.frameCaptured.emit(image)
 
-            ## if self.fps_calculating:  ####
-            ##    self.calculate_FPS(cap)
-
-            ## self.fps = cap.get(cv2.CAP_PROP_FPS)
-            ## if self.fps != :
-            ##     self.fps = lfps
-            ##    cap.set(cv2.CAP_PROP_FPS)
-
-            ## (1/self.sfps)
-
-            ## while(self.fser):
-            ##pass
 
             delay = float(f'{(1/self.cfps) - (time.time() - ptime) -0.005 :.2f}')
             if delay > 0:
                 time.sleep(delay)
-            #self.sleep(1000*delay)
 
             time.time()
             ttime = time.time()
             fps = round(1 / (ttime - ptime), 3)
 
-            # if self.sfps != round(fps):
-
-            ## cfps
-            # self.cal_FPS(ttime - ptime)
             self.fpsChanged.emit(fps)
             ptime = ttime
 
-            ## if self.fps_control:
-            ## #    cap.get(cv2.CAP_PROP_FPS)
-            ##    cap.set(cv2.CAP_PROP_FPS, )
 
         cap.release()
 
@@ -270,6 +255,10 @@ class CaptureThread(QtCore.QThread):
         cover = f'{movie_dir}/{self.saved_video_name}_cover{self.camera_ID}.jpg'
         cv2.imwrite(cover, first_frame)
 
+        fn = f'{movie_dir}/{self.saved_video_name}_timestamp.jpg'
+        self.timestamp_file = open(fn, 'w')
+
+
         self.fps = self.sfps
         # print(self.frame_width, self.frame_heigh
 
@@ -326,6 +315,8 @@ class CaptureThread(QtCore.QThread):
         self.video_writer.release()
         del self.video_writer
         self.video_writer = None
+        self.timestamp_file.close()
+        del self.timestamp_file
         self.videoSaved.emit(self.saved_video_name)  ## 에러조심
 
     ## x
@@ -375,3 +366,7 @@ class CaptureThread(QtCore.QThread):
         # print(outV)
 
         # outV = np.uint16(v*(0x0FFF)/1000))|(0x3000)
+
+    def change_focus(self, cap: cv2.VideoCapture, focus):
+        print('change focus:', focus)
+        cap.set(cv2.CAP_PROP_FOCUS, focus)

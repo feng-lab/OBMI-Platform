@@ -49,7 +49,7 @@ from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
 from src.caiman_online_runner import OnlineRunner
 from src.data_receiver import DataReceiver, ReceiverThread
-from src.decoding.Decoder import DecodingThread
+from src.decoder.Decoder import DecodingThread
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -140,18 +140,24 @@ class MainWindow(QMainWindow):
         self.ui.scopeGainSlider.valueChanged.connect(self.move_slider6)
         self.ui.scopeGainValue.returnPressed.connect(self.slider_box6)
 
+        # todo: check point
         ## scope FR slider
-        self.fvalue = [5, 10, 15, 20, 30, 60]
-        self.ui.scopeFRslider.valueChanged.connect(self.move_slider7)
-        self.ui.scopeFRvalue.returnPressed.connect(self.slider_box7)
+        self.ui.scopeFocusSlider.valueChanged.connect(self.move_slider7)
+        self.ui.scopeFocusValue.returnPressed.connect(self.slider_box7)
+        # self.fvalue = [5, 10, 15, 20, 30, 60]
+        # self.ui.scopeFRslider.valueChanged.connect(self.move_slider7)
+        # self.ui.scopeFRvalue.returnPressed.connect(self.slider_box7)
 
         ## scope exposure slider
         self.ui.scopeExposureSlider.valueChanged.connect(self.move_slider8)
         self.ui.scopeExposureValue.returnPressed.connect(self.slider_box8)
 
+
         ## scope Exposuretime Slider
         #### self.ui.scopeETslider.valueChanged.connect(self.move_slider9)
         #### self.ui.scopeETvalue.returnPressed.connect(self.slider_box9)
+
+        self.ui.FRcomboBox.currentIndexChanged.connect(self.fpsBox)
 
         ##------------project name----------- home tab ---------
 
@@ -707,6 +713,7 @@ class MainWindow(QMainWindow):
 
         ## neuron extraction
         self.ui.connectBehaviorCameraButton_10.clicked.connect(self.neuronExtraction)
+        self.ui.connectBehaviorCameraButton_11.clicked.connect(self.save_trace)
         self.trace_viewer = None
 
         itemlist = self.player_scene2.items()
@@ -976,7 +983,7 @@ class MainWindow(QMainWindow):
         text = self.ui.connectScopeCameraButton.text()
         if text == 'Scope\n''Connect' and self.capturer2 is None:  ## check - capturer
             ## camera_ID = self.mini_num #0
-            camera_ID = cv2.CAP_DSHOW + self.Snum  ##
+            camera_ID = self.Snum  ##
 
             print("Camera_no.1")
             self.capturer2 = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock,
@@ -1491,33 +1498,27 @@ class MainWindow(QMainWindow):
     ## scope FR slider
     @Slot()
     def move_slider7(self, sl_val_r):
-        print("dex ", sl_val_r)
-        sl_val = self.fvalue[sl_val_r]  # [5,10,15,20,30,60]
-        print(sl_val)
-        print("moved")
-        self.ui.scopeFRvalue.setPlaceholderText(str(sl_val))
-        if self.capturer2 is not None and not self.s_fps_up:
-            self.set_scope_fps(sl_val)
-        if self.capturer is not None and not self.s_fps_up:
-            self.set_behavior_fps(sl_val)
+        self.ui.scopeFocusValue.setPlaceholderText(str(sl_val_r))
+        self.capturer2.focus_status = sl_val_r
+        # print("dex ", sl_val_r)
+        # sl_val = self.fvalue[sl_val_r]  # [5,10,15,20,30,60]
+        # print(sl_val)
+        # print("moved")
+        # self.ui.scopeFRvalue.setPlaceholderText(str(sl_val))
+        # if self.capturer2 is not None and not self.s_fps_up:
+        #     self.set_scope_fps(sl_val)
+        # if self.capturer is not None and not self.s_fps_up:
+        #     self.set_behavior_fps(sl_val)
+
 
     @Slot()
     def slider_box7(self):
-        set_v = int(self.ui.scopeFRvalue.text())
+        set_v = int(self.ui.scopeFocusValue.text())
         ## self.ui.scopeFRvalue.setPlaceholderText(str(set_v))
 
-        if (set_v / 5 - 1) >= 8:
-            v = 5
-        elif (set_v / 5 - 1) >= 4:
-            v = 4
-        elif (set_v / 5 - 1) < 0:
-            v = 0
-        else:
-            v = int(set_v / 5 - 1)
-        print('v ', v)
-        self.move_slider7(v)  # set_v
-        self.ui.scopeFRslider.setValue(v)
-        self.ui.scopeFRvalue.setText("")
+        self.move_slider7(set_v)  # set_v
+        self.ui.scopeFocusSlider.setValue(set_v)
+        self.ui.scopeFocusvalue.setText("")
 
     ## scope Exposure slider
     @Slot()
@@ -1540,6 +1541,15 @@ class MainWindow(QMainWindow):
     def move_slider9(self, sl_val):
         print(sl_val)
         print("moved")
+
+    @Slot()
+    def fpsBox(self):
+        val = int(self.ui.FRcomboBox.currentText())
+        if self.capturer2 is not None and not self.s_fps_up:
+            self.set_scope_fps(val)
+        if self.capturer is not None and not self.s_fps_up:
+            self.set_behavior_fps(val)
+
 
     ####    @Slot()
     ####    def slider_box9(self):
@@ -2050,7 +2060,7 @@ class MainWindow(QMainWindow):
             self.player_scene2.removeEventFilter(self.filter)
 
     # add ROI
-    def addR(self, scenePos, size=30):  ## 시도
+    def addR(self, scenePos, size=15):  ## 시도
         # num, colr = self.roi_table.add_to_table()
         colr = self.roi_table.randcolr()
         roi_circle = self.create_circle(colr, scenePos, size)
@@ -2178,11 +2188,11 @@ class MainWindow(QMainWindow):
 
         itemlist = self.player_scene2.items().copy()
 
-        brightlist = []  # store trace value
+        self.brightlist = []  # store trace value
 
         for i in range(len(itemlist)-1, -1, -1):
             if itemlist[i].__class__.__name__ == "ROI":
-                brightlist.append([])
+                self.brightlist.append([])
             else:
                 itemlist.pop(i)
 
@@ -2190,12 +2200,14 @@ class MainWindow(QMainWindow):
             return
 
         itemlist.reverse()
+
         for frame in frame_list:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             for i in range(0, len(itemlist)):
-                brightlist[i].append(self.getBrightness(frame, itemlist[i]))
+                self.brightlist[i].append(self.getBrightness_v2(frame, itemlist[i]))
+                # brightlist[i].append(self.getBrightness(frame, itemlist[i]))
 
-        self.draw_chart(brightlist)
+        self.draw_chart(self.brightlist)
         print(f'total time: {time.time() - timer}')
 
     # initialize and draw offline traces
@@ -2219,6 +2231,11 @@ class MainWindow(QMainWindow):
         self.ui.scrollAreaWidgetContents_8.setWidget(scrollWidget)
         self.ui.scrollArea_8.setWidget(self.ui.scrollAreaWidgetContents_8)
 
+    def save_trace(self):
+        fp, ok = QFileDialog.getSaveFileName(self, "Save file location", "./", "Numpy Files(*.npy)")
+        if ok:
+            np.save(fp, np.array(self.brightlist))
+            print("Trace saved")
     # pre-process for getting item range
     # def getItemRange(self, item):
     #     timer = time.time()
@@ -2270,6 +2287,49 @@ class MainWindow(QMainWindow):
             avg = avg / noise_avg
 
         return avg
+
+    def getBrightness_v2(self, frame, item):
+        x = int(item.pos().x())
+        y = int(item.pos().y())
+        outlines = item.contours.copy().reshape((-1, 2))  # 相对坐标
+
+        outlines[:, 0] += x
+        outlines[:, 1] += y
+
+        x_min = int(np.min(outlines[:, 0]))
+        x_max = int(np.max(outlines[:, 0]))
+        y_min = int(np.min(outlines[:, 1]))
+        y_max = int(np.max(outlines[:, 1]))
+        center_x = x_min + (x_max - x_min) // 2
+        center_y = y_min + (y_max - y_min) // 2
+        r_cell = (x_max - x_min) // 2
+        dist = 5
+
+        xx, yy = np.meshgrid(np.arange(x_min, x_max + 1), np.arange(y_min, y_max + 1))
+        distances = np.sqrt((xx - center_x) ** 2 + (yy - center_y) ** 2)
+        mask_cell = distances < (x_max - x_min) / 2
+
+        masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * mask_cell
+        F_cell = np.sum(masked_frame)
+        cnt_cell = np.sum(mask_cell)
+        F_cell = F_cell / cnt_cell
+
+        x_min = x_min - dist
+        x_max = x_max + dist
+        y_min = y_min - dist
+        y_max = y_max + dist
+
+        xx, yy = np.meshgrid(np.arange(x_min, x_max + 1), np.arange(y_min, y_max + 1))
+        distances = np.sqrt((xx - center_x) ** 2 + (yy - center_y) ** 2)
+        mask_all = np.logical_and(distances < (x_max - x_min) / 2, distances > r_cell)
+
+        masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * mask_all
+        F_all = np.sum(masked_frame)
+        cnt_all = np.sum(mask_all)
+        F_b = F_all / cnt_all
+
+        res = (F_cell - F_b) / F_b
+        return res
 
     #########################################################################
     #                                                                       #
@@ -2803,7 +2863,7 @@ class MainWindow(QMainWindow):
             self.addOnRoiPolygon(minx, miny, shape)
 
     # Online Tab add ROI
-    def addOnR(self, scenePos, size=30):
+    def addOnR(self, scenePos, size=15):
         colr = self.onroi_table.randcolr()
         roi_circle = self.create_circle(colr, scenePos, size)
         self.onplayer_scene.addItem(roi_circle)
@@ -2949,7 +3009,7 @@ class MainWindow(QMainWindow):
         return filter.clicked
 
 
-    def create_circle(self, c, pos, size=30):  ## circle 별도 class 만들어줄지
+    def create_circle(self, c, pos, size=15):  ## circle 별도 class 만들어줄지
         r, g, b = c
         # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
         roi_circle = ROI(type=ROIType.CIRCLE, size=size)
