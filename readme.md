@@ -5,13 +5,9 @@
     ```bash
     # cmd prompt should be something like (base) C:\Users\..., indicating the base conda enviroment is activated now
 
-    # install mamba to base enviroment
-    conda install -c conda-forge mamba
-
-    # create seprate enviroment with caiman by manba (this installation from caiman official guide)
-    mamba create -n bmi -c conda-forge caiman
+    # create an enviroment
+    mamba create -n bmi
     # switch to bmi enviroment
-    conda deactivate   # exit base
     conda activate bmi  # enter bmi
 
     # some other conda stuff
@@ -26,11 +22,9 @@
     ```bash
     # make sure we are in bmi enviroment (conda activate bmi)
     # this will install packages for python
-    conda install -c conda-forge pyside2 opencv pandas scipy comtypes
+    conda install pyside2 opencv pandas scipy comtypes h5py
     # to show that PySide2 is successfully installed
     conda list    # will show something like  pyside2                   5.13.1           py38ha8f7116_6    conda-forge
-    # install hnccorr package (it requires Micorsoft Visual C++ build tools)
-    pip install hnccorr
     ```
 * install pytorch with CUDA, you can get command from https://pytorch.org/get-started/locally/
 
