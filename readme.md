@@ -36,7 +36,4 @@
 
 * install your ide, I am using pycharm, it's free.
 * download source code
-    ```bash
-    git clone git@github.com:feng-lab/rbmi.git
-    ```
-* open the rbmi folder with pycharm, In `Preferences` of pycharm, set the `Project Interpreter` to our bmi enviroment (add python interpreter -> conda enviroment -> existing enviroment, our `bmi` should be there). open `src/main.py`, open context menu (right click), click 'Run main'. 
+* open the obmi folder with pycharm, In `Preferences` of pycharm, set the `Project Interpreter` to our bmi enviroment (add python interpreter -> conda enviroment -> existing enviroment, our `bmi` should be there). open `src/main.py`, open context menu (right click), click 'Run main'. 
