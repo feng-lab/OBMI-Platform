@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 from PySide2 import QtGui
-from hnccorr import Movie
+# from hnccorr import Movie
 
 class VPlayerStatus(Enum):
     STARTING = auto()
@@ -19,7 +19,8 @@ class VPlayerStatus(Enum):
 
 class VPlayer(QtCore.QThread):
 
-    frameC = QtCore.Signal(QtGui.QImage)
+    # frameC = QtCore.Signal(QtGui.QImage)
+    frameC = QtCore.Signal(QtGui.QPixmap)
     stateCh = QtCore.Signal(int)
 
     def __init__(self, v_path: str, lock: QtCore.QMutex, parent: QtCore.QObject): #parent QtCore.QObject
@@ -84,72 +85,31 @@ class VPlayer(QtCore.QThread):
                     # self.capture.set(cv2.CAP_PROP_POS_FRAMES, self.present_frame)  ##
                 ## print('in while')
 
-                # update frame
-                self.frame_update()
-
                 #
                 if self.present_frame == self.total_frame:
                     print('played all')
                     self.vplayer_status = VPlayerStatus.PAUSING
                     self.ui.pushButton_2.setText('play')
                     continue
-                    #self.stateCh.emit(1)  ### signal - pause changed
-                    #self.present_frame = self.start_frame
+
+                # update frame
+                self.frame_update()
 
                 self.present_frame += 1
 
                 process_time = time.time() - start_time
+                print('process time:', process_time)
                 if process_time < wtime:
                     time.sleep(wtime - process_time)
 
 
             if self.vplayer_status == VPlayerStatus.PAUSING:
                  time.sleep(0.01)
-            #     self.present_frame = self.capture.get(cv2.CAP_PROP_POS_FRAMES)
-
-
-            # if self.vplayer_status == VPlayerStatus.MOVING:
 
             if self.vplayer_status == VPlayerStatus.STOPPING:
                 self.p_stop()
 
-        # while not self.isInterruptionRequested():
-        #
-        #     if self.vplayer_status == VPlayerStatus.STARTING:
-        #         start_time = time.time()
-        #         self.timer = time.time()
-        #
-        #         if self.next_frame != 0:
-        #             index = int(self.next_frame)
-        #             self.next_frame = 0
-        #
-        #         # update frame
-        #         self.frameC.emit(self.image_list[self.present_frame])
-        #
-        #         #
-        #         if self.present_frame == self.total_frame - 1:
-        #             print('played all')
-        #             self.vplayer_status = VPlayerStatus.PAUSING
-        #             self.ui.pushButton_2.setText('play')
-        #
-        #         self.present_frame = self.present_frame + 1
-        #
-        #         process_time = time.time() - start_time
-        #         if process_time < wtime:
-        #             time.sleep(wtime - process_time)
-        #
-        #     if self.vplayer_status == VPlayerStatus.STOPPING:
-        #         self.stop_from_list()
-
-
-        # self.capture.release()
         self.capture = None
-
-            ### mainwindow 작업 -- 
-
- #   def frame_on(self, frame):
-        ## frame 보내기
-        ## remote
 
     def load_tiff(self):
         image_dir = "D:\\0_Project\\20211217_neurofinder\\neurofinder.00.00\\neurofinder.00.00\\images"
@@ -241,7 +201,8 @@ class VPlayer(QtCore.QThread):
         bytesPerLine = dim * width
         image = QtGui.QImage(self.frame.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
         self.data_lock.unlock()
-        self.frameC.emit(image)
+        # self.frameC.emit(image)
+        self.frameC.emit(QtGui.QPixmap.fromImage(image))
 
         # timer update
         #self.slider_timer_update()

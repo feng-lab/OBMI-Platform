@@ -1,3 +1,4 @@
+
 import h5py
 import numpy
 import scipy
@@ -48,8 +49,8 @@ import pandas as pd
 from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
 # from src.caiman_online_runner import OnlineRunner
-from src.data_receiver import DataReceiver, ReceiverThread
-from src.decoder.Decoder import DecodingThread
+from data_receiver import DataReceiver, ReceiverThread
+from decoder.Decoder import DecodingThread
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -1815,8 +1816,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
     ## player2
     @Slot(QtGui.QImage)
-    def update_player_frame2(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
+    def update_player_frame2(self, pixmap):
+        # pixmap = QtGui.QPixmap.fromImage(image)
         ## width control
         self.player_view2 = self.ui.scope_camera_view_item_2
         pl_width = self.player_view2.width()  # view?
@@ -1936,7 +1937,7 @@ class MainWindow(QMainWindow):
         self.ui.horizontalSlider_10.blockSignals(True)  ##_
         self.ui.horizontalSlider_10.setValue(present_f)  ##_
         self.ui.horizontalSlider_10.blockSignals(False)  ##_
-        print(f'sliderposition: {present_f}')
+        # print(f'sliderposition: {present_f}')
         self.frame_slider_update_p2(present_f)
 
     ## slider texts update
