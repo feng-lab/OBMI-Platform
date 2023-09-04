@@ -6,7 +6,7 @@
     # cmd prompt should be something like (base) C:\Users\..., indicating the base conda enviroment is activated now
 
     # create an enviroment
-    mamba create -n bmi
+    conda create -n bmi
     # switch to bmi enviroment
     conda activate bmi  # enter bmi
 

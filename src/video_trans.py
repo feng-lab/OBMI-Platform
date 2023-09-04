@@ -153,6 +153,41 @@ def loadnpy():
     d = np.load(p)
     print(d)
 
+def video_nto1():
+    dir = 'D:\data\\2023_08_16\\2023_08_16\\14_59_15\Miniscope'
+    lst = os.listdir(dir)
+    lst = list(filter(lambda x: '.avi' in x, lst))
+    lst.sort(key=lambda x: int(x.split('.')[0]))
+
+    if len(lst) > 0:
+        print('Total videos:', len(lst))
+        p = os.path.join(dir, lst[0])
+        cap = cv2.VideoCapture(p)
+        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        cap.release()
+        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+        out_path = os.path.join(dir, 'full_video.avi')
+        sav = cv2.VideoWriter(out_path, fourcc, fps, (w, h), True)
+
+        for video in lst:
+            print('processing video:', video)
+            p = os.path.join(dir, video)
+            cap = cv2.VideoCapture(p)
+            while True:
+                ret, frame = cap.read()
+
+                if not ret:
+                    break
+
+                sav.write(frame)
+            cap.release()
+        sav.release()
+
+
+
+
 if __name__ == "__main__":
     # cap = cv2.VideoCapture('C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.mp4')\
     # out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\CaImAn_demo.avi'
@@ -178,4 +213,5 @@ if __name__ == "__main__":
     # framedrop()
     #video_concat()
     # robot_video_generator()
-    loadnpy()
+    # loadnpy()
+    video_nto1()

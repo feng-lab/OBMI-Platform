@@ -264,7 +264,7 @@ class Table(QWidget):
 #            col = QColorDialog.getColor(colr)    
 #        brushbtn.clicked.connect(color_dial2(QtGui.QColor(colr[0], colr[1], colr[2])))
         
-        
+
         #print(rgb)
     def circle_click(self, name):
         num = self.namelist.index(name)

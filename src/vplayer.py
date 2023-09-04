@@ -68,6 +68,7 @@ class VPlayer(QtCore.QThread):
 
         print('total_frame: ', self.total_frame)
 
+        loop_time = time.time()
 
         print('init time: ', time.time() - t1)
         while not self.isInterruptionRequested():
@@ -101,6 +102,7 @@ class VPlayer(QtCore.QThread):
                 print('process time:', process_time)
                 if process_time < wtime:
                     time.sleep(wtime - process_time)
+                    continue
 
 
             if self.vplayer_status == VPlayerStatus.PAUSING:
