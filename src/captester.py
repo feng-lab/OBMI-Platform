@@ -102,4 +102,4 @@ while True:
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         cv2.imshow('frame', frame)
-        cv2.waitKey(1)
+        cv2.waitKey(10)

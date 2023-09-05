@@ -47,7 +47,7 @@ import pandas as pd
 
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
-from ROI import ROI, ROIType
+from ROI import ROI, ROIType, readImagejROI
 # from src.caiman_online_runner import OnlineRunner
 from data_receiver import DataReceiver, ReceiverThread
 from decoder.Decoder import DecodingThread
@@ -291,6 +291,7 @@ class MainWindow(QMainWindow):
         self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
 
+        self.ui.pushButton_167.clicked.connect(self.load_roi)
         ## second player scene
 
         ## self.ui.scope_camera_view_item_2 = QtWidgets.QWidget(self.ui.widget_46) ##+ edit ui
@@ -785,7 +786,7 @@ class MainWindow(QMainWindow):
                             idx += int(c_size)
                             contour = [QtCore.QPointF(contour[i], contour[i+1]) for i in range(len(contour)-1) if i % 2 == 0]
                             roi = self.addRoiPolygon(x, y, contour)
-                            roi.setId(roi_id)
+                            # roi.setId(roi_id)
                             if type == 1:
                                 roi.type = ROIType.CIRCLE
                                 roi.size = roi.boundingRect().width()
@@ -1791,6 +1792,18 @@ class MainWindow(QMainWindow):
         print(f'selected file: {self.open_video_path}')
         if self.open_video_path != "":
             self.startPlayer2()  # init
+
+    def load_roi(self):
+        # read imageJ roi files
+        dir = QFileDialog.getExistingDirectory(self, "select ROI Directory")
+        file_ls = os.listdir(dir)
+        file_ls = sorted([file for file in file_ls if '.roi' in file])
+
+        for roi_file in file_ls:
+            x, y, contour = readImagejROI(os.path.join(dir, roi_file))
+            print(contour)
+            roi = self.addRoiPolygon(x, y, contour)
+        print(f'load {len(file_ls)} roi(s)')
 
 
     # player initialization

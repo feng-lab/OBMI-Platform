@@ -3,8 +3,9 @@ from enum import Enum
 import cv2
 import numpy as np
 from PyQt5.uic.Compiler.qtproxies import QtWidgets, QtGui
-from PySide2.QtCore import QObject, Signal
+from PySide2.QtCore import QObject, Signal, QPointF
 from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem
+from roifile import ImagejRoi
 
 
 class ROIconnect(QObject):
@@ -101,3 +102,15 @@ class ROI(QGraphicsPolygonItem):
         mat = np.array(new_mat, np.uint8).T
         self.noise = -(mat.copy() - 1).flatten()
         return mat.flatten()
+
+def readImagejROI(path):
+    roi = ImagejRoi.fromfile(path)
+    contour = roi.coordinates()
+    x = roi.left
+    y = roi.top
+    contour = contour-[x,y]
+    contour = [QPointF(c[0], c[1]) for c in contour]
+    return x, y, contour
+
+if __name__ == '__main__':
+    readImagejROI('')

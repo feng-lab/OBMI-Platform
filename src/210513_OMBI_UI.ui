@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -4027,7 +4027,7 @@ Connect</string>
                </font>
               </property>
               <property name="currentText">
-               <string>30</string>
+               <string>5</string>
               </property>
               <item>
                <property name="text">
@@ -5326,6 +5326,24 @@ Extraction</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+       <widget class="QPushButton" name="pushButton_167">
+        <property name="geometry">
+         <rect>
+          <x>930</x>
+          <y>90</y>
+          <width>111</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load ImageJ ROI</string>
+        </property>
+       </widget>
        <zorder>label_120</zorder>
        <zorder>label_18</zorder>
        <zorder>connectBehaviorCameraButton_2</zorder>
@@ -5360,6 +5378,7 @@ Extraction</string>
        <zorder>label_191</zorder>
        <zorder>label_192</zorder>
        <zorder>label_45</zorder>
+       <zorder>pushButton_167</zorder>
       </widget>
       <widget class="QWidget" name="widget_45" native="true">
        <property name="geometry">
