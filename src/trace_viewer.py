@@ -6,12 +6,13 @@ from PySide2.QtGui import QPen, QBrush
 # Trace Viewer for displaying trace
 # param: brightlist - a list contains all brightness info of each ROI circle
 class Traceviewer(QWidget):
-    def __init__(self, brightlist, parent=None):
+    def __init__(self, brightlist, roi_list, parent=None):
         super().__init__(parent)
 
         self.viewer = QWidget(parent) # main widget
         self.mainwin = parent
-        self.brightlist = brightlist
+        self.brightlist = brightlist    # list of traces
+        self.roi_list = roi_list    # list of rois
 
         # layout setting
         self.layout = QVBoxLayout(self.viewer)
@@ -28,10 +29,8 @@ class Traceviewer(QWidget):
         self.layout.addStretch(1)
 
     def init_traces(self):
-        i = 1
-        for list in self.brightlist:
-            self.add_chart(list, "ROI_"+str(i))
-            i += 1
+        for i in range(len(self.brightlist)):
+            self.add_chart(self.brightlist[i], title=self.roi_list[i].name)
 
     def add_chart(self, list, title=None):
         # series setting

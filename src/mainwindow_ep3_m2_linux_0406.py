@@ -1800,9 +1800,12 @@ class MainWindow(QMainWindow):
         file_ls = sorted([file for file in file_ls if '.roi' in file])
 
         for roi_file in file_ls:
-            x, y, contour = readImagejROI(os.path.join(dir, roi_file))
-            print(contour)
-            roi = self.addRoiPolygon(x, y, contour)
+            d = readImagejROI(os.path.join(dir, roi_file))
+            x = d['x']
+            y = d['y']
+            contour = d['contour']
+            roi = self.addRoiPolygon(x, y, contour, name=d['name'])
+
         print(f'load {len(file_ls)} roi(s)')
 
 
@@ -2083,12 +2086,12 @@ class MainWindow(QMainWindow):
         return roi_circle
 
     #
-    def addRoiPolygon(self, x, y, shape):
+    def addRoiPolygon(self, x, y, shape, name=''):
         # shape: list of QPointF
         colr = self.roi_table.randcolr()
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.player_scene2.addItem(roi_polygon)
-        self.roi_table.add_to_table(roi_polygon, colr)
+        self.roi_table.add_to_table(roi_polygon, colr, name)
         return roi_polygon
 
     def deleteRoi(self):
@@ -2227,7 +2230,7 @@ class MainWindow(QMainWindow):
     # initialize and draw offline traces
     def draw_chart(self, brightlist):
         from trace_viewer import Traceviewer
-        self.trace_viewer = Traceviewer(brightlist)
+        self.trace_viewer = Traceviewer(brightlist, self.roi_table.itemlist)
         trace_layout = QtWidgets.QHBoxLayout()
         trace_layout.addWidget(self.trace_viewer)
         trace_layout.setContentsMargins(0, 0, 0, 0)

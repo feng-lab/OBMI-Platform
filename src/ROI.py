@@ -110,7 +110,14 @@ def readImagejROI(path):
     y = roi.top
     contour = contour-[x,y]
     contour = [QPointF(c[0], c[1]) for c in contour]
-    return x, y, contour
+
+    d = {
+        'name': roi.name,
+        'x': roi.left,
+        'y': roi.top,
+        'contour': contour,
+    }
+    return d
 
 if __name__ == '__main__':
-    readImagejROI('')
+    readImagejROI('D:\data\obmi\\0816_10_figure1\\0001-0449-0251.roi')
