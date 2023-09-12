@@ -9,7 +9,7 @@ from PySide2.QtCore import QTimer, QObject, Qt
 from mccc import MCC
 import time
 import torch
-from caiman.utils.visualization import get_contours
+
 
 class VideoSavingStatus(Enum):
     STARTING = auto()
@@ -50,7 +50,7 @@ class OPlayer(QtCore.QThread):
         self.total_frame = 0
         self.s_timer = 0
 
-        self.fakecapture = True
+        self.fakecapture = False
         self.file_save = False
         self.file_count = 1
         self.file_size = 5000
@@ -229,14 +229,14 @@ class OPlayer(QtCore.QThread):
         # else:
         #     self.timer.setInterval(int(delay))
 
-    def ROIupdate(self):
-        t0 = time.time()
-        dims = (self.height, self.width)
-        mat = self.autoROI.cnmf.estimates.A[:,self.ROItable.size():]
-        comps = get_contours(mat, dims)
-        self.roi_pos.emit(comps)
-        t1 = time.time()
-        print('ROI Update Time:', t1 - t0)
+    # def ROIupdate(self):
+    #     t0 = time.time()
+    #     dims = (self.height, self.width)
+    #     mat = self.autoROI.cnmf.estimates.A[:,self.ROItable.size():]
+    #     comps = get_contours(mat, dims)
+    #     self.roi_pos.emit(comps)
+    #     t1 = time.time()
+    #     print('ROI Update Time:', t1 - t0)
 
 
     def run(self):

@@ -2,7 +2,6 @@ from enum import Enum
 
 import cv2
 import numpy as np
-from PyQt5.uic.Compiler.qtproxies import QtWidgets, QtGui
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem
 

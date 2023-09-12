@@ -8,7 +8,7 @@ from PySide2.QtUiTools import QUiLoader
 import os
 
 from online.ROI import ROI, ROIType
-from online.caiman_online_runner import OnlineRunner
+
 from online.data_receiver import ReceiverThread
 
 from PySide2.QtWidgets import QFileDialog, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem
@@ -602,6 +602,8 @@ class MainWindow(QMainWindow):
 		print('Auto ROI init done')
 
 	def onacidbatch(self, param_list):
+		from online.caiman_online_runner import OnlineRunner
+
 		self.online_runner = OnlineRunner(parent=self, param_list=param_list)
 		if self.on_scope is None:
 			print('start online scope')

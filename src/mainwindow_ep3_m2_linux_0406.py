@@ -47,7 +47,7 @@ import pandas as pd
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType
-from src.caiman_online_runner import OnlineRunner
+
 from src.data_receiver import DataReceiver, ReceiverThread
 from src.decoder.Decoder import DecodingThread
 from vplayer import VPlayer, VPlayerStatus
@@ -2798,6 +2798,7 @@ class MainWindow(QMainWindow):
         print('Auto ROI init done')
 
     def onacidbatch(self, param_list):
+        from caiman_online_runner import OnlineRunner
         self.online_runner = OnlineRunner(parent=self, param_list=param_list)
         if self.on_scope is None:
             print('start online scope')

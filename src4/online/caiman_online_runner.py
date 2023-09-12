@@ -10,14 +10,11 @@ import numpy as np
 from PySide2 import QtCore
 from PySide2.QtCore import QThread, QObject
 from caiman import mmapping
-from caiman.motion_correction import sliding_window
-from caiman.source_extraction import cnmf as cnmf
 
 ## Helper class for running online CNMF pipeline
 from caiman.source_extraction.cnmf import CNMF
 from caiman.source_extraction.cnmf.online_cnmf import bare_initialization, seeded_initialization
 from caiman.source_extraction.cnmf.pre_processing import get_noise_fft
-from caiman.source_extraction.cnmf.utilities import get_file_size
 from caiman.utils.visualization import get_contours
 from numpy import hstack
 from typing import List, Tuple

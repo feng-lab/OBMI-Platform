@@ -1,11 +1,6 @@
 from PySide2.QtCore import QObject, QThread, QTimer
 import torch
 import numpy as np
-import cv2
-import matplotlib.pyplot as plt
-import scipy
-#import resnet
-#import densenet
 from src.decoder.ReadData import MyDatasetsFitting
 from torch.utils.data import DataLoader
 from torch import nn

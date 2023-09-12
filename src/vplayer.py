@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 from PySide2 import QtGui
-from hnccorr import Movie
+
 
 class VPlayerStatus(Enum):
     STARTING = auto()
@@ -152,6 +152,7 @@ class VPlayer(QtCore.QThread):
         ## remote
 
     def load_tiff(self):
+        from hnccorr import Movie
         image_dir = "D:\\0_Project\\20211217_neurofinder\\neurofinder.00.00\\neurofinder.00.00\\images"
         num_images = 3024
         self.total_frame = num_images
