@@ -242,7 +242,7 @@ class VPlayer(QtCore.QThread):
         bytesPerLine = dim * width
         image = QtGui.QImage(self.frame.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
         self.data_lock.unlock()
-        self.frameC.emit(image)
+        self.frameC.emit(QtGui.QPixmap.fromImage(image))
 
         # timer update
         #self.slider_timer_update()

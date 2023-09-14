@@ -1,5 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import sys
+sys.path.append('.')
+sys.path.append('..')
 from PySide2.QtWidgets import QApplication, QDesktopWidget
 from mainwindow_ep3_m2_linux_0406 import MainWindow ##, MainWindow2 ##ep2 ## ~ep3 0316
 

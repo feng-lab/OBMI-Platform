@@ -46,7 +46,7 @@ import pandas as pd
 
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
-from ROI import ROI, ROIType
+from ROI import ROI, ROIType, readImagejROI
 
 from src.data_receiver import DataReceiver, ReceiverThread
 from src.decoder.Decoder import DecodingThread
@@ -290,6 +290,8 @@ class MainWindow(QMainWindow):
         self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
 
+        self.ui.pushButton_167.clicked.connect(self.load_roi)
+        
         ## second player scene
 
         ## self.ui.scope_camera_view_item_2 = QtWidgets.QWidget(self.ui.widget_46) ##+ edit ui
@@ -1791,6 +1793,20 @@ class MainWindow(QMainWindow):
         if self.open_video_path != "":
             self.startPlayer2()  # init
 
+    def load_roi(self):
+        # read imageJ roi files
+        dir = QFileDialog.getExistingDirectory(self, "select ROI Directory")
+        file_ls = os.listdir(dir)
+        file_ls = sorted([file for file in file_ls if '.roi' in file])
+
+        for roi_file in file_ls:
+            d = readImagejROI(os.path.join(dir, roi_file))
+            x = d['x']
+            y = d['y']
+            contour = d['contour']
+            roi = self.addRoiPolygon(x, y, contour, name=d['name'])
+
+        print(f'load {len(file_ls)} roi(s)')
 
     # player initialization
     # TODO: potential bugs, logic optimization req
@@ -1815,8 +1831,7 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
     ## player2
     @Slot(QtGui.QImage)
-    def update_player_frame2(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
+    def update_player_frame2(self, pixmap):
         ## width control
         self.player_view2 = self.ui.scope_camera_view_item_2
         pl_width = self.player_view2.width()  # view?
@@ -2069,12 +2084,12 @@ class MainWindow(QMainWindow):
         return roi_circle
 
     #
-    def addRoiPolygon(self, x, y, shape):
+    def addRoiPolygon(self, x, y, shape, name=""):
         # shape: list of QPointF
         colr = self.roi_table.randcolr()
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.player_scene2.addItem(roi_polygon)
-        self.roi_table.add_to_table(roi_polygon, colr)
+        self.roi_table.add_to_table(roi_polygon, colr, name)
         return roi_polygon
 
     def deleteRoi(self):

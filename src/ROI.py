@@ -3,9 +3,27 @@ from enum import Enum
 import cv2
 import numpy as np
 
-from PySide2.QtCore import QObject, Signal
+from PySide2.QtCore import QObject, Signal, QPointF
 from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem
+from roifile import ImagejRoi
 
+
+
+def readImagejROI(path):
+    roi = ImagejRoi.fromfile(path)
+    contour = roi.coordinates()
+    x = roi.left
+    y = roi.top
+    contour = contour - [x, y]
+    contour = [QPointF(c[0], c[1]) for c in contour]
+
+    d = {
+        'name': roi.name,
+        'x': roi.left,
+        'y': roi.top,
+        'contour': contour,
+    }
+    return d
 
 class ROIconnect(QObject):
     selected = Signal(str)
