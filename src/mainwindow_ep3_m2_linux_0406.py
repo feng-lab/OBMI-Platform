@@ -147,10 +147,10 @@ class MainWindow(QMainWindow):
         # self.fvalue = [5, 10, 15, 20, 30, 60]
         # self.ui.scopeFRslider.valueChanged.connect(self.move_slider7)
         # self.ui.scopeFRvalue.returnPressed.connect(self.slider_box7)
-
-        ## scope exposure slider
-        self.ui.scopeExposureSlider.valueChanged.connect(self.move_slider8)
-        self.ui.scopeExposureValue.returnPressed.connect(self.slider_box8)
+        #
+        # ## scope exposure slider
+        # self.ui.scopeExposureSlider.valueChanged.connect(self.move_slider8)
+        # self.ui.scopeExposureValue.returnPressed.connect(self.slider_box8)
 
 
         ## scope Exposuretime Slider
@@ -334,14 +334,12 @@ class MainWindow(QMainWindow):
         self.ui.scopeGainSlider_2.valueChanged.connect(self.move_Gslider2)
         self.ui.scopeGainValue_2.returnPressed.connect(self.Gslider2_box)
 
-        ## scope FR slider
-        self.fvalue_2 = [5, 10, 15, 20, 30, 60]
-        self.ui.scopeFRslider_2.valueChanged.connect(self.move_FRslider2)
-        self.ui.scopeFRvalue_2.returnPressed.connect(self.FRslider2_box)
+        ## scope FR box
+        self.ui.FRcomboBox_2.currentIndexChanged.connect(self.fpsBox_2)
 
-        ## scope exposure slider
-        self.ui.scopeExposureSlider_2.valueChanged.connect(self.move_Expslider2)
-        self.ui.scopeExposureValue_2.returnPressed.connect(self.Expslider_box)
+        ## scope focus slider
+        self.ui.scopeFocusSlider_2.valueChanged.connect(self.move_Fslider2)
+        self.ui.scopeFocusValue_2.returnPressed.connect(self.Fslider2_box)
 
         # check box check
         # self.ui.checkBox_7
@@ -932,11 +930,14 @@ class MainWindow(QMainWindow):
         if text == 'Behavior\n''Connect' and self.capturer is None:
 
             ## camera_ID = self.cam_num #1
-            camera_ID = cv2.CAP_DSHOW + self.Bnum  ##
+            camera_ID = self.Bnum
+            scopei = False
+            if camera_ID == self.mini_num:
+                scopei = True
 
             self.capturer = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock, parent=self,
                                           user_path=self.user_path, f_type=self.save_format, pj_name=self.project_name,
-                                          scopei=True)  ##받는 ##par-처리
+                                          scopei=scopei)  ##받는 ##par-처리
             self.capturer.frameCaptured.connect(self.update_behavior_camera_frame)  ## frame 연결
             self.capturer.fpsChanged.connect(self.update_behavior_camera_FPS)  ##
             self.capturer.start()
@@ -944,9 +945,6 @@ class MainWindow(QMainWindow):
             ## about fps
             ## self.ui.scope_fps.setText(f'fps: {self.FPS}')
             ## fps signal 계속 받기
-
-            ## default fps
-            self.default_fps(20)
 
             #  self.exposure_control(int(self.ui.exposureSliderBCam.value))
             # self.capturer.
@@ -984,13 +982,18 @@ class MainWindow(QMainWindow):
         print("sign-sign")
         text = self.ui.connectScopeCameraButton.text()
         if text == 'Scope\n''Connect' and self.capturer2 is None:  ## check - capturer
+
             ## camera_ID = self.mini_num #0
             camera_ID = self.Snum  ##
 
             print("Camera_no.1")
+            scopei = False
+            if camera_ID == self.mini_num:
+                scopei = True
+
             self.capturer2 = CaptureThread(camera=camera_ID, video_path=self.save_path, lock=self.data_lock,
                                            parent=self, user_path=self.user_path, f_type=self.save_format,
-                                           pj_name=self.project_name, scopei=False)  ## VP- ##par-처리
+                                           pj_name=self.project_name, scopei=scopei)  ## VP- ##par-처리
             self.capturer2.frameCaptured.connect(self.update_scope_camera_frame)
             self.capturer2.fpsChanged.connect(self.update_scope_camera_FPS)
             self.capturer2.start()
@@ -1341,10 +1344,6 @@ class MainWindow(QMainWindow):
     def e_widget_scope(self):
         self.ui.widget_9.setEnabled(True)
 
-    ## ------ default setting -----
-    def default_fps(self, v):
-        self.ui.scopeFRvalue.setText(str(v))
-        self.slider_box7()
 
     # ------------------------------------------------------------------------
     #
@@ -1354,8 +1353,7 @@ class MainWindow(QMainWindow):
 
     # behavior camera image update
     @Slot(QtGui.QImage)  ## camera image
-    def update_behavior_camera_frame(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
+    def update_behavior_camera_frame(self, pixmap):
         # temp_width2 = self.behavior_camera_view.width()
         # if self.temp_width != temp_width2:
         #     self.temp_width = temp_width2
@@ -1365,8 +1363,7 @@ class MainWindow(QMainWindow):
 
     # scope camera image update
     @Slot(QtGui.QImage)
-    def update_scope_camera_frame(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
+    def update_scope_camera_frame(self, pixmap):
         pixmap = pixmap.scaledToWidth(self.scope_camera_view.width())
         self.scope_camera_view_item_i.setPixmap(pixmap)  ## ui, _i
 
@@ -1470,7 +1467,7 @@ class MainWindow(QMainWindow):
         print(sl_val)
         print("moved")
         self.ui.scopeLEDvalue.setPlaceholderText(str(sl_val))
-        self.capturer2.hue_value = sl_val
+        self.capturer2.led_status = sl_val
 
     @Slot()
     def slider_box5(self):
@@ -1485,8 +1482,6 @@ class MainWindow(QMainWindow):
         print(sl_val)
         print("moved")
         self.ui.scopeGainValue.setPlaceholderText(str(sl_val))
-        # ab gain scale/
-        # self.capturer2.gain_status = sl_val
         self.capturer2.gain_status = sl_val
 
     @Slot()
@@ -1497,60 +1492,23 @@ class MainWindow(QMainWindow):
         self.ui.scopeGainSlider.setValue(set_v)
         self.ui.scopeGainValue.setText("")
 
-    ## scope FR slider
+    ## scope Focus slider
     @Slot()
     def move_slider7(self, sl_val_r):
         self.ui.scopeFocusValue.setPlaceholderText(str(sl_val_r))
         self.capturer2.focus_status = sl_val_r
-        # print("dex ", sl_val_r)
-        # sl_val = self.fvalue[sl_val_r]  # [5,10,15,20,30,60]
-        # print(sl_val)
-        # print("moved")
-        # self.ui.scopeFRvalue.setPlaceholderText(str(sl_val))
-        # if self.capturer2 is not None and not self.s_fps_up:
-        #     self.set_scope_fps(sl_val)
-        # if self.capturer is not None and not self.s_fps_up:
-        #     self.set_behavior_fps(sl_val)
-
 
     @Slot()
     def slider_box7(self):
         set_v = int(self.ui.scopeFocusValue.text())
-        ## self.ui.scopeFRvalue.setPlaceholderText(str(set_v))
-
         self.move_slider7(set_v)  # set_v
         self.ui.scopeFocusSlider.setValue(set_v)
         self.ui.scopeFocusvalue.setText("")
 
-    ## scope Exposure slider
-    @Slot()
-    def move_slider8(self, sl_val):
-        print(sl_val)
-        print("moved")
-        self.ui.scopeExposureValue.setPlaceholderText(str(sl_val))
-        self.exposure_control_s(sl_val)
-
-    @Slot()
-    def slider_box8(self):
-        set_v = int(self.ui.scopeExposureValue.text())
-        # self.ui.scopeExposureValue.setPlaceholderText(str(set_v))
-        self.move_slider8(set_v)
-        self.ui.scopeExposureSlider.setValue(set_v)
-        self.ui.scopeExposureValue.setText("")
-
-    ## scope Exposuretime slider
-    @Slot()
-    def move_slider9(self, sl_val):
-        print(sl_val)
-        print("moved")
-
     @Slot()
     def fpsBox(self):
         val = int(self.ui.FRcomboBox.currentText())
-        if self.capturer2 is not None and not self.s_fps_up:
-            self.set_scope_fps(val)
-        if self.capturer is not None and not self.s_fps_up:
-            self.set_behavior_fps(val)
+        self.capturer2.cfps = val
 
 
     ####    @Slot()
@@ -1905,8 +1863,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
 
     @Slot(QtGui.QImage)
-    def online_frame(self, image):
-        self.pixmap = QtGui.QPixmap.fromImage(image)
+    def online_frame(self, pixmap):
+        self.pixmap = pixmap
         self.onplayer_view_item.setPixmap(self.pixmap)
         # if self.on_scope.rtProcess:
         #     self.update_onplayer_slider(self.on_scope.cur_frame, self.on_scope.total_frame, self.on_scope.s_timer)
@@ -2388,9 +2346,15 @@ class MainWindow(QMainWindow):
         text = self.ui.connectScopeCameraButton_2.text()
         if text == 'Scope\nConnect' and self.on_scope is None:
             # camera_ID = self.open_video_path ### temp
-            camera_ID = self.cameraID  # defalut device, make it seletable in the future
+            if self.dev_list is None:
+                self.get_devlist()
 
-            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
+            camera_ID = self.get_cam_n()
+            miniscope = True
+            if camera_ID is None:
+                camera_ID = self.cameraID  # defalut device, make it seletable in the future
+
+            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self, miniscope=miniscope)
             self.on_scope.frameI.connect(self.online_frame)
             if self.MC is not None and self.on_template is not None:
                 self.MC.c_onmc = 0
@@ -2446,7 +2410,7 @@ class MainWindow(QMainWindow):
         print(sl_val)
         print("moved")
         self.ui.scopeLEDvalue_2.setPlaceholderText(str(sl_val))
-        self.on_scope.hue_value = sl_val
+        self.on_scope.led_status = sl_val
 
     @Slot()
     def LEDslider2_box(self):
@@ -2461,8 +2425,6 @@ class MainWindow(QMainWindow):
         print(sl_val)
         print("moved")
         self.ui.scopeGainValue_2.setPlaceholderText(str(sl_val))
-        # ab gain scale/
-        # self.capturer2.gain_status = sl_val
         self.on_scope.gain_status = sl_val
 
     @Slot()
@@ -2475,49 +2437,25 @@ class MainWindow(QMainWindow):
 
     ## scope FR slider
     @Slot()
-    def move_FRslider2(self, sl_val_r):
-        print("dex ", sl_val_r)
-        sl_val = self.fvalue_2[sl_val_r]  # [5,10,15,20,30,60]
-        print(sl_val)
+    def fpsBox_2(self, val):
+        val = int(self.ui.FRcomboBox_2.currentText())
+        self.on_scope.cfps = val
+
+    ## scope Focus slider
+    @Slot()
+    def move_Fslider2(self, val):
+        print(val)
         print("moved")
-        self.ui.scopeFRvalue_2.setPlaceholderText(str(sl_val))
-        if self.on_scope is not None:
-            self.set_onscope_fps(sl_val)
+        self.ui.scopeFocusValue_2.setPlaceholderText(str(val))
+        self.on_scope.focus_status = val
 
     @Slot()
-    def FRslider2_box(self):
-        set_v = int(self.ui.scopeFRvalue_2.text())
-        ## self.ui.scopeFRvalue.setPlaceholderText(str(set_v))
-
-        if (set_v / 5 - 1) >= 8:
-            v = 5
-        elif (set_v / 5 - 1) >= 4:
-            v = 4
-        elif (set_v / 5 - 1) < 0:
-            v = 0
-        else:
-            v = int(set_v / 5 - 1)
-        print('v ', v)
-        self.move_FRslider2(v)  # set_v
-        self.ui.scopeFRslider_2.setValue(v)
-        self.ui.scopeFRvalue_2.setText("")
-
-    ## scope Exposure slider
-    @Slot()
-    def move_Expslider2(self, sl_val):
-        print(sl_val)
-        print("moved")
-        self.ui.scopeExposureValue_2.setPlaceholderText(str(sl_val))
-        val = sl_val / 100 * 64
-        self.on_scope.exposure_status = val
-
-    @Slot()
-    def Expslider_box(self):
-        set_v = int(self.ui.scopeExposureValue_2.text())
+    def Fslider2_box(self):
+        set_v = int(self.ui.scopeFocusValue_2.text())
         # self.ui.scopeExposureValue.setPlaceholderText(str(set_v))
-        self.move_Expslider2(set_v)
-        self.ui.scopeExposureSlider_2.setValue(set_v)
-        self.ui.scopeExposureValue_2.setText("")
+        self.move_Fslider2(set_v)
+        self.ui.scopeFocusSlider_2.setValue(set_v)
+        self.ui.scopeFocusValue_2.setText("")
 
     def update_onplayer_slider(self, cur_frame, total_frame, s_timer):
         self.ui.label_176.setText(f'Frame: {cur_frame}')

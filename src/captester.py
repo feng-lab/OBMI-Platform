@@ -83,10 +83,9 @@ init_data = data['initialize']
 packets = parse_config(data)
 print(packets)
 
-cap = cv2.VideoCapture()
-
-cap.open(0, cv2.CAP_DSHOW)
-
+cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 608)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 608)
 
 input_list = [0xC0, 0x1F, 0b00010000]
 sendCommands(input_list, cap)
@@ -103,3 +102,4 @@ while True:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         cv2.imshow('frame', frame)
         cv2.waitKey(1)
+

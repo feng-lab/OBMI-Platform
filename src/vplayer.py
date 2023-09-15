@@ -19,7 +19,7 @@ class VPlayerStatus(Enum):
 
 class VPlayer(QtCore.QThread):
 
-    frameC = QtCore.Signal(QtGui.QImage)
+    frameC = QtCore.Signal(QtGui.QPixmap)
     stateCh = QtCore.Signal(int)
 
     def __init__(self, v_path: str, lock: QtCore.QMutex, parent: QtCore.QObject): #parent QtCore.QObject

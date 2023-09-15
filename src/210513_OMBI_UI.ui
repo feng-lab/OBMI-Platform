@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -3512,7 +3512,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>255</string>
+               <string>100</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3585,9 +3585,9 @@ Connect</string>
              <widget class="QLabel" name="label_43">
               <property name="geometry">
                <rect>
-                <x>438</x>
+                <x>428</x>
                 <y>66</y>
-                <width>31</width>
+                <width>41</width>
                 <height>21</height>
                </rect>
               </property>
@@ -3598,7 +3598,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>100</string>
+               <string>High</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3623,7 +3623,7 @@ Connect</string>
                <string>0</string>
               </property>
              </widget>
-             <widget class="QLineEdit" name="scopeExposureValue">
+             <widget class="QLineEdit" name="scopeFocusValue">
               <property name="geometry">
                <rect>
                 <x>602</x>
@@ -3631,25 +3631,6 @@ Connect</string>
                 <width>47</width>
                 <height>25</height>
                </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_4">
-              <property name="geometry">
-               <rect>
-                <x>676</x>
-                <y>18</y>
-                <width>91</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Focus</string>
               </property>
              </widget>
              <widget class="QPushButton" name="pushButton_16">
@@ -3681,7 +3662,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>100</string>
+               <string>127</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3801,7 +3782,7 @@ Connect</string>
                </rect>
               </property>
              </widget>
-             <widget class="QSlider" name="scopeExposureSlider">
+             <widget class="QSlider" name="scopeFocusSlider">
               <property name="geometry">
                <rect>
                 <x>480</x>
@@ -3810,8 +3791,11 @@ Connect</string>
                 <height>23</height>
                </rect>
               </property>
+              <property name="minimum">
+               <number>-127</number>
+              </property>
               <property name="maximum">
-               <number>255</number>
+               <number>127</number>
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -3822,7 +3806,7 @@ Connect</string>
                <rect>
                 <x>293</x>
                 <y>66</y>
-                <width>21</width>
+                <width>41</width>
                 <height>21</height>
                </rect>
               </property>
@@ -3833,7 +3817,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>0</string>
+               <string>Low</string>
               </property>
              </widget>
              <widget class="QLabel" name="label_44">
@@ -3867,8 +3851,20 @@ Connect</string>
                 <height>23</height>
                </rect>
               </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>3</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksBelow</enum>
+              </property>
+              <property name="tickInterval">
+               <number>1</number>
               </property>
              </widget>
              <widget class="QLabel" name="label_2">
@@ -3906,29 +3902,7 @@ Connect</string>
                </font>
               </property>
               <property name="text">
-               <string>Exposure</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_42">
-              <property name="geometry">
-               <rect>
-                <x>806</x>
-                <y>66</y>
-                <width>31</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>13</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>100</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <string>Focus</string>
               </property>
              </widget>
              <widget class="QSlider" name="scopeLEDslider">
@@ -3941,20 +3915,10 @@ Connect</string>
                </rect>
               </property>
               <property name="maximum">
-               <number>255</number>
+               <number>100</number>
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="scopeFocusValue">
-              <property name="geometry">
-               <rect>
-                <x>780</x>
-                <y>15</y>
-                <width>47</width>
-                <height>25</height>
-               </rect>
               </property>
              </widget>
              <widget class="QLabel" name="label_107">
@@ -3976,27 +3940,11 @@ Connect</string>
                <string>%</string>
               </property>
              </widget>
-             <widget class="QSlider" name="scopeFocusSlider">
-              <property name="geometry">
-               <rect>
-                <x>670</x>
-                <y>44</y>
-                <width>161</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="maximum">
-               <number>255</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
              <widget class="QLabel" name="label_5">
               <property name="geometry">
                <rect>
-                <x>119</x>
-                <y>95</y>
+                <x>679</x>
+                <y>18</y>
                 <width>80</width>
                 <height>21</height>
                </rect>
@@ -4014,8 +3962,8 @@ Connect</string>
              <widget class="QComboBox" name="FRcomboBox">
               <property name="geometry">
                <rect>
-                <x>224</x>
-                <y>95</y>
+                <x>759</x>
+                <y>44</y>
                 <width>41</width>
                 <height>22</height>
                </rect>
@@ -4027,13 +3975,11 @@ Connect</string>
                </font>
               </property>
               <property name="currentText">
-               <string>30</string>
+               <string>20</string>
               </property>
-              <item>
-               <property name="text">
-                <string>5</string>
-               </property>
-              </item>
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
               <item>
                <property name="text">
                 <string>10</string>
@@ -4051,25 +3997,20 @@ Connect</string>
               </item>
               <item>
                <property name="text">
+                <string>25</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>30</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>45</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>60</string>
                </property>
               </item>
              </widget>
              <widget class="QLabel" name="label_8">
               <property name="geometry">
                <rect>
-                <x>270</x>
-                <y>95</y>
+                <x>805</x>
+                <y>44</y>
                 <width>30</width>
                 <height>21</height>
                </rect>
@@ -4082,6 +4023,28 @@ Connect</string>
               </property>
               <property name="text">
                <string>fps</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_42">
+              <property name="geometry">
+               <rect>
+                <x>477</x>
+                <y>66</y>
+                <width>41</width>
+                <height>21</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>13</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>-127</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
             </widget>
@@ -5326,6 +5289,24 @@ Extraction</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+       <widget class="QPushButton" name="pushButton_167">
+        <property name="geometry">
+         <rect>
+          <x>930</x>
+          <y>90</y>
+          <width>111</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load ImageJ ROI</string>
+        </property>
+       </widget>
        <zorder>label_120</zorder>
        <zorder>label_18</zorder>
        <zorder>connectBehaviorCameraButton_2</zorder>
@@ -5360,6 +5341,7 @@ Extraction</string>
        <zorder>label_191</zorder>
        <zorder>label_192</zorder>
        <zorder>label_45</zorder>
+       <zorder>pushButton_167</zorder>
       </widget>
       <widget class="QWidget" name="widget_45" native="true">
        <property name="geometry">
@@ -7896,25 +7878,6 @@ QTabBar::tab{width:103}</string>
         <string notr="true">background-color: rgb(245, 248, 250);
 border-color: rgb(0, 0, 0);</string>
        </property>
-       <widget class="QLabel" name="label_141">
-        <property name="geometry">
-         <rect>
-          <x>693</x>
-          <y>69</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>5</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_142">
         <property name="geometry">
          <rect>
@@ -7932,80 +7895,6 @@ border-color: rgb(0, 0, 0);</string>
         </property>
         <property name="text">
          <string>LED Power</string>
-        </property>
-       </widget>
-       <widget class="QSlider" name="scopeFRslider_2">
-        <property name="geometry">
-         <rect>
-          <x>692</x>
-          <y>47</y>
-          <width>154</width>
-          <height>11</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>154</width>
-          <height>11</height>
-         </size>
-        </property>
-        <property name="mouseTracking">
-         <bool>false</bool>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>5</number>
-        </property>
-        <property name="singleStep">
-         <number>1</number>
-        </property>
-        <property name="pageStep">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-        <property name="sliderPosition">
-         <number>0</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="invertedControls">
-         <bool>false</bool>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksBelow</enum>
-        </property>
-        <property name="tickInterval">
-         <number>1</number>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_143">
-        <property name="geometry">
-         <rect>
-          <x>776</x>
-          <y>69</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>20</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_144">
@@ -8051,7 +7940,7 @@ border-color: rgb(0, 0, 0);</string>
          <rect>
           <x>314</x>
           <y>69</y>
-          <width>21</width>
+          <width>31</width>
           <height>21</height>
          </rect>
         </property>
@@ -8062,7 +7951,7 @@ border-color: rgb(0, 0, 0);</string>
          </font>
         </property>
         <property name="text">
-         <string>0</string>
+         <string>Low</string>
         </property>
        </widget>
        <widget class="QSlider" name="scopeLEDslider_2">
@@ -8087,7 +7976,7 @@ border-color: rgb(0, 0, 0);</string>
          </size>
         </property>
         <property name="maximum">
-         <number>255</number>
+         <number>100</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -8115,25 +8004,6 @@ border-color: rgb(0, 0, 0);</string>
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
-       <widget class="QLabel" name="label_149">
-        <property name="geometry">
-         <rect>
-          <x>716</x>
-          <y>69</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>10</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_150">
         <property name="geometry">
          <rect>
@@ -8150,10 +8020,10 @@ border-color: rgb(0, 0, 0);</string>
          </font>
         </property>
         <property name="text">
-         <string>Exposure</string>
+         <string>Focus</string>
         </property>
        </widget>
-       <widget class="QSlider" name="scopeExposureSlider_2">
+       <widget class="QSlider" name="scopeFocusSlider_2">
         <property name="geometry">
          <rect>
           <x>501</x>
@@ -8177,8 +8047,11 @@ border-color: rgb(0, 0, 0);</string>
         <property name="cursor">
          <cursorShape>ArrowCursor</cursorShape>
         </property>
+        <property name="minimum">
+         <number>-127</number>
+        </property>
         <property name="maximum">
-         <number>255</number>
+         <number>127</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -8256,9 +8129,9 @@ border-color: rgb(0, 0, 0);</string>
        <widget class="QLabel" name="label_152">
         <property name="geometry">
          <rect>
-          <x>440</x>
+          <x>430</x>
           <y>69</y>
-          <width>31</width>
+          <width>41</width>
           <height>21</height>
          </rect>
         </property>
@@ -8269,7 +8142,7 @@ border-color: rgb(0, 0, 0);</string>
          </font>
         </property>
         <property name="text">
-         <string>100</string>
+         <string>High</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -8291,29 +8164,7 @@ border-color: rgb(0, 0, 0);</string>
          </font>
         </property>
         <property name="text">
-         <string>100</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_154">
-        <property name="geometry">
-         <rect>
-          <x>825</x>
-          <y>69</y>
-          <width>31</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>60</string>
+         <string>127</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -8323,9 +8174,9 @@ border-color: rgb(0, 0, 0);</string>
         <property name="geometry">
          <rect>
           <x>314</x>
-          <y>47</y>
+          <y>45</y>
           <width>154</width>
-          <height>11</height>
+          <height>21</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -8340,15 +8191,27 @@ border-color: rgb(0, 0, 0);</string>
           <height>11</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>3</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+         <number>1</number>
         </property>
        </widget>
        <widget class="QLabel" name="label_155">
         <property name="geometry">
          <rect>
-          <x>831</x>
-          <y>21</y>
+          <x>828</x>
+          <y>49</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -8361,25 +8224,6 @@ border-color: rgb(0, 0, 0);</string>
         </property>
         <property name="text">
          <string>fps</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_156">
-        <property name="geometry">
-         <rect>
-          <x>746</x>
-          <y>69</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>15</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_157">
@@ -8398,7 +8242,7 @@ border-color: rgb(0, 0, 0);</string>
          </font>
         </property>
         <property name="text">
-         <string>Frame rate</string>
+         <string>Frame Rate</string>
         </property>
        </widget>
        <widget class="QPushButton" name="connectScopeCameraButton_2">
@@ -8443,48 +8287,7 @@ Connect</string>
          </size>
         </property>
        </widget>
-       <widget class="QLineEdit" name="scopeFRvalue_2">
-        <property name="geometry">
-         <rect>
-          <x>780</x>
-          <y>18</y>
-          <width>43</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>43</width>
-          <height>20</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_158">
-        <property name="geometry">
-         <rect>
-          <x>806</x>
-          <y>69</y>
-          <width>21</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>30</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="scopeExposureValue_2">
+       <widget class="QLineEdit" name="scopeFocusValue_2">
         <property name="geometry">
          <rect>
           <x>610</x>
@@ -8555,9 +8358,9 @@ Connect</string>
        <widget class="QLabel" name="label_148">
         <property name="geometry">
          <rect>
-          <x>500</x>
+          <x>499</x>
           <y>69</y>
-          <width>21</width>
+          <width>41</width>
           <height>21</height>
          </rect>
         </property>
@@ -8568,7 +8371,7 @@ Connect</string>
          </font>
         </property>
         <property name="text">
-         <string>0</string>
+         <string>-127</string>
         </property>
        </widget>
        <widget class="QPushButton" name="connectBehaviorCameraButton_7">
@@ -8977,6 +8780,52 @@ Process</string>
         <property name="text">
          <string>Decoding</string>
         </property>
+       </widget>
+       <widget class="QComboBox" name="FRcomboBox_2">
+        <property name="geometry">
+         <rect>
+          <x>780</x>
+          <y>50</y>
+          <width>41</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="currentText">
+         <string>20</string>
+        </property>
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>10</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>15</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>20</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>25</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>30</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="widget_82" native="true">
