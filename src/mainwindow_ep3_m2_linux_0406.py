@@ -837,6 +837,7 @@ class MainWindow(QMainWindow):
                 if self.roi_table is not None:
                     size = self.roi_table.size()
                     if size > 0:
+                        roifile = open(os.path.join(path, name) + '_offline_roi.txt', 'w')
                         shape_data = []
                         data = np.empty((size, 5))
                         roi_list = self.roi_table.itemlist
@@ -850,6 +851,8 @@ class MainWindow(QMainWindow):
                                 type = 2
                             data[i] = np.array([roi.id, x, y, type, roi.c_size])
                             shape_data.extend(roi.contours.tolist())
+                            roifile.write(roi.name+'\n')
+                        roifile.close()
                         g['roi_data'] = data
                         g['roi_contours'] = np.array(shape_data)
 
@@ -857,6 +860,7 @@ class MainWindow(QMainWindow):
             if self.onroi_table is not None:
                 size = self.onroi_table.size()
                 if size > 0:
+                    roifile = open(os.path.join(path, name) + '_online_roi.txt', 'w')
                     shape_data = []
                     data = np.empty((size, 5))
                     roi_list = self.onroi_table.itemlist
@@ -870,6 +874,8 @@ class MainWindow(QMainWindow):
                             type = 2
                         data[i] = np.array([roi.id, x, y, type, roi.c_size])
                         shape_data.extend(roi.contours.tolist())
+                        roifile.write(roi.name+'\n')
+                    roifile.close()
                     g['roi_data'] = data
                     g['roi_contours'] = np.array(shape_data)
         print('save success!')

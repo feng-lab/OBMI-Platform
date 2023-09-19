@@ -49,7 +49,7 @@ class DataReceiver(QObject):
     def start(self):
         self.parent.on_scope.frameG.connect(self.recieve_img)
         self.timer.timeout.connect(self.data_handler)
-        self.timer.start(30)
+        self.timer.start(1)
 
     def stop(self):
         self.timer.stop()
