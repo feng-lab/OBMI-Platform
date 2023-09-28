@@ -3014,7 +3014,7 @@ class MainWindow(QMainWindow):
     #########################################################################
 
     def connect_online_camera(self):
-        if self.dev_list is None:
+        if not self.dev_list:
             self.get_devlist()
 
         camera_ID = self.get_cam_n()
