@@ -14,9 +14,7 @@ develop-eggs/
 dist/
 downloads/
 datasets/
-configs/
 /datasets
-/configs
 .torch/
 eggs/
 .eggs/
