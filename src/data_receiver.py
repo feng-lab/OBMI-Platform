@@ -10,7 +10,7 @@ from PySide2.QtCore import QObject, QThread, QTimer, Qt
 from src.ROI import ROIType
 from queue import Queue
 
-from src.decoder.decoder import OBMIDecoder
+from src.decoder.Decoder import OBMIDecoder
 
 
 class ReceiverThread(QThread):
