@@ -49,7 +49,7 @@ from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType, readImagejROI
 
 from src.data_receiver import DataReceiver, ReceiverThread
-from src.decoder.Decoder import DecodingThread
+from src.network_controller import NetworkController
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -70,8 +70,9 @@ from online_player import OPlayer
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()  ## //
-
-        self.timermode = True
+        import threading
+        print("main thread:", threading.get_ident())
+        self.timermode = False
         self.cameraID = 0
         # - self.ui = Ui_MainWindow() ## ###+++++++++
 
@@ -96,6 +97,9 @@ class MainWindow(QMainWindow):
 
         self.MC = None
         self.decoder = None
+
+        self.rt = False
+        self.network_controller = None
 
         ## Behavior Camera Connection
         self.ui.connectBehaviorCameraButton.clicked.connect(self.connect_behavior_camera_button_clicked)
@@ -290,7 +294,8 @@ class MainWindow(QMainWindow):
         self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
 
-        self.ui.pushButton_167.clicked.connect(self.load_roi)
+        self.ui.LoadRoi.clicked.connect(self.load_roi)
+        self.ui.LoadRoi_2.clicked.connect(self.load_on_roi)
         
         ## second player scene
 
@@ -381,6 +386,8 @@ class MainWindow(QMainWindow):
         self.ui.horizontalSlider_6.sliderReleased.connect(self.onplayer_slider_released)
 
         self.ui.DecodingButton.clicked.connect(self.decoding)
+        self.ui.DecodingText.setVisible(False)
+        self.ui.DecodingStatusText.setVisible(False)
         ## -------------------------------------------------------------------------------------------
 
         # x#
@@ -636,19 +643,11 @@ class MainWindow(QMainWindow):
 
         self.ui.tabWidget.setCurrentIndex(0)
 
-        ## 내부 창 *****
-        ## self.scope_camera_view.raise_()
-        ## self.ui.gridLayout_21.addWidget(self.scope_camera_view) ##, 1, 1, 1, 2) ## grid 5 -> 21 ->22
 
-        # +# self.ui.gridLayout_21.addWidget(self.scope_camera_view, 1, 1, 1, 2) ## grid 5 -> 21
+        #auto focus
+        self.ui.AutoFocus.clicked.connect(self.autoFocus)
+        self.ui.AutoFocus_2.clicked.connect(self.autoFocus)
 
-        ## behavior camera box
-        ##
-        # self.scope_camera_view_item = QtWidgets.QGraphicsView(self.widget_5)
-        # self.scope_camera_view_item.setMinimumSize(QtCore.QSize(1020, 640))
-        # self.scope_camera_view_item.setObjectName("scope_camera_view_item")
-        # self.gridLayout_5.addWidget(self.scope_camera_view_item, 1, 1, 1, 2)
-        ##
         self.behavior_camera_view = self.ui.behavior_camera_view_item
         self.behavior_camera_scene = QGraphicsScene()
         self.behavior_camera_view = QGraphicsView(self.behavior_camera_scene, parent=self.ui.widget_4)
@@ -1116,6 +1115,56 @@ class MainWindow(QMainWindow):
             self.capturer.save_format = self.ui.comboBox.currentText()
         if self.capturer2:
             self.capturer2.save_format = self.ui.comboBox.currentText()
+
+    @Slot()
+    def autoFocus(self):
+        # 弹窗选择prerecord_video,获取prerecord_video路径prerecord_video_path
+        # C++实现： QString file_path = QFileDialog::getOpenFileName(this, "Open Temp file", "../")
+        if self.mini_num is None:
+            self.get_devlist()
+            if self.get_cam_n() is None:
+                return
+
+        fp = QFileDialog.getOpenFileName(self, "select media file", './', 'Media File (*.avi;*.mp4)')[0]
+        if fp is None:
+            return
+
+        dialog = QUiLoader().load('230925_Focus_Dialog.ui')
+        if dialog.exec() == QDialog.Accepted:
+            if self.capturer2:
+                self.connect_scope_camera_button_clicked()
+
+            if self.on_scope:
+                self.online_scope()
+
+            from registration_h import Preprocess
+            prerecorded_video = Preprocess(fp)
+            templateFrame = prerecorded_video.generate_template()  # 调用生成模版接口，得到templateFrame
+            ncc = -1
+            init_focus = int(dialog.focus.text())
+            init_range = int(dialog.range.text())
+            bestFocus = 0  # 记录最大NCC值和最大NCC值下的焦距
+
+            cap = cv2.VideoCapture(self.mini_num + cv2.CAP_DSHOW)
+            from cameraController import MiniscopeController
+            controller = MiniscopeController('./configs/miniscopes.json')
+            controller.init_args(cap)
+
+            for i in range(init_focus - init_range, init_focus + init_range + 1):
+                print("generating focus:", i)
+                controller.change_focus(cap, i)
+                current_template = prerecorded_video.focus_generate_temp(cap)
+                # print(templateFrame.shape, current_template.shape)
+                result = cv2.matchTemplate(templateFrame, current_template, cv2.TM_CCOEFF_NORMED)  # 计算两帧的相关性
+                # print('result:',result)
+                if (result.max() > ncc):
+                    ncc = result.max()
+                    bestFocus = i
+
+            cap.release()
+            msgbox = QMessageBox()
+            msgbox.information(self, 'Info', f'Best focus is: {bestFocus}')
+
 
     # ------------------------------------------------------------------------
     #
@@ -1752,7 +1801,7 @@ class MainWindow(QMainWindow):
             self.startPlayer2()  # init
 
     def load_roi(self):
-        # read imageJ roi files
+        # read imageJ roi files to offline tab
         dir = QFileDialog.getExistingDirectory(self, "select ROI Directory")
         file_ls = os.listdir(dir)
         file_ls = sorted([file for file in file_ls if '.roi' in file])
@@ -1763,6 +1812,21 @@ class MainWindow(QMainWindow):
             y = d['y']
             contour = d['contour']
             roi = self.addRoiPolygon(x, y, contour, name=d['name'])
+
+        print(f'load {len(file_ls)} roi(s)')
+
+    def load_on_roi(self):
+        # read imageJ roi files to online tab
+        dir = QFileDialog.getExistingDirectory(self, "select ROI Directory")
+        file_ls = os.listdir(dir)
+        file_ls = sorted([file for file in file_ls if '.roi' in file])
+
+        for roi_file in file_ls:
+            d = readImagejROI(os.path.join(dir, roi_file))
+            x = d['x']
+            y = d['y']
+            contour = d['contour']
+            roi = self.addOnRoiPolygon(x, y, contour, name=d['name'])
 
         print(f'load {len(file_ls)} roi(s)')
 
@@ -2358,15 +2422,7 @@ class MainWindow(QMainWindow):
         text = self.ui.connectScopeCameraButton_2.text()
         if text == 'Scope\nConnect' and self.on_scope is None:
             # camera_ID = self.open_video_path ### temp
-            if self.dev_list is None:
-                self.get_devlist()
-
-            camera_ID = self.get_cam_n()
-            miniscope = True
-            if camera_ID is None:
-                camera_ID = self.cameraID  # defalut device, make it seletable in the future
-
-            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self, miniscope=miniscope)
+            self.on_scope = self.connect_online_camera()
             self.on_scope.frameI.connect(self.online_frame)
             if self.MC is not None and self.on_template is not None:
                 self.MC.c_onmc = 0
@@ -2390,6 +2446,8 @@ class MainWindow(QMainWindow):
                 self.on_scope.stop()
                 #self.on_scope.quit()
 
+            if self.rt:
+                self.rt = False
             self.on_scope = None
             self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
@@ -2518,9 +2576,11 @@ class MainWindow(QMainWindow):
 
     def pre_process(self):
         print('preprocess clicked')
+        if self.mini_num is None:
+            return
 
         # scope_num = self.open_video_path ##0
-        scope_num = self.cameraID + cv2.CAP_DSHOW
+        scope_num = self.mini_num + cv2.CAP_DSHOW
         # self.on_template = None
 
         text = self.ui.connectScopeCameraButton_2.text()
@@ -2537,11 +2597,7 @@ class MainWindow(QMainWindow):
                 self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
 
-            # test
-            filepath = "C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi"
-            # filepath = "C:\\Users\zhuqin\caiman_data\example_movies\msCam1.avi"
-            self.MC = MCC(filepath, self)
-            # self.MC = MCC(scope_num, self)
+            self.MC = MCC(scope_num, self)
 
             # d_i ### update policy - 다되면 없애는 거 등 필요 ##
             self.mccbar = QtWidgets.QProgressBar()
@@ -2838,12 +2894,12 @@ class MainWindow(QMainWindow):
         return roi_circle
 
     # Online Tab add ROI Polygon
-    def addOnRoiPolygon(self, x, y, shape):
+    def addOnRoiPolygon(self, x, y, shape, name=""):
         # shape: list of QPointF
         colr = self.onroi_table.randcolr()
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.onplayer_scene.addItem(roi_polygon)
-        self.onroi_table.add_to_table(roi_polygon, colr)
+        self.onroi_table.add_to_table(roi_polygon, colr, name=name)
         self.ontrace_viewer.add_trace(roi_polygon)
         return roi_polygon
 
@@ -2859,13 +2915,22 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
 
     def rt_process(self):
+        if self.rt:
+            # real-time is processing
+            return
+
+        if not self.network_controller:
+            self.network_controller = NetworkController(self.ui.ControllerLabel)
+
+        if self.network_controller.dialog.exec() != QDialog.Accepted:
+            # cancel
+            return
+
         ## video start
         text = self.ui.connectScopeCameraButton_2.text()
         if text == 'Scope\nConnect' and self.on_scope is None:
-            # camera_ID = self.open_video_path ### temp
-            camera_ID = self.cameraID
+            self.on_scope = self.connect_online_camera()
 
-            self.on_scope = OPlayer(camera=camera_ID, lock=self.data_lock, parent=self)
             self.on_scope.frameI.connect(self.online_frame)
             if self.timermode:
                 self.on_scope.timer.start()
@@ -2889,11 +2954,9 @@ class MainWindow(QMainWindow):
             else:
                 print('check X - motion correction ')
 
-        self.receive_thread = QThread()
-        self.receiver = DataReceiver(self.ontrace_viewer, self)
-        self.receive_thread.started.connect(self.receiver.start)
-        self.receive_thread.start()
 
+        self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+        self.receiver.start()
         #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()
         # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
@@ -2902,6 +2965,7 @@ class MainWindow(QMainWindow):
         # self.ui.horizontalSlider_7.setValue(1)
         # self.ui.pushButton_129.setText('pause')
         self.on_scope.rtProcess = True
+        self.rt = True
 
     # initialize online trace viewer
     def init_onchart(self):
@@ -2929,11 +2993,17 @@ class MainWindow(QMainWindow):
             print('Start real time process before decoding')
             return
 
-        if self.decoder is None:
-            self.decoder = DecodingThread()
-            self.decoder.start()
+        if not self.receiver.decoding:
+            print('Start decoding')
+            self.ui.DecodingStatusText.setVisible(True)
+            self.receiver.decoder_init()
+            self.receiver.decoding_sig.connect(self.decodingText)
 
-        pass
+    def decodingText(self, v):
+        if v:
+            self.ui.DecodingText.setVisible(True)
+        else:
+            self.ui.DecodingText.setVisible(False)
 
     #########################################################################
     #                                                                       #
@@ -2943,6 +3013,17 @@ class MainWindow(QMainWindow):
     #                                                                       #
     #########################################################################
 
+    def connect_online_camera(self):
+        if self.dev_list is None:
+            self.get_devlist()
+
+        camera_ID = self.get_cam_n()
+        miniscope = True
+        if camera_ID is None:
+            camera_ID = self.cameraID  # defalut device, make it seletable in the future
+            miniscope = False
+
+        return OPlayer(camera=camera_ID, lock=self.data_lock, parent=self, miniscope=miniscope)
     # time format
     def hhmmss(self, ms):
         ## 1000/60000/360000

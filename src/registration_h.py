@@ -149,11 +149,10 @@ class Preprocess(sig):
         return preprocess_temp
 
     def on_generate_temp(self):
-
         cap = cv2.VideoCapture(self.path)
-        nums = 200 ##
-        height=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        nums = 200
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         video=np.empty((height, width, nums))
 
         i=0
@@ -199,6 +198,54 @@ class Preprocess(sig):
         preprocess_temp=preprocess_temp.cpu().numpy()
         cap.release()
         return preprocess_temp
+
+    def focus_generate_temp(self, cap):
+        nums = 200
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        video = np.empty((height, width, nums))
+
+        i = 0
+        while (cap.isOpened() and i < nums):
+            ret, frame = cap.read()
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            # video[:,:,i]=frame
+            if i == 0:
+                ## video = torch.tensor(video, dtype=torch.float32)
+                init_frame = torch.tensor(frame, dtype=torch.float32)
+                # video[:,:,i] = frame
+                # init_frame = video[:,:,i]
+
+                LOAD = ld(1)
+                # 1 first frame
+                kernel = torch.tensor(LOAD.generate_kernel((8, 8)), dtype=torch.float32)
+                sum1, a_rot_complex, b_complex, Zeros, theta, _ = LOAD.SetParameters(
+                    init_frame, kernel, CROP=False, use_gpu=True)
+
+                # video = video.cuda()
+                init_frame = init_frame.cuda()
+                kernel = kernel.cuda()
+                # 1  first frame
+                template = init_frame
+                # template = video[:,:,i]
+                preprocess_temp = LOAD.filter_frame(template, kernel)
+
+            ## init finish / next frame
+            video[:, :, i] = frame  ###
+            preprocess_frame = LOAD.filter_frame(torch.tensor(video[:, :, i], dtype=torch.float32).cuda(), kernel)
+            normxcorr2_general_output = NormXCorr2(preprocess_temp, preprocess_frame)
+            output, _ = normxcorr2_general_output.normxcorr2_general(sum1, a_rot_complex, b_complex,
+                                                                     Zeros)
+            Shift = ApplyShifts(output)
+            new_filtered_frame, _, _ = Shift.apply_shift(preprocess_frame, theta)
+            new_filtered_frame = new_filtered_frame.squeeze(0)
+            preprocess_temp = preprocess_temp * (i + 1) / (i + 2) + new_filtered_frame / (i + 2)
+
+            i += 1
+
+        preprocess_temp = preprocess_temp.cpu().numpy()
+        return preprocess_temp
+
 
 # dir="E:/CaImage/1_22_2021/H18"  #文件夹名称
 # filelist=[]

@@ -87,6 +87,7 @@ class CaptureThread(QtCore.QThread):
         ptime = 0
         while not self.isInterruptionRequested():  ## 기능나누기|같이쓰기. scope behavier
             ret, tmp_frame = cap.read()
+            grab_time = time.time()
             if not ret:
                 if self.fakecapture:
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -97,7 +98,7 @@ class CaptureThread(QtCore.QThread):
                 self.start_saving_video(tmp_frame)
             if self.video_saving_status == VideoSavingStatus.STARTED:
                 self.video_writer.write(tmp_frame)
-                self.timestamp_file.write(str(time.time())+'\n')
+                self.timestamp_file.write(str(grab_time)+'\n')
                 self.count_frames = self.count_frames + 1
             if self.video_saving_status == VideoSavingStatus.STOPPING:
                 self.stop_saving_video()
@@ -173,7 +174,7 @@ class CaptureThread(QtCore.QThread):
         cover = f'{movie_dir}/{self.saved_video_name}_cover{self.camera_ID}.jpg'
         cv2.imwrite(cover, first_frame)
 
-        fn = f'{movie_dir}/{self.saved_video_name}_timestamp.jpg'
+        fn = f'{movie_dir}/{self.saved_video_name}_timestamp.txt'
         self.timestamp_file = open(fn, 'w')
 
         if self.save_format == '.wmv':

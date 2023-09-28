@@ -4047,6 +4047,24 @@ Connect</string>
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
+             <widget class="QPushButton" name="AutoFocus">
+              <property name="geometry">
+               <rect>
+                <x>535</x>
+                <y>17</y>
+                <width>31</width>
+                <height>21</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+               </font>
+              </property>
+              <property name="text">
+               <string>Auto</string>
+              </property>
+             </widget>
             </widget>
            </item>
            <item>
@@ -5289,7 +5307,7 @@ Extraction</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_167">
+       <widget class="QPushButton" name="LoadRoi">
         <property name="geometry">
          <rect>
           <x>930</x>
@@ -5341,7 +5359,7 @@ Extraction</string>
        <zorder>label_191</zorder>
        <zorder>label_192</zorder>
        <zorder>label_45</zorder>
-       <zorder>pushButton_167</zorder>
+       <zorder>LoadRoi</zorder>
       </widget>
       <widget class="QWidget" name="widget_45" native="true">
        <property name="geometry">
@@ -8827,6 +8845,94 @@ Process</string>
          </property>
         </item>
        </widget>
+       <widget class="QLabel" name="ControllerLabel">
+        <property name="geometry">
+         <rect>
+          <x>1562</x>
+          <y>102</y>
+          <width>221</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="AutoFocus_2">
+        <property name="geometry">
+         <rect>
+          <x>550</x>
+          <y>20</y>
+          <width>31</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="DecodingText">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>1790</x>
+          <y>40</y>
+          <width>101</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color : rgb(255, 48, 62)</string>
+        </property>
+        <property name="text">
+         <string>Target Behavior Detected</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QLabel" name="DecodingStatusText">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>1684</x>
+          <y>102</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>Decoding Started</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="widget_82" native="true">
        <property name="geometry">
@@ -10525,6 +10631,24 @@ QTabBar::tab{width:71}</string>
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
+         <widget class="QPushButton" name="LoadRoi_2">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>250</y>
+            <width>111</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Load ImageJ ROI</string>
+          </property>
+         </widget>
          <zorder>label_184</zorder>
          <zorder>widget_91</zorder>
          <zorder>scope_camera_view_item_3</zorder>
@@ -10544,6 +10668,7 @@ QTabBar::tab{width:71}</string>
          <zorder>label_186</zorder>
          <zorder>label_188</zorder>
          <zorder>label_187</zorder>
+         <zorder>LoadRoi_2</zorder>
         </widget>
         <widget class="QWidget" name="widget_92" native="true">
          <property name="geometry">

@@ -167,3 +167,4 @@ src/test_data.h5
 *.h5
 src/temp.avi
 *.mat
+src/decoder/decoder-bak.zip

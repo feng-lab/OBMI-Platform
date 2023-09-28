@@ -112,8 +112,6 @@ class MiniscopeController(CameraController):
             self.sendCommands(packet, cap)
 
     def parseConfig(self, config, value):
-        print(value)
-
         packet = []
 
         v = config['addressW']
@@ -149,7 +147,6 @@ class MiniscopeController(CameraController):
             else:
                 packet.append(int(v, 16))
 
-        print(packet)
         return packet
 
     def sendCommands(self, packet, cap):

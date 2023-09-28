@@ -28,8 +28,8 @@ def matTrans():
     sav.release()
 
 def framedrop():
-    cap = cv2.VideoCapture('C:\\Users\ZJLAB\Desktop\文档材料\demo\offline_demo_full.mp4')
-    out_path = 'C:\\Users\ZJLAB\Desktop\文档材料\demo\offline_demo_short.mp4'
+    cap = cv2.VideoCapture('D:\data\\0928\\2023-09-28 10-54-17 - Trim.mp4')
+    out_path = 'D:\data\\0928\\demo_short_v2.mp4'
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -47,7 +47,7 @@ def framedrop():
             break
 
         if i > start_frame:
-            if i % 3 == 0:
+            if i % 2 == 0:
                 i += 1
                 continue
 
@@ -86,10 +86,9 @@ def videocut():
     sav.release()
 
 def video_concat():
-    paths = ['C:\\Users\ZJLAB\Desktop\材料\\offline1.mp4',
-             'C:\\Users\ZJLAB\Desktop\材料\\offline2.mp4',
-             'C:\\Users\ZJLAB\Desktop\材料\\offline3.mp4']
-    out_path = 'C:\\Users\ZJLAB\caiman_data\example_movies\\offline_concat.mp4'
+    paths = ['D:\data\\0928\\demo_short_v2 - Trim1.mp4',
+             'D:\data\\0928\\demo_short_v2 - Trim2.mp4',]
+    out_path = 'D:\data\\0928\\demo_short_v3.mp4'
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     cap = cv2.VideoCapture(paths[0])
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -178,4 +177,5 @@ if __name__ == "__main__":
     # framedrop()
     #video_concat()
     # robot_video_generator()
-    loadnpy()
+    # loadnpy()
+    video_concat()

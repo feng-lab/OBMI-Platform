@@ -40,7 +40,6 @@ class OPlayer(QtCore.QThread):
         self.fps = 0
         self.cfps = 20
         self.sfps = 0
-        self.loop_time = 0
 
         self.status = VideoSavingStatus.STARTING
         self.gain_status = 1  ##
@@ -53,8 +52,10 @@ class OPlayer(QtCore.QThread):
         self.s_timer = 0
 
         if miniscope:
+            print('miniscope controller')
             self.controller = MiniscopeController('./configs/miniscopes.json')
         else:
+            print('simple controller')
             self.controller = SimpleCameraController()
 
         self.fakecapture = False
@@ -114,6 +115,9 @@ class OPlayer(QtCore.QThread):
         self.autoROI = cm
 
     def updates(self):
+        import threading
+        print("online thread:", threading.get_ident())
+
         cap = self.capture
         st = time.time()
         ret, frame = cap.read()
@@ -230,7 +234,7 @@ class OPlayer(QtCore.QThread):
 
 
     def run(self):
-        cap = cv2.VideoCapture(self.c_number, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         # capture = cv2.VideoCapture(self.c_number)
         if self.fakecapture:
             #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
@@ -254,7 +258,7 @@ class OPlayer(QtCore.QThread):
             t0 = time.time()
             ret, frame = cap.read()
             t1 = time.time()
-            print('read:', t1-t0)
+            # print('read:', t1-t0)
             if not ret:
                 if self.fakecapture:
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -311,21 +315,21 @@ class OPlayer(QtCore.QThread):
 
             dis = time.time() - ptime
             # print(f'online player frame {self.total_frame} start at {S}')
-            print('frame duration: ', dis)
+            # print('frame duration: ', dis)
             if self.fakecapture:
-                st = 1/30 - dis - 0.005
-                if st > 0:
-                    self.msleep(st*1000)
-                    print('delayed: ', st)
+                delay = float(f'{(1 / self.cfps)*0.95 - dis:.2f}')
+                if delay > 0:
+                    time.sleep(delay)
+                    print('delayed: ', delay)
                 else:
                     self.msleep(1)
             else:
                 self.fps_delay(dis)
             et = time.time()
             count += 1
-            print('current fps: ', 1/(et-ptime))
-            #print('avg fps: ', count/(et-tt))
-            print('recent 100 fps: ', len(timelist)/(et-timelist[0]))
+            # print('current fps: ', 1/(et-ptime))
+            # #print('avg fps: ', count/(et-tt))
+            # print('recent 100 fps: ', len(timelist)/(et-timelist[0]))
             timelist.append(et)
             if len(timelist) > 100:
                 timelist.pop(0)
@@ -342,9 +346,9 @@ class OPlayer(QtCore.QThread):
 
 
     def fps_delay(self, dis):
-        delay = self.loop_time - 0.005 - dis
+        delay = float(f'{(1 / self.cfps)*0.95 - dis:.2f}')
         if delay > 0:
-            self.msleep(delay*1000)
+            time.sleep(delay)
 
     def pause(self):
         self.status = VideoSavingStatus.PAUSING
