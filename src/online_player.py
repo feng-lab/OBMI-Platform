@@ -58,7 +58,7 @@ class OPlayer(QtCore.QThread):
             print('simple controller')
             self.controller = SimpleCameraController()
 
-        self.fakecapture = False
+        self.fakecapture = True     # todo：离线视频模式开关
         self.file_save = False
         self.file_count = 1
         self.file_size = 5000
@@ -236,11 +236,6 @@ class OPlayer(QtCore.QThread):
     def run(self):
         cap = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         # capture = cv2.VideoCapture(self.c_number)
-        if self.fakecapture:
-            #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\msCam4.avi")
-            #capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Desktop\\out_movie.avi")
-            cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
-            # self.capture = cv2.VideoCapture("C:\\Users\zhuqin\caiman_data\example_movies\CaImAn_demo_out.avi")
 
         args = self.controller.init_args(cap)
         self.width = args["width"]
@@ -249,6 +244,12 @@ class OPlayer(QtCore.QThread):
         self.fps = args["fps"]
         self.focus = args["focus"]
         self.led = args["led"]
+
+        if self.fakecapture:
+            # todo：修改视频路径
+            cap = cv2.VideoCapture("C:\\Users\\ZJLAB\\caiman_data\\example_movies\\msCam1.avi")
+            self.cfps = self.fps = cap.get(cv2.CAP_PROP_FPS)    # todo: 默认读取视频文件帧率，可能需要手动改低一点
+
 
         tt = time.time()
         timelist= [tt]
@@ -274,22 +275,23 @@ class OPlayer(QtCore.QThread):
                     self.cur_frame += 1
                 self.total_frame += 1
 
-            if self.gain != self.gain_status:
-                print(f'change gain {self.gain} -> {self.gain_status}')
-                self.gain = self.gain_status
-                self.controller.change_gain(cap, self.gain)
-            if self.fps != self.cfps:
-                print(f'change fps {self.fps} -> {self.cfps}')
-                self.fps = self.cfps
-                self.controller.change_fps(cap, self.fps)
-            if self.focus != self.focus_status:
-                print(f'change focus {self.focus} -> {self.focus_status}')
-                self.focus = self.focus_status
-                self.controller.change_focus(cap, self.focus)
-            if self.led != self.led_status:
-                print(f'change led {self.led} -> {self.led_status}')
-                self.led = self.led_status
-                self.controller.change_LED(cap, self.led)
+            if not self.fakecapture:
+                if self.gain != self.gain_status:
+                    print(f'change gain {self.gain} -> {self.gain_status}')
+                    self.gain = self.gain_status
+                    self.controller.change_gain(cap, self.gain)
+                if self.fps != self.cfps:
+                    print(f'change fps {self.fps} -> {self.cfps}')
+                    self.fps = self.cfps
+                    self.controller.change_fps(cap, self.fps)
+                if self.focus != self.focus_status:
+                    print(f'change focus {self.focus} -> {self.focus_status}')
+                    self.focus = self.focus_status
+                    self.controller.change_focus(cap, self.focus)
+                if self.led != self.led_status:
+                    print(f'change led {self.led} -> {self.led_status}')
+                    self.led = self.led_status
+                    self.controller.change_LED(cap, self.led)
 
             if type(self.ged_template) != type(None):
                 t0 = time.time()

@@ -3075,62 +3075,6 @@ class MainWindow(QMainWindow):
         roi_polygon.setPos(x, y)
         return roi_polygon
 
-    # old version
-    # def create_circle(self, c, pos, size=30):  ## circle 별도 class 만들어줄지
-    #     class ROIconnect(QObject):
-    #         selected = Signal(str)
-    #         moved = Signal(list)
-    #         sizeChange = Signal(int)
-    #     class ROIcircle(QtWidgets.QGraphicsEllipseItem):
-    #         def __init__(self, x, y, w, h):
-    #             super().__init__(x, y, w, h)
-    #             self.signals = ROIconnect()
-    #             self.id = 0
-    #             self.name = None
-    #             self.noise = None
-    #             self.mat = self.matUpdate()
-    #         def setName(self, str):
-    #             self.name = str
-    #         def setId(self, n):
-    #             self.id = n
-    #         def mousePressEvent(self, event):
-    #             super().mousePressEvent(event)
-    #             self.signals.selected.emit(self.name)
-    #         def mouseReleaseEvent(self, event):
-    #             super().mouseReleaseEvent(event)
-    #             x = self.pos().x()
-    #             y = self.pos().y()
-    #             self.signals.moved.emit([x,y])
-    #         def wheelEvent(self, event):
-    #             super().wheelEvent(event)
-    #             size = int(self.rect().width())
-    #             if event.delta() > 0:
-    #                 size += 1
-    #             else:
-    #                 size -= 1
-    #             self.setRect(0, 0, size, size)
-    #             self.signals.sizeChange.emit(size)
-    #             self.mat = self.matUpdate()
-    #         def matUpdate(self):
-    #             h = int(self.rect().height())
-    #             w = int(self.rect().width())
-    #             mat = np.zeros((h, w))
-    #             for i in range(h):
-    #                 for j in range(w):
-    #                     pt = QtCore.QPoint(j, i)
-    #                     if self.contains(pt):
-    #                         mat[i, j] = 1
-    #             self.noise = (mat.copy()-1)*(-1)
-    #             return mat
-    #     r, g, b = c
-    #     # roi_circle = QtWidgets.QGraphicsEllipseItem(0, 0, 30, 30)
-    #     roi_circle = ROIcircle(0, 0, size, size)
-    #     roi_circle.setPen(QtGui.QPen(QtGui.QColor(r, g, b), 2, Qt.SolidLine))
-    #     roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
-    #     roi_circle.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
-    #     roi_circle.setPos(pos.x()-size/2, pos.y()-size/2)
-    #     return roi_circle
-
     #########################################################################
     #                                                                       #
     #                                                                       #
@@ -3139,238 +3083,238 @@ class MainWindow(QMainWindow):
     #                                                                       #
     #########################################################################
 
-    def closeEvent(self, event):  ## how-signal ## temp ?
-        if self.capturer is not None:  ##
-            self.capturer.stop()  ##? -- stop
-        QMainWindow.closeEvent(self, event)
-
-    def closeEvent2(self, event):
-        if self.capturer2 is not None:
-            self.capturer2.stop()
-        QMainWindow.closeEvent2(self, event)
-
-    def closeEvent3(self, event):
-        if self.player is not None:
-            self.player.stop()
-        QMainWindow.closeEvent3(self, event)
-
-    @Slot()
-    def save_screen_shot(self):
-        if self.capturer:
-            self.capturer.save_one_screen_shot = True
-        if self.capturer2:
-            self.capturer2.save_one_screen_shot = True
-
-    def motion_corr3(self):
-        # self.ld_play()
-
-        self.mcctice = QMessageBox()
-        self.mcctice.setWindowTitle("motion correction")
-        self.mcctice.setWindowIcon(QtGui.QPixmap('ldld.gif').scaledToWidth(100))
-        icon_label = self.mcctice.findChild(QLabel, 'qt_msgbox_icon_label')
-        movie = QtGui.QMovie('ldld.gif')
-        setattr(self.mcctice, '', movie)
-        movie.start()
-
-        self.mcctice.setIcon(QMessageBox.Information)
-        self.mcctice.setText('Loading...')
-        self.mcctice.exec_()
-
-        # time.sleep(5)
-        print('click')
-        # self.ld_play()
-
-        from mcc_thr2 import MCCThread
-        _mccthread = MCCThread(self.open_video_path)
-
-        self.wait = None
-
-        @Slot(str)
-        def get_path(path):
-            self.wait = path
-
-        while True:
-            if not _mccthread.isRunning():
-                if self.wait == None:
-                    _mccthread.start()
-                    _mccthread.signalPath.connect(get_path)
-                # _mccthread.signalPath.emit()
-            elif self.wait != None:
-                _mccthread.terminate()
-                print('exit')
-                break
-                # else:
-
-        self.mnotice.setText("motion correction saved")
-        self.mnotice.exec_()
-
-    def ld_play(self):
-        print('ldplay', self.m_play_state)
-        if self.m_play_state:
-            self.ld_widget.hide()
-            self.m_label_gif.hide()
-            self.m_movie_gif.stop()
-            self.m_play_state = False
-        else:
-            self.ld_widget.show()
-            self.ld_widget.raise_()
-            self.m_label_gif.show()
-            self.m_movie_gif.start()
-            self.m_play_state = True
-
-        self.mnotice = QMessageBox()
-        self.mnotice.setWindowTitle("notice")
-        self.mnotice.setWindowIcon(QtGui.QPixmap("info.png"))
-        self.mnotice.setIcon(QMessageBox.Information)
-        self.mnotice.setText("!")
-
-    def motion_corr2(self):
-        from mcc_thr import MCCThread
-        _mccthread = MCCThread(self.open_video_path)
-        self.wait = None
-
-        self.mnotice.setText("motion correction started")
-        self.mnotice.exec_()
-
-        @Slot(str)
-        def get_path(path):
-            self.wait = path
-
-        while True:
-            if not _mccthread.isRunning():
-                if self.wait == None:
-                    _mccthread.start()
-                    _mccthread.signalPath.connect(get_path)
-                # _mccthread.signalPath.emit()
-            elif self.wait != None:
-                _mccthread.terminate()
-                print('exit')
-                break
-                # else:
-
-        self.mnotice.setText("motion correction saved")
-        self.mnotice.exec_()
-
-    def motion_corr1(self):
-        import numpy as np
-        from mcc.correlation_torch import NormXCorr2
-        import matplotlib.pyplot as plt
-        import cv2
-        import time
-        import torch
-        from mcc.compute_offset import ApplyShifts
-        from mcc.LoadData import load_data as ld
-        from scipy.io import loadmat
-        import scipy.io as io
-        import torch.nn as nn
-        from torch.nn import functional as F
-        from mcc.NCCRegistration import NCCMotionCorrection as NMC
-
-        print('motion correction clicked')
-        ## load data & set parameters
-        startX = time.time()
-
-        path = self.open_video_path
-        save_path = self.open_video_path.split('.')[0] + '_mcc.avi'  ## result .avi
-
-        crop_size = 150
-        crop_frame = torch.zeros([crop_size, crop_size], dtype=torch.float)  ## temp 150*150
-
-        ldp = ld(path)
-
-        raw_video, size1, size2, size3, _, _ = ldp.Trans_GPU(False,
-                                                             False)  ## ld(path).Trans_GPU(False, False) ## high_filter, crop
-        sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer = ldp.SetParameters(
-            crop_frame)  ## ld(path).SetParameters(crop_frame)
-
-        new_video = torch.empty([size1, size2, size3], dtype=torch.float)
-        y_shift = torch.empty([1, size3], dtype=torch.float)
-        x_shift = torch.empty([1, size3], dtype=torch.float)
-
-        input_temp = torch.empty([crop_size, crop_size], dtype=torch.float)
-
-        ## data transformation .cuda()
-
-        crop_frame = crop_frame.cuda()
-        new_video = new_video.cuda()
-        y_shift = y_shift.cuda()
-        x_shift = x_shift.cuda()
-        input_temp = input_temp.cuda()
-        psf = loadmat('psf.mat')
-        kernel = torch.tensor(np.array(psf.get('psf')), dtype=torch.float)
-        kernel = kernel.cuda()
-
-        ## 100 template generation
-
-        init_batch = 100
-        init_video = raw_video[:, :, 0:init_batch]
-        filtered_temp = ld.filter_frame(1, init_video[:, :, 0], kernel)
-        preprocess_temp = ld.cut_frame(1, filtered_temp)
-        MC = NMC(sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer)
-        preprocess_temp = MC.generate_template(init_batch, init_video, kernel)  ##
-
-        print('preprocessed')
-        ## NCC registration
-        startT = time.time()
-        new_video, x_shift, y_shift = MC.OnlineNCC(raw_video, kernel, preprocess_temp, y_shift, x_shift, new_video)
-        print(f'ncc registration: {time.time() - startT}s')
-
-        new_video = new_video.cpu().numpy()
-        raw_video = raw_video.cpu().numpy()
-        x_shift = x_shift.cpu().numpy()
-        y_shift = y_shift.cpu().numpy()
-        kernel = kernel.cpu().numpy()
-
-        print('starttonow: ', time.time() - startX)
-
-        R_new_video = np.array(new_video, dtype='uint8')
-        writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), 20,
-                                 (752, 480))  ## 'ms_result.avi' ## ***size control
-        for i in range(999):  ### *** size control
-            img = cv2.cvtColor(R_new_video[:, :, i], cv2.COLOR_GRAY2BGR)
-            writer.write(img)
-        writer.release()
-
-        print('until saving: ', time.time() - startX)
-
-    def motion_corr2(self):
-        from registration_ed import Preprocess
-        import cv2
-        import numpy as np
-
-        path = self.open_video_path  ## input path
-        result = self.open_video_path  ## result .avi
-        fps = self.ui.scopeFRvalue.placeholderText()
-
-        ## prepr=Preprocess()
-
-        Preprocess.path = path
-        Preprocess.result = result
-
-        result_tpl = Preprocess.generate_template(path, result)
-        R_new_video = np.array(new_video, dtype='uint8')
-        nums, height, width = Preprocess.size
-        if (nums * height * width) == 0:
-            print("check your process, template size 0")
-
-        else:
-            mc_writer(nums, height, width, fps, result)
-
-        ## save +공유고려
-        ## 일단 고정 추후 수정 encoder
-        def mc_writer(self, num, height, width, fps, result):
-            print(f'savefps: {fps}')
-            writer = cv2.VideoWriter(result, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width, height))
-            for i in range(nums):
-                img = cv2.cvtColor(Rnew_video[:, :, i], cv2.COLOR_GRAY2BGR)
-                writer.write(img)
-            writer.release()
-
-    def push_img(self, state: int, capt: cv2.VideoCapture):
-
-        capt.set(cv2.CAP_PROP_POS_FRAMES, state)
-        while True:
-            ret, frame = capt.read()
+    # def closeEvent(self, event):  ## how-signal ## temp ?
+    #     if self.capturer is not None:  ##
+    #         self.capturer.stop()  ##? -- stop
+    #     QMainWindow.closeEvent(self, event)
+    #
+    # def closeEvent2(self, event):
+    #     if self.capturer2 is not None:
+    #         self.capturer2.stop()
+    #     QMainWindow.closeEvent2(self, event)
+    #
+    # def closeEvent3(self, event):
+    #     if self.player is not None:
+    #         self.player.stop()
+    #     QMainWindow.closeEvent3(self, event)
+    #
+    # @Slot()
+    # def save_screen_shot(self):
+    #     if self.capturer:
+    #         self.capturer.save_one_screen_shot = True
+    #     if self.capturer2:
+    #         self.capturer2.save_one_screen_shot = True
+    #
+    # def motion_corr3(self):
+    #     # self.ld_play()
+    #
+    #     self.mcctice = QMessageBox()
+    #     self.mcctice.setWindowTitle("motion correction")
+    #     self.mcctice.setWindowIcon(QtGui.QPixmap('ldld.gif').scaledToWidth(100))
+    #     icon_label = self.mcctice.findChild(QLabel, 'qt_msgbox_icon_label')
+    #     movie = QtGui.QMovie('ldld.gif')
+    #     setattr(self.mcctice, '', movie)
+    #     movie.start()
+    #
+    #     self.mcctice.setIcon(QMessageBox.Information)
+    #     self.mcctice.setText('Loading...')
+    #     self.mcctice.exec_()
+    #
+    #     # time.sleep(5)
+    #     print('click')
+    #     # self.ld_play()
+    #
+    #     from mcc_thr2 import MCCThread
+    #     _mccthread = MCCThread(self.open_video_path)
+    #
+    #     self.wait = None
+    #
+    #     @Slot(str)
+    #     def get_path(path):
+    #         self.wait = path
+    #
+    #     while True:
+    #         if not _mccthread.isRunning():
+    #             if self.wait == None:
+    #                 _mccthread.start()
+    #                 _mccthread.signalPath.connect(get_path)
+    #             # _mccthread.signalPath.emit()
+    #         elif self.wait != None:
+    #             _mccthread.terminate()
+    #             print('exit')
+    #             break
+    #             # else:
+    #
+    #     self.mnotice.setText("motion correction saved")
+    #     self.mnotice.exec_()
+    #
+    # def ld_play(self):
+    #     print('ldplay', self.m_play_state)
+    #     if self.m_play_state:
+    #         self.ld_widget.hide()
+    #         self.m_label_gif.hide()
+    #         self.m_movie_gif.stop()
+    #         self.m_play_state = False
+    #     else:
+    #         self.ld_widget.show()
+    #         self.ld_widget.raise_()
+    #         self.m_label_gif.show()
+    #         self.m_movie_gif.start()
+    #         self.m_play_state = True
+    #
+    #     self.mnotice = QMessageBox()
+    #     self.mnotice.setWindowTitle("notice")
+    #     self.mnotice.setWindowIcon(QtGui.QPixmap("info.png"))
+    #     self.mnotice.setIcon(QMessageBox.Information)
+    #     self.mnotice.setText("!")
+    #
+    # def motion_corr2(self):
+    #     from mcc_thr import MCCThread
+    #     _mccthread = MCCThread(self.open_video_path)
+    #     self.wait = None
+    #
+    #     self.mnotice.setText("motion correction started")
+    #     self.mnotice.exec_()
+    #
+    #     @Slot(str)
+    #     def get_path(path):
+    #         self.wait = path
+    #
+    #     while True:
+    #         if not _mccthread.isRunning():
+    #             if self.wait == None:
+    #                 _mccthread.start()
+    #                 _mccthread.signalPath.connect(get_path)
+    #             # _mccthread.signalPath.emit()
+    #         elif self.wait != None:
+    #             _mccthread.terminate()
+    #             print('exit')
+    #             break
+    #             # else:
+    #
+    #     self.mnotice.setText("motion correction saved")
+    #     self.mnotice.exec_()
+    #
+    # def motion_corr1(self):
+    #     import numpy as np
+    #     from mcc.correlation_torch import NormXCorr2
+    #     import matplotlib.pyplot as plt
+    #     import cv2
+    #     import time
+    #     import torch
+    #     from mcc.compute_offset import ApplyShifts
+    #     from mcc.LoadData import load_data as ld
+    #     from scipy.io import loadmat
+    #     import scipy.io as io
+    #     import torch.nn as nn
+    #     from torch.nn import functional as F
+    #     from mcc.NCCRegistration import NCCMotionCorrection as NMC
+    #
+    #     print('motion correction clicked')
+    #     ## load data & set parameters
+    #     startX = time.time()
+    #
+    #     path = self.open_video_path
+    #     save_path = self.open_video_path.split('.')[0] + '_mcc.avi'  ## result .avi
+    #
+    #     crop_size = 150
+    #     crop_frame = torch.zeros([crop_size, crop_size], dtype=torch.float)  ## temp 150*150
+    #
+    #     ldp = ld(path)
+    #
+    #     raw_video, size1, size2, size3, _, _ = ldp.Trans_GPU(False,
+    #                                                          False)  ## ld(path).Trans_GPU(False, False) ## high_filter, crop
+    #     sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer = ldp.SetParameters(
+    #         crop_frame)  ## ld(path).SetParameters(crop_frame)
+    #
+    #     new_video = torch.empty([size1, size2, size3], dtype=torch.float)
+    #     y_shift = torch.empty([1, size3], dtype=torch.float)
+    #     x_shift = torch.empty([1, size3], dtype=torch.float)
+    #
+    #     input_temp = torch.empty([crop_size, crop_size], dtype=torch.float)
+    #
+    #     ## data transformation .cuda()
+    #
+    #     crop_frame = crop_frame.cuda()
+    #     new_video = new_video.cuda()
+    #     y_shift = y_shift.cuda()
+    #     x_shift = x_shift.cuda()
+    #     input_temp = input_temp.cuda()
+    #     psf = loadmat('psf.mat')
+    #     kernel = torch.tensor(np.array(psf.get('psf')), dtype=torch.float)
+    #     kernel = kernel.cuda()
+    #
+    #     ## 100 template generation
+    #
+    #     init_batch = 100
+    #     init_video = raw_video[:, :, 0:init_batch]
+    #     filtered_temp = ld.filter_frame(1, init_video[:, :, 0], kernel)
+    #     preprocess_temp = ld.cut_frame(1, filtered_temp)
+    #     MC = NMC(sum1, a_rot_complex, b_compex, Zeros, theta, template_buffer)
+    #     preprocess_temp = MC.generate_template(init_batch, init_video, kernel)  ##
+    #
+    #     print('preprocessed')
+    #     ## NCC registration
+    #     startT = time.time()
+    #     new_video, x_shift, y_shift = MC.OnlineNCC(raw_video, kernel, preprocess_temp, y_shift, x_shift, new_video)
+    #     print(f'ncc registration: {time.time() - startT}s')
+    #
+    #     new_video = new_video.cpu().numpy()
+    #     raw_video = raw_video.cpu().numpy()
+    #     x_shift = x_shift.cpu().numpy()
+    #     y_shift = y_shift.cpu().numpy()
+    #     kernel = kernel.cpu().numpy()
+    #
+    #     print('starttonow: ', time.time() - startX)
+    #
+    #     R_new_video = np.array(new_video, dtype='uint8')
+    #     writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), 20,
+    #                              (752, 480))  ## 'ms_result.avi' ## ***size control
+    #     for i in range(999):  ### *** size control
+    #         img = cv2.cvtColor(R_new_video[:, :, i], cv2.COLOR_GRAY2BGR)
+    #         writer.write(img)
+    #     writer.release()
+    #
+    #     print('until saving: ', time.time() - startX)
+    #
+    # def motion_corr2(self):
+    #     from registration_ed import Preprocess
+    #     import cv2
+    #     import numpy as np
+    #
+    #     path = self.open_video_path  ## input path
+    #     result = self.open_video_path  ## result .avi
+    #     fps = self.ui.scopeFRvalue.placeholderText()
+    #
+    #     ## prepr=Preprocess()
+    #
+    #     Preprocess.path = path
+    #     Preprocess.result = result
+    #
+    #     result_tpl = Preprocess.generate_template(path, result)
+    #     R_new_video = np.array(new_video, dtype='uint8')
+    #     nums, height, width = Preprocess.size
+    #     if (nums * height * width) == 0:
+    #         print("check your process, template size 0")
+    #
+    #     else:
+    #         mc_writer(nums, height, width, fps, result)
+    #
+    #     ## save +공유고려
+    #     ## 일단 고정 추후 수정 encoder
+    #     def mc_writer(self, num, height, width, fps, result):
+    #         print(f'savefps: {fps}')
+    #         writer = cv2.VideoWriter(result, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width, height))
+    #         for i in range(nums):
+    #             img = cv2.cvtColor(Rnew_video[:, :, i], cv2.COLOR_GRAY2BGR)
+    #             writer.write(img)
+    #         writer.release()
+    #
+    # def push_img(self, state: int, capt: cv2.VideoCapture):
+    #
+    #     capt.set(cv2.CAP_PROP_POS_FRAMES, state)
+    #     while True:
+    #         ret, frame = capt.read()
 
     #########################################################################
     #                                                                       #
