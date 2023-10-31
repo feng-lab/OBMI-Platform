@@ -2955,7 +2955,9 @@ class MainWindow(QMainWindow):
                 print('check X - motion correction ')
 
 
-        self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+        # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+        # self.receiver.start()
+        self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
         self.receiver.start()
         #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
         # self.ontrace_viewer.timer_init()

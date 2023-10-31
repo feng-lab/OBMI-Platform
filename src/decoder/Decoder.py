@@ -16,7 +16,8 @@ import joblib
 
 class OBMIDecoder():
     def __init__(self):
-        model_path = './decoder/best_svm.pkl'
+        # model_path = './decoder/best_svm.pkl'
+        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-10\\best_svm_1012.pkl'
         self.model = joblib.load(model_path)
         # 归一化常量，根据当天采集的数据集而定
         self.data_min = -0.03512258532225913
@@ -34,6 +35,6 @@ class OBMIDecoder():
         except:
             print(traceback.format_exc())
             p_labels = -1
-        print('get label:', p_labels)
+        # print('get label:', p_labels)
 
         return p_labels

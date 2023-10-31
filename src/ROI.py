@@ -119,3 +119,11 @@ class ROI(QGraphicsPolygonItem):
         mat = np.array(new_mat, np.uint8).T
         self.noise = -(mat.copy() - 1).flatten()
         return mat.flatten()
+
+    def get_contour_dict(self):
+        d = {
+          'x': self.pos().x(),
+          'y': self.pos().y(),
+          'contours': self.contours
+        }
+        return d
