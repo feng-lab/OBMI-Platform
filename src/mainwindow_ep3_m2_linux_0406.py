@@ -2076,17 +2076,16 @@ class MainWindow(QMainWindow):
             "background-color: %s" % ({True: "", False: "gray"}[self.check_ROI_add]))
         if not self.check_ROI_add:
 
-            self.roi_clicked = self.roi_click(self.player_scene2, self.filter)
-            self.roi_clicked.connect(self.addR)
+            self.roi_filter = self.roi_click(self.player_scene2)
+            self.roi_filter.clicked.connect(self.addR)
 
             self.check_ROI_add = True
 
-
         else:
             self.check_ROI_add = False
-            self.roi_clicked.disconnect()
-            self.roi_clicked = None
-            self.player_scene2.removeEventFilter(self.filter)
+            self.roi_filter.clicked.disconnect()
+            self.player_scene2.removeEventFilter(self.roi_filter)
+            del self.roi_filter
 
     # add ROI
     def addR(self, scenePos, size=15):  ## 시도
@@ -2836,8 +2835,8 @@ class MainWindow(QMainWindow):
             "background-color: %s" % ({True: "", False: "gray"}[self.check_onROI_add]))
 
         if not self.check_onROI_add:
-            self.on_roi_clicked = self.roi_click(self.onplayer_scene, self.on_filter)
-            self.on_roi_clicked.connect(self.addOnR)
+            self.on_roi_filter = self.roi_click(self.onplayer_scene)
+            self.on_roi_filter.clicked.connect(self.addOnR)
             self.check_onROI_add = True
 
             if not self.ontrace_viewer:
@@ -2845,9 +2844,9 @@ class MainWindow(QMainWindow):
 
         else:
             self.check_onROI_add = False
-            self.on_roi_clicked.disconnect()
-            self.on_roi_clicked = None
+            self.on_roi_filter.clicked.disconnect()
             self.onplayer_scene.removeEventFilter(self.on_filter)
+            del self.on_roi_filter
 
     def addAutoOnRoi(self, comps):
         for item in comps:
@@ -3034,7 +3033,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.ui)
         ## self.show()
 
-    def roi_click(self, widget, filter):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
+    def roi_click(self, widget):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
             clicked = Signal(QtCore.QPointF)
 
@@ -3049,7 +3048,7 @@ class MainWindow(QMainWindow):
 
         filter = Filter(widget)
         widget.installEventFilter(filter)
-        return filter.clicked
+        return filter
 
 
     def create_circle(self, c, pos, size=15):  ## circle 별도 class 만들어줄지
