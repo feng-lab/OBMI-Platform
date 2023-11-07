@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="resources">
+    <file>imgs/cursor.png</file>
+    <file>imgs/Data Line.png</file>
+    <file>imgs/dish.png</file>
+    <file>imgs/draw-polygon-solid.png</file>
+    <file>imgs/expand-arrows.png</file>
+    <file>imgs/rectangle.png</file>
+    <file>imgs/select.png</file>
+  </qresource>
+</RCC>

@@ -179,15 +179,14 @@ class Table(QWidget):
         if column == 2:
             print('2clicked')
 
-    def add_to_table(self, roi_circle, colr, name=""):
+    def add_to_table(self, roi, colr, name=""):
         self.addlock = True
         ## num 을 받든지, 여기서 get 하던지 
         if True: #선택 안되어있으면. :
             new_row_num = self.table.rowCount() + 1
             self.table.setRowCount(new_row_num)
-            print(new_row_num)
             #colr = self.randcolr()
-            self.add_table_form(new_row_num-1, colr, roi_circle, name)
+            self.add_table_form(new_row_num-1, colr, roi, name)
         else: 
             self.table.insertRow(num)
 
@@ -218,16 +217,16 @@ class Table(QWidget):
             rgb = (col.red(), col.green(), col.blue())
             print(rgb)  ## color를 다시 받아올 방법   
 
-    def add_table_form(self, num, colr, roi_circle, name=""):
-        self.itemlist.append(roi_circle)
-        roi_circle.setId(self.itemCount)
-        roi_circle.signals.selected.connect(self.circle_click)
-        roi_circle.signals.moved.connect(self.circle_release)
-        roi_circle.signals.sizeChange.connect(self.circle_size)
+    def add_table_form(self, num, colr, roi, name=""):
+        self.itemlist.append(roi)
+        roi.setId(self.itemCount)
+        roi.signals.selected.connect(self.circle_click)
+        roi.signals.moved.connect(self.circle_release)
+        roi.signals.sizeChange.connect(self.circle_size)
 
         chkbox = QCheckBox()
         chkbox.setChecked(True)
-        chkbox.stateChanged.connect(lambda: self.check_state(chkbox, roi_circle))
+        chkbox.stateChanged.connect(lambda: self.check_state(chkbox, roi))
 
         ## color button
         brushbtn = QPushButton()###
@@ -240,10 +239,9 @@ class Table(QWidget):
         else:
             namestr = name
         self.namelist.append(namestr)
-        roi_circle.setName(namestr)
+        roi.setName(namestr)
 
-        pos = roi_circle.pos()
-        posstr = f'({int(pos.x())},{int(pos.y())})'
+        posstr = f'({int(roi._rect.x())},{int(roi._rect.y())})'
 
         self.table.setCellWidget(num, 0, chkbox)
         self.table.setItem(num, 1, QTableWidgetItem(namestr)) # name ## default name
@@ -251,7 +249,7 @@ class Table(QWidget):
         ## self.table.setCellWidget(num, 3, brushbtn)
         self.table.setItem(num, 3, QTableWidgetItem())
         
-        self.table.item(num, 3).setBackgroundColor(QtGui.QColor(colr[0], colr[1], colr[2]))
+        self.table.item(num, 3).setBackgroundColor(colr)
 
         self.itemCount += 1
 

@@ -4,9 +4,9 @@ import cv2
 import numpy as np
 
 from PySide2.QtCore import QObject, Signal, QPointF
-from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem
+from PySide2.QtGui import QPixmap, Qt, QColor, QPen
+from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem, QGraphicsItem
 from roifile import ImagejRoi
-
 
 
 def readImagejROI(path):
@@ -25,6 +25,7 @@ def readImagejROI(path):
     }
     return d
 
+
 class ROIconnect(QObject):
     selected = Signal(str)
     moved = Signal(list)
@@ -39,6 +40,7 @@ class ROIType(Enum):
     def __call__(self, *args, **kwargs):
         return 0
 
+
 class ROI(QGraphicsPolygonItem):
 
     def __init__(self, type, size=-1, shape=[]):
@@ -52,12 +54,12 @@ class ROI(QGraphicsPolygonItem):
         self.size = size
         self.c_size = 0
 
-        if self.type == ROIType.CIRCLE: # circle type ROI
-            circle = QGraphicsEllipseItem(0,0,size,size)
+        if self.type == ROIType.CIRCLE:  # circle type ROI
+            circle = QGraphicsEllipseItem(0, 0, size, size)
             self.setPolygon(circle.shape().toFillPolygon())
-        elif self.type == ROIType.POLYGON: # Polygon type ROI
+        elif self.type == ROIType.POLYGON:  # Polygon type ROI
             self.setPolygon(shape)
-        else: # pending for other type
+        else:  # pending for other type
             print('not here')
             pass
 
@@ -83,7 +85,7 @@ class ROI(QGraphicsPolygonItem):
     def wheelEvent(self, event):
         super().wheelEvent(event)
         if self.type == ROIType.CIRCLE:
-            size = int(self.boundingRect().width())-1
+            size = int(self.boundingRect().width()) - 1
             if event.delta() > 0:
                 size += 1
             else:
@@ -122,8 +124,93 @@ class ROI(QGraphicsPolygonItem):
 
     def get_contour_dict(self):
         d = {
-          'x': self.pos().x(),
-          'y': self.pos().y(),
-          'contours': self.contours
+            'x': self.pos().x(),
+            'y': self.pos().y(),
+            'contours': self.contours
         }
         return d
+
+
+class LabelItem(QGraphicsItem):
+    def __init__(self, parent=None):
+        super(LabelItem, self).__init__(parent)
+        self._color = QColor('#00ff00')
+        self.setAcceptedMouseButtons(Qt.LeftButton)
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
+
+    def setId(self, n):
+        self.id = n
+
+    def setName(self, str):
+        self.name = str
+
+    def mousePressEvent(self, event):
+        super(LabelItem, self).mousePressEvent(event)
+        # self.setCursor(Qt.ClosedHandCursor)
+
+
+
+class RectLabelItem(LabelItem):
+    def __init__(self, rect, name, index=None, color=None, width=3.0, parent=None):
+        super(RectLabelItem, self).__init__(parent)
+        self.signals = ROIconnect()
+        self.name = name
+        self._pixel_map = QPixmap()
+        self.setAcceptedMouseButtons(Qt.RightButton)
+        self.setToolTip(str(self.name))
+        self._rect = rect
+        self.id = index
+        if color is not None:
+            self._color = QColor(color)
+        else:
+            self._color = QColor("#ff0000")
+        self._width = width
+        self.setFlag(QGraphicsItem.ItemIsMovable, False)
+
+    def boundingRect(self):
+        return self._rect
+
+    def paint(self, painter, option, widget=None):
+        if self._pixel_map.isNull():
+            painter.setPen(QPen(self._color, self._width))
+            painter.drawRect(self.boundingRect())
+        else:
+            painter.scale(.2272, 2824)
+            painter.drawPixmap(QPointF(self._rect.x(), self._rect.y()), self._pixel_map)
+
+    def set_br(self, pos):
+        self._rect.setBottomRight(pos)
+        self.update()
+
+
+class EllipseLabelItem(LabelItem):
+    def __init__(self, rect, name, index=None, color=None, width=3.0, parent=None):
+        super(EllipseLabelItem, self).__init__(parent)
+        self.signals = ROIconnect()
+        self.name = name
+        self._pixel_map = QPixmap()
+        self.setAcceptedMouseButtons(Qt.RightButton)
+        self.setToolTip(str(self.name))
+        self.id = index
+        self._rect = rect
+        if color is not None:
+            self._color = QColor(color)
+        else:
+            self._color = QColor("#ff0000")
+        self._width = width
+        self.setFlag(QGraphicsItem.ItemIsMovable, False)
+
+    def boundingRect(self):
+        return self._rect
+
+    def paint(self, painter, option, widget=None):
+        if self._pixel_map.isNull():
+            painter.setPen(QPen(self._color, self._width))
+            painter.drawEllipse(self.boundingRect())  # Use drawEllipse instead of drawRect
+        else:
+            painter.scale(.2272, 2824)
+            painter.drawPixmap(QPointF(self._rect.x(), self._rect.y()), self._pixel_map)
+
+    def set_br(self, pos):
+        self._rect.setBottomRight(pos)
+        self.update()
