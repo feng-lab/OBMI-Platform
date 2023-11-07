@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -7085,7 +7085,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item row="1" column="6">
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="speed2x">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -7111,12 +7111,12 @@ background-color: rgb(255, 255, 255);</string>
                </font>
               </property>
               <property name="text">
-               <string>fast</string>
+               <string>x2</string>
               </property>
              </widget>
             </item>
             <item row="1" column="5">
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="speed1x">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -7142,7 +7142,7 @@ background-color: rgb(255, 255, 255);</string>
                </font>
               </property>
               <property name="text">
-               <string>slow</string>
+               <string>x1</string>
               </property>
              </widget>
             </item>
@@ -7160,7 +7160,7 @@ background-color: rgb(255, 255, 255);</string>
              </spacer>
             </item>
             <item row="1" column="8">
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="speed3x">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -7186,12 +7186,12 @@ background-color: rgb(255, 255, 255);</string>
                </font>
               </property>
               <property name="text">
-               <string>fast</string>
+               <string>x3</string>
               </property>
              </widget>
             </item>
             <item row="1" column="9">
-             <widget class="QPushButton" name="pushButton_68">
+             <widget class="QPushButton" name="speed5x">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -7217,7 +7217,7 @@ background-color: rgb(255, 255, 255);</string>
                </font>
               </property>
               <property name="text">
-               <string>slow</string>
+               <string>x5</string>
               </property>
              </widget>
             </item>
@@ -7248,7 +7248,7 @@ background-color: rgb(255, 255, 255);</string>
                </font>
               </property>
               <property name="text">
-               <string>x1</string>
+               <string>play</string>
               </property>
              </widget>
             </item>
@@ -8305,28 +8305,6 @@ Connect</string>
          </size>
         </property>
        </widget>
-       <widget class="QLineEdit" name="scopeFocusValue_2">
-        <property name="geometry">
-         <rect>
-          <x>610</x>
-          <y>18</y>
-          <width>43</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>43</width>
-          <height>20</height>
-         </size>
-        </property>
-       </widget>
        <widget class="QLabel" name="scopecamStatusLabel_2">
         <property name="geometry">
          <rect>
@@ -8931,6 +8909,28 @@ Process</string>
         </property>
         <property name="text">
          <string>Decoding Started</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="scopeFocusValue_2">
+        <property name="geometry">
+         <rect>
+          <x>610</x>
+          <y>18</y>
+          <width>43</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>43</width>
+          <height>20</height>
+         </size>
         </property>
        </widget>
       </widget>

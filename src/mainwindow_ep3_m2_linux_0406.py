@@ -230,12 +230,6 @@ class MainWindow(QMainWindow):
         ## self.ui.pushButton_49.setText('play')
         self.ui.pushButton_58.setText('stop')
 
-        ## edit ui - player2
-        self.ui.pushButton_4.setText('OK')
-        self.ui.pushButton_68.setText('Next')
-        self.ui.pushButton_2.setText('play')
-        self.ui.pushButton_6.setText('stop')
-
         ## player1
         self.player = None
         self.fin_record_status = False
@@ -312,9 +306,10 @@ class MainWindow(QMainWindow):
         self.player_scene2.addItem(self.player_view_item_i2)
 
         self.ui.pushButton_2.clicked.connect(self.play_button_clicked2)
-        self.ui.pushButton_6.clicked.connect(self.stop_button_clicked2)
-        self.ui.pushButton_4.clicked.connect(self.play_finished2)
-        self.ui.pushButton_68.clicked.connect(self.after_player2)
+        self.ui.speed1x.clicked.connect(self.speed_1x)
+        self.ui.speed2x.clicked.connect(self.speed_2x)
+        self.ui.speed3x.clicked.connect(self.speed_3x)
+        self.ui.speed5x.clicked.connect(self.speed_5x)
 
         ## player2 slider
         self.ui.horizontalSlider_10.sliderPressed.connect(self.player2slider_pressed)
@@ -1846,6 +1841,26 @@ class MainWindow(QMainWindow):
 
         self.update_v_duration2(self.s_total2, self.s_totalframe2)
 
+    def speed_1x(self):
+        if self.player2 is None:
+            return
+        self.player2.playspeed(0)
+
+    def speed_2x(self):
+        if self.player2 is None:
+            return
+        self.player2.playspeed(1)
+
+    def speed_3x(self):
+        if self.player2 is None:
+            return
+        self.player2.playspeed(2)
+
+    def speed_5x(self):
+        if self.player2 is None:
+            return
+        self.player2.playspeed(3)
+
     # ------------------------------------------------------------------------
     #
     #                             update functions
@@ -1896,29 +1911,6 @@ class MainWindow(QMainWindow):
             self.ui.scope_camera_view_item_2.show()
             self.p2oo_st = True
 
-    ## stop button
-    def stop_button_clicked2(self, a):
-        if self.player2 is not None:
-            self.player2.vplayer_status = VPlayerStatus.STOPPING  ## vplayer _
-            self.ui.pushButton_2.setText('play')
-            # self.ui.horizontalSlider_10.setValue(0) ##_
-            print("set stopping")
-        if a == 1:
-            self.player2.stateCh.disconnect(self.stop_button_clicked2)
-
-    ## ok button
-    @Slot()
-    def play_finished2(self):
-        if self.player2 is not None:
-            self.player2.stop()
-            self.player2 = None
-            print("OK")
-            self.fin_record_status2 = True
-
-    ## next button
-    def after_player2(self):
-        self.play_finished2()
-        self.ui.tabWidget.setCurrentIndex(3)
 
     # ------------------------------------------------------------------------
     #
@@ -1973,7 +1965,7 @@ class MainWindow(QMainWindow):
         self.ui.horizontalSlider_10.blockSignals(True)  ##_
         self.ui.horizontalSlider_10.setValue(present_f)  ##_
         self.ui.horizontalSlider_10.blockSignals(False)  ##_
-        print(f'sliderposition: {present_f}')
+        # print(f'sliderposition: {present_f}')
         self.frame_slider_update_p2(present_f)
 
     ## slider texts update
@@ -2115,8 +2107,9 @@ class MainWindow(QMainWindow):
         return roi_polygon
 
     def deleteRoi(self):
-        roi_circle = self.roi_table.deleteRoi()
-        self.player_scene2.removeItem(roi_circle)
+        rois = self.roi_table.deleteRoi()
+        for roi in rois:
+            self.player_scene2.removeItem(roi)
 
     # auto roi by algorithms
     def auto_roi(self):
@@ -2904,9 +2897,10 @@ class MainWindow(QMainWindow):
         return roi_polygon
 
     def deleteOnRoi(self):
-        roi_circle = self.onroi_table.deleteRoi()
-        self.ontrace_viewer.remove_trace(roi_circle)
-        self.onplayer_scene.removeItem(roi_circle)
+        rois = self.onroi_table.deleteRoi()
+        for roi in rois:
+            self.ontrace_viewer.remove_trace(roi)
+            self.onplayer_scene.removeItem(roi)
 
     # ------------------------------------------------------------------------
     #

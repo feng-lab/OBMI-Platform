@@ -290,11 +290,16 @@ class Table(QWidget):
 
     # remove ROI circle from table
     def deleteRoi(self):
-        row = self.table.currentRow()
-        roi_circle = self.itemlist.pop(row)
-        self.namelist.pop(row)
-        self.table.removeRow(row)
-        return roi_circle
+        indexes = self.table.selectedIndexes()
+        rows = list(set([i.row() for i in indexes]))
+        rows.sort(reverse=True)
+        rois = []
+        for row in rows:
+            roi_circle = self.itemlist.pop(row)
+            self.namelist.pop(row)
+            self.table.removeRow(row)
+            rois.append(roi_circle)
+        return rois
 
     # show/hide function for ROI circle
     def check_state(self, checkbox, roi_circle):

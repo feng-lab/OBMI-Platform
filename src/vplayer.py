@@ -40,11 +40,14 @@ class VPlayer(QtCore.QThread):
         self.frame_list = []
         self.load_mode = False
         # lock mul
-        
+        self.tlist = []
+        self.speed = 1
+        self.alpha = 0.99
+        self.tlen = 20
 
-    def run(self):
+
+    def datainit(self):
         t1 = time.time()
-        ## thread run - player on
         if not self.load_mode:
             if self.v_path.__contains__('.tiff'):
                 self.load_tiff()
@@ -54,35 +57,35 @@ class VPlayer(QtCore.QThread):
                 self.load_avi() # pending for other file type
 
         try:
-            wtime = round(1 / self.fps, 3)
-            print('waitT: ', wtime)
+            self.wtime = 1 / self.fps
+            print('waitT: ', self.wtime)
 
         except ZeroDivisionError:
             print("-- zero fps --")
             self.fps = self.capture.get(cv2.CAP_PROP_FPS)
-            wtime = round(1 / self.fps, 3)
-            print('zero--fps: ', self.fps, wtime)  ###
+            self.wtime = 1 / self.fps
+            print('zero--fps: ', self.fps, self.wtime)  ###
 
         print('fps: ', self.fps)
 
         print('total_frame: ', self.total_frame)
 
-
         print('init time: ', time.time() - t1)
+
+    def run(self):
+        self.datainit()
+
+        loop_time = time.perf_counter()
         while not self.isInterruptionRequested():
             ## show start
             ## image()_ first image
 
             if self.vplayer_status == VPlayerStatus.STARTING:
-                start_time = time.time()
 
                 if self.next_frame != 0:
                     # self.capture.set(cv2.CAP_PROP_POS_FRAMES, self.next_frame)
                     self.present_frame = self.next_frame
                     self.next_frame = 0
-                # else:
-                    # self.capture.set(cv2.CAP_PROP_POS_FRAMES, self.present_frame)  ##
-                ## print('in while')
 
                 # update frame
                 self.frame_update()
@@ -98,58 +101,53 @@ class VPlayer(QtCore.QThread):
 
                 self.present_frame += 1
 
-                process_time = time.time() - start_time
-                if process_time < wtime:
-                    time.sleep(wtime - process_time)
+                # process_time = time.time() - start_time
+                process_time = time.perf_counter() - loop_time
+                loop_time = time.perf_counter()
+                if process_time < self.wtime:
+                    # time.sleep(self.wtime - process_time)
+                    self.usleep((self.wtime - process_time) * 1000000)
+
+                self.tlist.append(loop_time)
+                if len(self.tlist) == self.tlen:
+                    avgf = self.tlen/(self.tlist[-1]-self.tlist[0])
+                    print('avg fps:', self.tlen/(self.tlist[-1]-self.tlist[0]))
+                    target_fps = self.fps*self.speed
+                    if avgf > target_fps * 1.05:
+                        self.wtime += self.wtime * (avgf/target_fps-1) * self.alpha
+                        self.alpha *= self.alpha
+                    elif avgf < target_fps * 0.95:
+                        self.wtime -= self.wtime * (1-avgf/target_fps) * self.alpha
+                        self.alpha *= self.alpha
+                    else:
+                        self.alpha *= 0.1
+                    print('self.wtime:', self.wtime)
+                    self.tlist = []
 
 
             if self.vplayer_status == VPlayerStatus.PAUSING:
                  time.sleep(0.01)
-            #     self.present_frame = self.capture.get(cv2.CAP_PROP_POS_FRAMES)
-
-
-            # if self.vplayer_status == VPlayerStatus.MOVING:
 
             if self.vplayer_status == VPlayerStatus.STOPPING:
                 self.p_stop()
 
-        # while not self.isInterruptionRequested():
-        #
-        #     if self.vplayer_status == VPlayerStatus.STARTING:
-        #         start_time = time.time()
-        #         self.timer = time.time()
-        #
-        #         if self.next_frame != 0:
-        #             index = int(self.next_frame)
-        #             self.next_frame = 0
-        #
-        #         # update frame
-        #         self.frameC.emit(self.image_list[self.present_frame])
-        #
-        #         #
-        #         if self.present_frame == self.total_frame - 1:
-        #             print('played all')
-        #             self.vplayer_status = VPlayerStatus.PAUSING
-        #             self.ui.pushButton_2.setText('play')
-        #
-        #         self.present_frame = self.present_frame + 1
-        #
-        #         process_time = time.time() - start_time
-        #         if process_time < wtime:
-        #             time.sleep(wtime - process_time)
-        #
-        #     if self.vplayer_status == VPlayerStatus.STOPPING:
-        #         self.stop_from_list()
 
 
-        # self.capture.release()
-        self.capture = None
 
-            ### mainwindow 작업 -- 
+    def playspeed(self, i):
+        ll = [1, 2, 3, 5]
+        self.speed = ll[i]
+        self.wtime = 1/(self.fps * self.speed)
+        self.alpha = 0.99
+        self.tlist = []
+        self.tlen = 20 * ll[i]
+        if i == 2:
+            self.wtime /= 5
+        if i == 3:
+            self.wtime /= 5
+        print(f'play speed change to {ll[i]}x')
+        print('wtime:', self.wtime)
 
- #   def frame_on(self, frame):
-        ## frame 보내기
-        ## remote
 
     def load_tiff(self):
         from hnccorr import Movie
@@ -232,6 +230,9 @@ class VPlayer(QtCore.QThread):
     #     self.frameC.emit(image)
 
     def frame_update(self):
+        if self.present_frame >= self.total_frame-1:
+            self.present_frame = 0
+
         tmp_frame = self.frame_list[self.present_frame]
 
         tmp_frame = cv2.cvtColor(tmp_frame, cv2.COLOR_BGR2RGB)
