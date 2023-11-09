@@ -156,8 +156,9 @@ class RectLabelItem(LabelItem):
         self.signals = ROIconnect()
         self.name = name
         self._pixel_map = QPixmap()
-        self.setAcceptedMouseButtons(Qt.RightButton)
-        self.setToolTip(str(self.name))
+        self.setAcceptedMouseButtons(Qt.LeftButton)
+        self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
         self._rect = rect
         self.id = index
         if color is not None:
@@ -165,7 +166,6 @@ class RectLabelItem(LabelItem):
         else:
             self._color = QColor("#ff0000")
         self._width = width
-        self.setFlag(QGraphicsItem.ItemIsMovable, False)
 
     def boundingRect(self):
         return self._rect
@@ -189,7 +189,8 @@ class EllipseLabelItem(LabelItem):
         self.signals = ROIconnect()
         self.name = name
         self._pixel_map = QPixmap()
-        self.setAcceptedMouseButtons(Qt.RightButton)
+        self.setAcceptedMouseButtons(Qt.LeftButton)
+        self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.setToolTip(str(self.name))
         self.id = index
         self._rect = rect
@@ -198,7 +199,6 @@ class EllipseLabelItem(LabelItem):
         else:
             self._color = QColor("#ff0000")
         self._width = width
-        self.setFlag(QGraphicsItem.ItemIsMovable, False)
 
     def boundingRect(self):
         return self._rect

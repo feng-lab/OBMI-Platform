@@ -88,7 +88,11 @@ class QtImageViewer(QGraphicsView):
         if event.button() == Qt.LeftButton:
             self.setDragMode(QGraphicsView.NoDrag)
             if self.marker in ['cursor']:
-                pass
+                self._current_item = self.scene.mouseGrabberItem()
+                for item in self.scene.items():
+                    if item.contains(scene_pos):
+                        item.setSelected(True)
+                        print(self.scene.selectedItems())
             if self.marker in ['rectangle', 'cycle']:
                 # self.setDragMode(QGraphicsView.NoDrag)
                 self._pressed_pos = scene_pos
@@ -126,7 +130,8 @@ class QtImageViewer(QGraphicsView):
         """
         super(QtImageViewer, self).mouseReleaseEvent(event)
         scene_pos = self.mapToScene(event.pos())
-
+        selected_items = self.scene.selectedItems()
+        print(selected_items)
         if self.marker == 'rectangle':
             self._current_item.set_br(scene_pos)
             self.rectReleased.emit(self._current_item)
