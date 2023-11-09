@@ -134,6 +134,7 @@ class ROI(QGraphicsPolygonItem):
 class LabelItem(QGraphicsItem):
     def __init__(self, parent=None):
         super(LabelItem, self).__init__(parent)
+        self.signals = ROIconnect()
         self._color = QColor('#00ff00')
         self.setAcceptedMouseButtons(Qt.LeftButton)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
@@ -145,9 +146,14 @@ class LabelItem(QGraphicsItem):
         self.name = str
 
     def mousePressEvent(self, event):
-        super(LabelItem, self).mousePressEvent(event)
-        # self.setCursor(Qt.ClosedHandCursor)
+        super().mousePressEvent(event)
+        self.signals.selected.emit(self.name)
 
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        x = self.pos().x()
+        y = self.pos().y()
+        self.signals.moved.emit([x, y])
 
 
 class RectLabelItem(LabelItem):

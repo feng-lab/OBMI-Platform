@@ -2181,8 +2181,9 @@ class MainWindow(QMainWindow):
         return roi_polygon
 
     def deleteRoi(self):
-        roi_circle = self.roi_table.deleteRoi()
-        self.player_scene2.removeItem(roi_circle)
+        rois = self.roi_table.deleteRoi()
+        for roi in rois:
+            self.player_scene2.removeItem(roi)
 
     # auto roi by algorithms
     def auto_roi(self):
