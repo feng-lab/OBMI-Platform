@@ -141,6 +141,7 @@ class QtImageViewer(QGraphicsView):
         scene_pos = self.mapToScene(event.pos())
         selected_items = self.scene.selectedItems()
         if self.marker in ['zoom']:
+            self.scene.clearSelection()
             self.setDragMode(QGraphicsView.ScrollHandDrag)
         if self.marker in ['rectangle']:
             self._current_item.set_br(scene_pos)
@@ -153,7 +154,6 @@ class QtImageViewer(QGraphicsView):
             roi_names.append(r.name)
         self.roiSelect.emit(roi_names)
         if len(selected_items) > 0:
-            print(selected_items)
             for r in selected_items:
                 r.move_once()
         # update pos
