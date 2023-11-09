@@ -31,6 +31,7 @@ class QtImageViewer(QGraphicsView):
     polyReleased = Signal(list)
     doneReleased = Signal(int)
     mouseScrollUp = Signal(bool)
+    roiSelect = Signal(list)
 
     def __init__(self, parent):
         super(QtImageViewer, self).__init__(parent)
@@ -83,20 +84,23 @@ class QtImageViewer(QGraphicsView):
     def mousePressEvent(self, event):
         """ Start mouse pan or zoom mode.
         """
+        super().mousePressEvent(event)
 
         scene_pos = self.mapToScene(event.pos())
         if event.button() == Qt.LeftButton:
-
+            self.setDragMode(QGraphicsView.NoDrag)
+            self._pressed_pos = scene_pos
             if self.marker in ['cursor']:
-                self._current_item = self.scene.mouseGrabberItem()
+                if len(self.scene.selectedItems())== 0:
+                    self._current_item = self.scene.mouseGrabberItem()
                 for item in self.scene.items():
                     if item.contains(scene_pos):
                         item.setSelected(True)
-                        print(self.scene.selectedItems())
+
+            if self.marker in ['zoom']:
+                self.setDragMode(QGraphicsView.ScrollHandDrag)
             if self.marker in ['rectangle', 'cycle']:
-                self.setDragMode(QGraphicsView.NoDrag)
-                # self.setDragMode(QGraphicsView.NoDrag)
-                self._pressed_pos = scene_pos
+
                 rect = QRectF(self._pressed_pos.x(), self._pressed_pos.y(),
                               scene_pos.x() - self._pressed_pos.x(),
                               scene_pos.y() - self._pressed_pos.y())
@@ -106,20 +110,24 @@ class QtImageViewer(QGraphicsView):
                                                        color=self.randcolr(),
                                                        width=self._marker_size / 4)
                 if self.marker == 'cycle':
-                    self._current_item = EllipseLabelItem(rect, name='rec',
+                    self._current_item = EllipseLabelItem(rect, name='cycle',
                                                           index=len(self.scene.items()),
                                                           color=self.randcolr(),
                                                           width=self._marker_size / 4)
                 self.scene.addItem(self._current_item)
-        super().mousePressEvent(event)
+            if self.marker in ['select']:
+                self.setDragMode(QGraphicsView.RubberBandDrag)
+
+                super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         super(QtImageViewer, self).mouseMoveEvent(event)
         scene_pos = self.mapToScene(event.pos())
         if self._pressed_pos is not None:
-            if self.marker in ['rectangle', 'cycle']:
+            if self.marker in ['rectangle', 'cycle', 'zoom']:
                 self.scene.update()
                 self._current_item.set_br(scene_pos)
+
         # self.refresh.emit()
 
     def setScene(self, scene) -> None:
@@ -132,36 +140,52 @@ class QtImageViewer(QGraphicsView):
         super(QtImageViewer, self).mouseReleaseEvent(event)
         scene_pos = self.mapToScene(event.pos())
         selected_items = self.scene.selectedItems()
-        print(selected_items)
-        if self.marker == 'rectangle':
+        if self.marker in ['zoom']:
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
+        if self.marker in ['rectangle']:
             self._current_item.set_br(scene_pos)
             self.rectReleased.emit(self._current_item)
-        if self.marker == 'cycle':
+        if self.marker in ['cycle']:
             self._current_item.set_br(scene_pos)
             self.cycleReleased.emit(self._current_item)
+        roi_names = []
+        for r in selected_items:
+            roi_names.append(r.name)
+        self.roiSelect.emit(roi_names)
+        if len(selected_items) > 0:
+            print(selected_items)
+            for r in selected_items:
+                r.move_once()
+        # update pos
         self._pressed_pos = None
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
-        if event.angleDelta().y() > 0:
-            self.mouseScrollUp.emit(True)
+        if self.marker in ['cursor','zoom', 'rectangle', 'cycle']:
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
+            zoomInFactor = 1.25
+            zoomOutFactor = 1 / zoomInFactor
+
+            # Save the scene pos
+            oldPos = self.mapToScene(event.pos())
+
+            # Zoom
+            if event.angleDelta().y() > 0:
+                zoomFactor = zoomInFactor
+            else:
+                zoomFactor = zoomOutFactor
+            self.scale(zoomFactor, zoomFactor)
+
+            # Get the new position
+            newPos = self.mapToScene(event.pos())
+
+            # Move scene to old position
+            delta = newPos - oldPos
+            self.translate(delta.x(), delta.y())
         else:
-            self.mouseScrollUp.emit(False)
+            if event.angleDelta().y() > 0:
+                self.mouseScrollUp.emit(True)
+            else:
+                self.mouseScrollUp.emit(False)
 
-    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
-        if event.key() == Qt.Key_N:
-            self.logger.info("Label group done")
-            self.doneReleased.emit(0)
-        if event.modifiers() & Qt.CTRL and event.key() == Qt.Key_C:
-            # self.logger.info("Control + C Pressed")
-            self.copySignal.emit(0)
-        if event.modifiers() & Qt.CTRL and event.key() == Qt.Key_V:
-            self.pasteSignal.emit(0)
-            # self.logger.info("Control + V Pressed")
 
-    def mouseDoubleClickEvent(self, event):
-        """ Show entire image.
-        """
-        if event.button() == Qt.RightButton:
-            if self.canZoom:
-                self.zoomStack = []  # Clear zoom stack.
-                self.update_viewer()
+

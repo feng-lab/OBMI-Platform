@@ -30,6 +30,7 @@ class ROIconnect(QObject):
     selected = Signal(str)
     moved = Signal(list)
     sizeChange = Signal(int)
+    moved_multi = Signal(list, str)
 
 
 class ROIType(Enum):
@@ -136,6 +137,7 @@ class LabelItem(QGraphicsItem):
         super(LabelItem, self).__init__(parent)
         self.signals = ROIconnect()
         self._color = QColor('#00ff00')
+        self._rect = None
         self.setAcceptedMouseButtons(Qt.LeftButton)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
 
@@ -151,13 +153,16 @@ class LabelItem(QGraphicsItem):
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        x = self.pos().x()
-        y = self.pos().y()
-        self.signals.moved.emit([x, y])
+        self.signals.moved.emit(self.real_pos())
+
+    def move_once(self):
+        self.signals.moved_multi.emit(self.real_pos(), self.name)
+    def real_pos(self):
+        return [self._rect.x()+self.pos().x(), self._rect.y()+self.pos().y()]
 
 
 class RectLabelItem(LabelItem):
-    def __init__(self, rect, name, index=None, color=None, width=3.0, parent=None):
+    def __init__(self, rect, name, index=None, color=None, width=6.0, parent=None):
         super(RectLabelItem, self).__init__(parent)
         self.signals = ROIconnect()
         self.name = name
@@ -173,6 +178,11 @@ class RectLabelItem(LabelItem):
             self._color = QColor("#ff0000")
         self._width = width
 
+
+    @property
+    def rect(self):
+        return self._rect
+
     def boundingRect(self):
         return self._rect
 
@@ -183,6 +193,13 @@ class RectLabelItem(LabelItem):
         else:
             painter.scale(.2272, 2824)
             painter.drawPixmap(QPointF(self._rect.x(), self._rect.y()), self._pixel_map)
+
+        if self.isSelected():
+            pen = QPen(Qt.DashLine)
+            pen.setColor(QColor(0, 0, 128))  # 蓝色虚线
+            pen.setWidth(2)  # 虚线宽度
+            painter.setPen(pen)
+            painter.drawRect(self.boundingRect())
 
     def set_br(self, pos):
         self._rect.setBottomRight(pos)
@@ -197,7 +214,8 @@ class EllipseLabelItem(LabelItem):
         self._pixel_map = QPixmap()
         self.setAcceptedMouseButtons(Qt.LeftButton)
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-        self.setToolTip(str(self.name))
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
+        self._rect = rect
         self.id = index
         self._rect = rect
         if color is not None:
@@ -206,16 +224,27 @@ class EllipseLabelItem(LabelItem):
             self._color = QColor("#ff0000")
         self._width = width
 
+    @property
+    def rect(self):
+        return self._rect
+
     def boundingRect(self):
         return self._rect
 
     def paint(self, painter, option, widget=None):
         if self._pixel_map.isNull():
             painter.setPen(QPen(self._color, self._width))
-            painter.drawEllipse(self.boundingRect())  # Use drawEllipse instead of drawRect
+            painter.drawEllipse(self.boundingRect())
         else:
             painter.scale(.2272, 2824)
             painter.drawPixmap(QPointF(self._rect.x(), self._rect.y()), self._pixel_map)
+
+        if self.isSelected():
+            pen = QPen(Qt.DashLine)
+            pen.setColor(QColor(0, 0, 128))  # 蓝色虚线
+            pen.setWidth(2)  # 虚线宽度
+            painter.setPen(pen)
+            painter.drawEllipse(self.boundingRect())
 
     def set_br(self, pos):
         self._rect.setBottomRight(pos)

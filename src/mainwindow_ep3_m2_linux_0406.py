@@ -223,6 +223,8 @@ class MainWindow(QMainWindow):
 
         self.pl_width2 = 0
 
+        ## multi roi selection
+        self.ui.scope_camera_view_item_2.roiSelect.connect(self.select_multi_roi)
         ### --- recording ------ and UI (temporary)
 
         ## edit ui - player1
@@ -734,7 +736,7 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
 
     def setup_markers(self):
-
+        self.ui.cursorbutton.setDown(True)
         self.ui.cursorbutton.clicked.connect(self.set_marker_cursor)
         self.ui.fitScreenbutton.clicked.connect(self.set_marker_zoom)
         self.ui.selectbutton.clicked.connect(self.set_marker_select)
@@ -747,7 +749,7 @@ class MainWindow(QMainWindow):
         self.ui.scope_camera_view_item_2.refresh.connect(self._scene_refresh)
         self.marker_map = {
             'cursor': self.ui.cursorbutton,
-            'fit': self.ui.fitScreenbutton,
+            'zoom': self.ui.fitScreenbutton,
             'select': self.ui.selectbutton,
             'rectangle': self.ui.rectanglebutton,
             'cycle': self.ui.cyclebutton,
@@ -1880,6 +1882,10 @@ class MainWindow(QMainWindow):
             roi = self.addRoiPolygon(x, y, contour, name=d['name'])
 
         print(f'load {len(file_ls)} roi(s)')
+
+    def select_multi_roi(self, roi_list):
+        self.roi_table.select_multi_roi(roi_list)
+
 
     def load_on_roi(self):
         # read imageJ roi files to online tab

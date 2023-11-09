@@ -1,8 +1,8 @@
 import random
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import (QWidget, QTableWidget, QVBoxLayout, QGridLayout, 
-        QPushButton, QAbstractItemView, QCheckBox, QTableWidgetItem, QColorDialog)
+from PySide2.QtCore import Qt, QItemSelectionModel
+from PySide2.QtWidgets import (QWidget, QTableWidget, QVBoxLayout, QGridLayout,
+                               QPushButton, QAbstractItemView, QCheckBox, QTableWidgetItem, QColorDialog)
 import numpy as np
 from PySide2 import QtGui, QtCore
 import re
@@ -24,7 +24,7 @@ class Table(QWidget):
         self.itemlist = []
         self.namelist = []
 
-        self.color_row = 3 ## 추후에
+        self.color_row = 3  ## 추후에
         self.itemCount = 1
 
         # locks for value change
@@ -32,7 +32,7 @@ class Table(QWidget):
         self.editlock = False
         self.table.itemChanged.connect(self.value_changed)
 
-        if type == 0: # type0 for offline tab, type1 for online tab
+        if type == 0:  # type0 for offline tab, type1 for online tab
             self.spinboxX = self._mainwin.ui.spinBox_3
             self.spinboxY = self._mainwin.ui.spinBox_4
             self.spinboxSize = self._mainwin.ui.spinBox_7
@@ -77,7 +77,6 @@ class Table(QWidget):
         if item.type == ROIType.CIRCLE:
             item.circleSizeChange(int(value))
 
-
     def value_changed(self, item):
         if self.addlock or self.editlock:
             return
@@ -110,7 +109,6 @@ class Table(QWidget):
                 col = item.backgroundColor()
                 self.itemlist[row].setPen(QtGui.QPen(QtGui.QColor(col), 1, Qt.SolidLine))
 
-
     def __make_table(self):
         ##self.table.setSelectionMode(QAbstractItemView.SelectRows) ##
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -119,21 +117,21 @@ class Table(QWidget):
         self.table.setColumnCount(4)
         self.table.setRowCount(0)
 
-        self.table.setHorizontalHeaderLabels(['Visible','Name', 'Position','Color'])
-        self.table.horizontalHeaderItem(0).setToolTip('set visible/hide...')         
+        self.table.setHorizontalHeaderLabels(['Visible', 'Name', 'Position', 'Color'])
+        self.table.horizontalHeaderItem(0).setToolTip('set visible/hide...')
 
-        self.table.setColumnWidth(0, 20) # v
-        self.table.setColumnWidth(1, 50) # name
-        self.table.setColumnWidth(2, 65) # xy
-        self.table.setColumnWidth(3, 20) # c
+        self.table.setColumnWidth(0, 20)  # v
+        self.table.setColumnWidth(1, 50)  # name
+        self.table.setColumnWidth(2, 65)  # xy
+        self.table.setColumnWidth(3, 20)  # c
 
     ###Hide3##    self.add_table_form(0,(255,0,255))
     ###Hide3##    self.add_table_form(1,(0,255,255))
     ###Hide3##    self.add_table_form(2,(0,0,255))
-        
-        #header_item = QTableWidgetItem('')
 
-    def __make_layout(self): ## widget안에서
+    # header_item = QTableWidgetItem('')
+
+    def __make_layout(self):  ## widget안에서
         vbox = QVBoxLayout()
         vbox.addWidget(self.table)
 
@@ -142,13 +140,13 @@ class Table(QWidget):
 
         self.setLayout(vbox)
         ##self.setGeometry(200,200,400,500)
-        self.setGeometry(0,0,0,0)
+        self.setGeometry(0, 0, 0, 0)
         self.setWindowTitle('ROI list')
 
         self.btn1 = QPushButton("add")
         grid.addWidget(self.btn1, 0, 0)
-        #btn1.clicked.connect(self.__btn1_clicked)
-        #self.btn1.clicked(self.randomAdd(200))
+        # btn1.clicked.connect(self.__btn1_clicked)
+        # self.btn1.clicked(self.randomAdd(200))
 
     def randomAdd(self):
         for i in range(200):
@@ -170,9 +168,6 @@ class Table(QWidget):
         else:
             self.spinboxSize.setValue(0)
         self.editlock = False
-        print(pos)
-
-        print(row, column)
         if column == self.color_row:
             print('color button')
             self.color_button_click(row, column)
@@ -182,17 +177,28 @@ class Table(QWidget):
     def add_to_table(self, roi, colr, name=""):
         self.addlock = True
         ## num 을 받든지, 여기서 get 하던지 
-        if True: #선택 안되어있으면. :
+        if True:  # 선택 안되어있으면. :
             new_row_num = self.table.rowCount() + 1
             self.table.setRowCount(new_row_num)
-            #colr = self.randcolr()
-            self.add_table_form(new_row_num-1, colr, roi, name)
-        else: 
+            # colr = self.randcolr()
+            self.add_table_form(new_row_num - 1, colr, roi, name)
+        else:
             self.table.insertRow(num)
 
         self.addlock = False
 
-
+    def select_multi_roi(self, roi_list):
+        self.table.clearSelection()
+        nums = []
+        for roi in roi_list:
+            num = self.namelist.index(roi)
+            nums.append(num)
+        self.table.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        selection_model = self.table.selectionModel()
+        for row in nums:
+            index = self.table.model().index(row, 0)  # 0 here represents the first column
+            selection_model.select(index, QItemSelectionModel.Select | QItemSelectionModel.Rows)
 
     def randcolr(self):
         return tuple(np.random.randint(256, size=3))
@@ -201,11 +207,10 @@ class Table(QWidget):
         colr = self.table.item(row, column).backgroundColor()
         col = QColorDialog.getColor(colr, self)
         if col.isValid():
-            #rgb = (col.red(), col.green(), col.blue())
+            # rgb = (col.red(), col.green(), col.blue())
             rgb = col.rgb()
-            self.color_update(row, column, rgb) ## 바로넘기면 안되나?
+            self.color_update(row, column, rgb)  ## 바로넘기면 안되나?
             return rgb
-
 
     def color_update(self, row, column, rgb):
         self.table.item(row, column).setBackgroundColor(rgb)
@@ -222,6 +227,7 @@ class Table(QWidget):
         roi.setId(self.itemCount)
         roi.signals.selected.connect(self.circle_click)
         roi.signals.moved.connect(self.circle_release)
+        roi.signals.moved_multi.connect(self.moved_multi)
         roi.signals.sizeChange.connect(self.circle_size)
 
         chkbox = QCheckBox()
@@ -229,11 +235,10 @@ class Table(QWidget):
         chkbox.stateChanged.connect(lambda: self.check_state(chkbox, roi))
 
         ## color button
-        brushbtn = QPushButton()###
+        brushbtn = QPushButton()  ###
         print(f'background-color:rgb{colr}')
         brushbtn.setStyleSheet(f'background-color:rgb{colr}')
         brushbtn.setFixedWidth(20)
-
         if name == '':
             namestr = 'ROI_' + str(self.itemCount)
         else:
@@ -241,32 +246,31 @@ class Table(QWidget):
         self.namelist.append(namestr)
         roi.setName(namestr)
 
-        posstr = f'({int(roi._rect.x())},{int(roi._rect.y())})'
+        pos = roi.real_pos()
+        posstr = f'({int(pos[0])},{int(pos[1])})'
 
         self.table.setCellWidget(num, 0, chkbox)
-        self.table.setItem(num, 1, QTableWidgetItem(namestr)) # name ## default name
-        self.table.setItem(num, 2, QTableWidgetItem(posstr)) # location ## get geom
+        self.table.setItem(num, 1, QTableWidgetItem(namestr))  # name ## default name
+        self.table.setItem(num, 2, QTableWidgetItem(posstr))  # location ## get geom
         ## self.table.setCellWidget(num, 3, brushbtn)
         self.table.setItem(num, 3, QTableWidgetItem())
-        
+
         self.table.item(num, 3).setBackgroundColor(colr)
 
         self.itemCount += 1
 
+    # self.table. setItem(num,3).clicked.connect(self, color_dial(QtGui.QColor(colr[0], colr[1], colr[2])))
 
-       # self.table. setItem(num,3).clicked.connect(self, color_dial(QtGui.QColor(colr[0], colr[1], colr[2])))
+    ## class 만들게 되면,. item = QTableWidgetItem()
+    ## self.table.setItem(, , item)
 
-        ## class 만들게 되면,. item = QTableWidgetItem()
-        ## self.table.setItem(, , item)
+    # rgb =
+    ## brushbtn.clicked.connect(self.color_dial(QtGui.QColor(colr[0], colr[1], colr[2])))
+    #        def color_dial2(colr):
+    #            col = QColorDialog.getColor(colr)
+    #        brushbtn.clicked.connect(color_dial2(QtGui.QColor(colr[0], colr[1], colr[2])))
 
-        #rgb = 
-        ## brushbtn.clicked.connect(self.color_dial(QtGui.QColor(colr[0], colr[1], colr[2])))
-#        def color_dial2(colr):
-#            col = QColorDialog.getColor(colr)    
-#        brushbtn.clicked.connect(color_dial2(QtGui.QColor(colr[0], colr[1], colr[2])))
-        
-        
-        #print(rgb)
+    # print(rgb)
     def circle_click(self, name):
         num = self.namelist.index(name)
         self.table.selectRow(num)
@@ -283,16 +287,30 @@ class Table(QWidget):
         self.table.item(num, 2).setText(posstr)
         self.editlock = False
 
+    def moved_multi(self, pos, name):
+        num = self.namelist.index(name)
+        posstr = f'({int(pos[0])},{int(pos[1])})'
+        self.editlock = True
+        self.spinboxX.setValue(int(pos[0]))
+        self.spinboxY.setValue(int(pos[1]))
+        self.table.item(num, 2).setText(posstr)
+        self.editlock = False
+
     def circle_size(self, size):
         self.spinboxSize.setValue(size)
 
     # remove ROI circle from table
     def deleteRoi(self):
-        row = self.table.currentRow()
-        roi_circle = self.itemlist.pop(row)
-        self.namelist.pop(row)
-        self.table.removeRow(row)
-        return roi_circle
+        indexes = self.table.selectedIndexes()
+        rows = list(set([i.row() for i in indexes]))
+        rows.sort(reverse=True)
+        rois = []
+        for row in rows:
+            roi_circle = self.itemlist.pop(row)
+            self.namelist.pop(row)
+            self.table.removeRow(row)
+            rois.append(roi_circle)
+        return rois
 
     # show/hide function for ROI circle
     def check_state(self, checkbox, roi_circle):
