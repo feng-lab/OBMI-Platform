@@ -96,8 +96,8 @@ class QtImageViewer(QGraphicsView):
                 for item in self.scene.items():
                     if item.contains(scene_pos):
                         item.setSelected(True)
-
             if self.marker in ['zoom']:
+                self.scene.clearSelection()
                 self.setDragMode(QGraphicsView.ScrollHandDrag)
                 super().mousePressEvent(event)
             if self.marker in ['rectangle', 'cycle']:
