@@ -99,6 +99,7 @@ class QtImageViewer(QGraphicsView):
 
             if self.marker in ['zoom']:
                 self.setDragMode(QGraphicsView.ScrollHandDrag)
+                super().mousePressEvent(event)
             if self.marker in ['rectangle', 'cycle']:
 
                 rect = QRectF(self._pressed_pos.x(), self._pressed_pos.y(),
@@ -117,22 +118,19 @@ class QtImageViewer(QGraphicsView):
                 self.scene.addItem(self._current_item)
             if self.marker in ['select']:
                 self.setDragMode(QGraphicsView.RubberBandDrag)
-
                 super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         super(QtImageViewer, self).mouseMoveEvent(event)
         scene_pos = self.mapToScene(event.pos())
         if self._pressed_pos is not None:
-            if self.marker in ['rectangle', 'cycle', 'zoom']:
+            if self.marker in ['rectangle', 'cycle']:
                 self.scene.update()
                 self._current_item.set_br(scene_pos)
 
         # self.refresh.emit()
 
-    def setScene(self, scene) -> None:
-        self.scene = scene
-        super().setScene(scene)
+
 
     def mouseReleaseEvent(self, event):
         """ Stop mouse pan or zoom mode (apply zoom if valid).
@@ -142,7 +140,7 @@ class QtImageViewer(QGraphicsView):
         selected_items = self.scene.selectedItems()
         if self.marker in ['zoom']:
             self.scene.clearSelection()
-            self.setDragMode(QGraphicsView.ScrollHandDrag)
+            #self.setDragMode(QGraphicsView.ScrollHandDrag)
         if self.marker in ['rectangle']:
             self._current_item.set_br(scene_pos)
             self.rectReleased.emit(self._current_item)
@@ -186,6 +184,8 @@ class QtImageViewer(QGraphicsView):
                 self.mouseScrollUp.emit(True)
             else:
                 self.mouseScrollUp.emit(False)
-
+    def setScene(self, scene) -> None:
+        self.scene = scene
+        super().setScene(scene)
 
 
