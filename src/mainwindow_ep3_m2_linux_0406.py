@@ -1,3 +1,5 @@
+import json
+
 import h5py
 import numpy
 import scipy
@@ -46,7 +48,7 @@ import pandas as pd
 
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
-from ROI import ROI, ROIType, readImagejROI, RectLabelItem
+from ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem
 
 from src.data_receiver import DataReceiver, ReceiverThread
 from src.network_controller import NetworkController
@@ -826,6 +828,7 @@ class MainWindow(QMainWindow):
                 g = f['offline']
                 # read offline video data
                 if len(g.keys()) > 0:
+                    self.deleteRoi(all=True)
                     self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
                     self.player2.frame_list = g['video'][:]
                     self.player2.total_frame = g['total_frame'][()]
@@ -834,48 +837,33 @@ class MainWindow(QMainWindow):
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
 
+
                     time.sleep(0.1)
 
                     self.s_totalframe2 = self.player2.total_frame
                     self.s_total2 = int(self.s_totalframe2 / self.player2.fps)
 
                     self.update_v_duration2(self.s_total2, self.s_totalframe2)
-
+                    self.player2.frame_update()
                     # read offline roi data
                     if len(g.keys()) > 3:
-                        data = g['roi_data'][:]
-                        contours = g['roi_contours'][:]
-                        idx = 0
-                        for roi_data in data:
-                            roi_id, x, y, type, c_size = roi_data
-                            contour = contours[idx:idx + int(c_size)]
-                            idx += int(c_size)
-                            contour = [QtCore.QPointF(contour[i], contour[i + 1]) for i in range(len(contour) - 1) if
-                                       i % 2 == 0]
-                            roi = self.addRoiPolygon(x, y, contour)
-                            roi.setId(roi_id)
-                            if type == 1:
-                                roi.type = ROIType.CIRCLE
-                                roi.size = roi.boundingRect().width()
+                        data = np.array(g['roi_data'][()], dtype=str).tolist()
+                        if 'roi_contours' in g.keys():
+                            contours = g['roi_contours'][:]
+                        roi_dicts = json.loads(data)
+                        for roi_dict in roi_dicts:
+                            self.create_roi_from_dict(roi_dict)
 
                 g = f['online']
                 # read online roi data
                 if len(g.keys()) > 1:
                     self.on_scope = None
-                    data = g['roi_data'][:]
-                    contours = g['roi_contours'][:]
-                    idx = 0
-                    for roi_data in data:
-                        roi_id, x, y, type, c_size = roi_data
-                        contour = contours[idx:idx + int(c_size)]
-                        idx += int(c_size)
-                        contour = [QtCore.QPointF(contour[i], contour[i + 1]) for i in range(len(contour) - 1) if
-                                   i % 2 == 0]
-                        roi = self.addOnRoiPolygon(x, y, contour)
-                        roi.setId(roi_id)
-                        if type == 1:
-                            roi.type = ROIType.CIRCLE
-                            roi.size = roi.boundingRect().width()
+                    data = np.array(g['roi_data'][()], dtype=str).tolist()
+                    if 'roi_contours' in g.keys():
+                        contours = g['roi_contours'][:]
+                    roi_dicts = json.loads(data)
+                    for roi_dict in roi_dicts:
+                        self.create_roi_from_dict(roi_dict)
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -902,45 +890,28 @@ class MainWindow(QMainWindow):
                 g['fps'] = self.player2.fps
                 g['total_frame'] = self.player2.total_frame
                 g['video'] = numpy.asarray(fl)
-
                 if self.roi_table is not None:
                     size = self.roi_table.size()
                     if size > 0:
-                        shape_data = []
-                        data = np.empty((size, 5))
+                        roi_dict_list = []
                         roi_list = self.roi_table.itemlist
-                        for i in range(len(roi_list)):
-                            roi = roi_list[i]
-                            x = int(roi.pos().x())
-                            y = int(roi.pos().y())
-                            if roi.type == ROIType.CIRCLE:
-                                type = 1
-                            else:
-                                type = 2
-                            data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                            shape_data.extend(roi.contours.tolist())
-                        g['roi_data'] = data
-                        g['roi_contours'] = np.array(shape_data)
+                        for roi in roi_list:
+                            roi_dict_list.append(roi.to_dict())
+                        json_str = json.dumps(roi_dict_list)
+                        np_str = np.array(json_str, dtype=h5py.string_dtype(encoding='utf-8'))
+                        g['roi_data'] = np_str
 
             g = f.create_group('online')
             if self.onroi_table is not None:
                 size = self.onroi_table.size()
                 if size > 0:
-                    shape_data = []
-                    data = np.empty((size, 5))
+                    roi_dict_list = []
                     roi_list = self.onroi_table.itemlist
-                    for i in range(len(roi_list)):
-                        roi = roi_list[i]
-                        x = int(roi.pos().x())
-                        y = int(roi.pos().y())
-                        if roi.type == ROIType.CIRCLE:
-                            type = 1
-                        else:
-                            type = 2
-                        data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                        shape_data.extend(roi.contours.tolist())
-                    g['roi_data'] = data
-                    g['roi_contours'] = np.array(shape_data)
+                    for roi in roi_list:
+                        roi_dict_list.append(roi.to_dict())
+                    json_str = json.dumps(roi_dict_list)
+                    np_str = np.array(json_str, dtype=h5py.string_dtype(encoding='utf-8'))
+                    g['onroi_data'] = np_str
         print('save success!')
 
     def button_recentfile(self):
@@ -1886,7 +1857,6 @@ class MainWindow(QMainWindow):
     def select_multi_roi(self, roi_list):
         self.roi_table.select_multi_roi(roi_list)
 
-
     def load_on_roi(self):
         # read imageJ roi files to online tab
         dir = QFileDialog.getExistingDirectory(self, "select ROI Directory")
@@ -2186,8 +2156,11 @@ class MainWindow(QMainWindow):
         self.roi_table.add_to_table(roi_polygon, colr, name)
         return roi_polygon
 
-    def deleteRoi(self):
-        rois = self.roi_table.deleteRoi()
+    def deleteRoi(self, all=False):
+        if all:
+            rois = self.roi_table.deleteAllRoi()
+        else:
+            rois = self.roi_table.deleteRoi()
         for roi in rois:
             self.player_scene2.removeItem(roi)
 
@@ -3115,6 +3088,24 @@ class MainWindow(QMainWindow):
         self.player_scene2 = QGraphicsScene()
         self.ui.scope_camera_view_item_2.setScene(self.player_scene2)
         ## self.show()
+
+    def create_roi_from_dict(self, d):
+        if d['type'] == 'RectLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = RectLabelItem(rect, name=d['name'],
+                              index=d['id'],
+                              color=d['color'],
+                              width=1)
+            self.ui.scope_camera_view_item_2.scene.addItem(r)
+            self._collect_rect(r)
+        if d['type'] == 'EllipseLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = EllipseLabelItem(rect, name=d['name'],
+                                 index=d['id'],
+                                 color=d['color'],
+                                 width=1)
+            self.ui.scope_camera_view_item_2.scene.addItem(r)
+            self._collect_rect(r)
 
     def roi_click(self, widget, filter):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):

@@ -224,7 +224,7 @@ class Table(QWidget):
 
     def add_table_form(self, num, colr, roi, name=""):
         self.itemlist.append(roi)
-        roi.setId(self.itemCount)
+        roi.setId(roi.id)
         roi.signals.selected.connect(self.circle_click)
         roi.signals.moved.connect(self.circle_release)
         roi.signals.moved_multi.connect(self.moved_multi)
@@ -240,7 +240,7 @@ class Table(QWidget):
         brushbtn.setStyleSheet(f'background-color:rgb{colr}')
         brushbtn.setFixedWidth(20)
         if name == '':
-            namestr = 'ROI_' + str(self.itemCount)
+            namestr = 'ROI_' + str(roi.id)
         else:
             namestr = name
         self.namelist.append(namestr)
@@ -312,9 +312,24 @@ class Table(QWidget):
             rois.append(roi_circle)
         return rois
 
+    def deleteAllRoi(self):
+        rows = [i for i in range(self.table.rowCount())]
+
+        rows.sort(reverse=True)
+        rois = []
+        for row in rows:
+            roi_circle = self.itemlist.pop(row)
+            self.namelist.pop(row)
+            self.table.removeRow(row)
+            rois.append(roi_circle)
+        return rois
+
     # show/hide function for ROI circle
     def check_state(self, checkbox, roi_circle):
         if checkbox.isChecked():
             roi_circle.setVisible(True)
         else:
             roi_circle.setVisible(False)
+
+    def clear_row(self):
+        self.table.setRowCount(0)

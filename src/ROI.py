@@ -157,9 +157,12 @@ class LabelItem(QGraphicsItem):
 
     def move_once(self):
         self.signals.moved_multi.emit(self.real_pos(), self.name)
-    def real_pos(self):
-        return [self._rect.x()+self.pos().x(), self._rect.y()+self.pos().y()]
 
+    def real_pos(self):
+        return [self._rect.x() + self.pos().x(), self._rect.y() + self.pos().y()]
+
+    def to_dict(self):
+        raise NotImplementedError
 
 class RectLabelItem(LabelItem):
     def __init__(self, rect, name, index=None, color=None, width=6.0, parent=None):
@@ -177,7 +180,6 @@ class RectLabelItem(LabelItem):
         else:
             self._color = QColor("#ff0000")
         self._width = width
-
 
     @property
     def rect(self):
@@ -205,6 +207,15 @@ class RectLabelItem(LabelItem):
         self._rect.setBottomRight(pos)
         self.update()
 
+    def to_dict(self):
+        d = {
+            'params': [self.real_pos()[0], self.real_pos()[1],self._rect.width(),self._rect.height()],
+            'type': self.__class__.__name__,
+            'id': self.id,
+            'color': self._color.name(),
+            'name': self.name
+        }
+        return d
 
 class EllipseLabelItem(LabelItem):
     def __init__(self, rect, name, index=None, color=None, width=3.0, parent=None):
@@ -249,3 +260,13 @@ class EllipseLabelItem(LabelItem):
     def set_br(self, pos):
         self._rect.setBottomRight(pos)
         self.update()
+
+    def to_dict(self):
+        d = {
+            'params': [self.real_pos()[0], self.real_pos()[1],self._rect.width(),self._rect.height()],
+            'type': self.__class__.__name__,
+            'id': self.id,
+            'color': self._color.name(),
+            'name': self.name
+        }
+        return d

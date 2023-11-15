@@ -188,4 +188,11 @@ class QtImageViewer(QGraphicsView):
         self.scene = scene
         super().setScene(scene)
 
+    def clear_scene_items(self):
+        for item in self.scene.items():
+            print(111111)
+            print(item)
+            if isinstance(item, RectLabelItem) or isinstance(item, EllipseLabelItem):
+                self.scene.removeItem(item)
+
 
