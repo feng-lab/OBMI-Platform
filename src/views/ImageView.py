@@ -206,7 +206,6 @@ class QtImageViewer(QGraphicsView):
     def generate_name(self):
         i = 1
         names = self.id_list
-        print(names)
         while i in names:
             i += 1
         return i
