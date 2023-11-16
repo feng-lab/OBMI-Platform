@@ -85,26 +85,49 @@ class ReceiverThread(QThread):
         self.img_buffer = Queue(maxsize=-1)
         self.out_stream = Queue(maxsize=-1)
 
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.traceupdate)
+
+    def start_process(self):
+        self.frame_signal.connect(self.recieve_img)
+
+        itemlist = [item.get_contour_dict() for item in self.itemlist]
+        self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
+        self.p.start()
+    def traceupdate(self):
+        if self.out_stream.empty():
+            return
+
+        avgs = self.out_stream.get()
+        if self.img_buffer.qsize() > 1:
+            print("img buffer, remaining:", self.img_buffer.qsize())
+        if self.out_stream.qsize() > 0:
+            print('read img, remaining:', self.out_stream.qsize())
+
+        self.trace_viewer.full_trace_update(avgs, self.frame_count)
+        self.frame_count += 1
 
     def run(self):
         self.frame_signal.connect(self.recieve_img)
 
         itemlist = [item.get_contour_dict() for item in self.itemlist]
-        p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
-        p.start()
+        self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
+        self.p.start()
 
-        while not self.isInterruptionRequested():
-            if self.out_stream.empty():
-                self.msleep(20)
-                continue
-            avgs = self.out_stream.get()
-            if self.img_buffer.qsize() > 1:
-                print("img buffer, remaining:", self.img_buffer.qsize())
-            if self.out_stream.qsize() > 0:
-                print('read img, remaining:', self.out_stream.qsize())
-
-            self.trace_viewer.full_trace_update(avgs, self.frame_count)
-            self.frame_count += 1
+        self.timer.start(20)
+        # while not self.isInterruptionRequested():
+        #     if self.out_stream.empty():
+        #         self.msleep(20)
+        #         continue
+        #     avgs = self.out_stream.get()
+        #     if self.img_buffer.qsize() > 1:
+        #         print("img buffer, remaining:", self.img_buffer.qsize())
+        #     if self.out_stream.qsize() > 0:
+        #         print('read img, remaining:', self.out_stream.qsize())
+        #
+        #     self.trace_viewer.full_trace_update(avgs, self.frame_count)
+        #     self.frame_count += 1
+        #     self.msleep(1)
 
     def recieve_img(self, img):
         self.img_buffer.put(img)
@@ -113,6 +136,18 @@ class ReceiverThread(QThread):
         self.max_list = [0, 0, 0, 0, 0]
         self.window_size = 300
 
+
+class TraceProcess(QObject):
+    def __init__(self, in_queue, itemlist):
+        super(TraceProcess, self).__init__()
+        self.in_queue = in_queue
+        self.out_queue = Queue(maxsize=-1)
+        self.itemlist = itemlist
+
+    def start(self):
+        itemlist = [item.get_contour_dict() for item in self.itemlist]
+        p = Process(target=extract_process, args=(self.in_queue, self.out_queue, itemlist,))
+        p.start()
 
 class DataReceiver(QObject):
     decoding_sig = QtCore.Signal(bool)

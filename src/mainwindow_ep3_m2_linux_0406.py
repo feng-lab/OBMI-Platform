@@ -47,9 +47,11 @@ import pandas as pd
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
 from ROI import ROI, ROIType, readImagejROI
+from src.UI_updater import UIUpdater
 
-from src.data_receiver import DataReceiver, ReceiverThread
+from src.data_receiver import DataReceiver, ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
+from src.online_player_process import OnlineProcess
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -73,6 +75,8 @@ class MainWindow(QMainWindow):
         import threading
         print("main thread:", threading.get_ident())
         self.timermode = False
+        self.online_process = False
+        self.ui_updater = None
         self.cameraID = 0
         # - self.ui = Ui_MainWindow() ## ###+++++++++
 
@@ -367,8 +371,8 @@ class MainWindow(QMainWindow):
         self.on_template = None
 
         # on player buttons
-        self.ui.pushButton_129.clicked.connect(self.onplayer_pause)
-        self.ui.pushButton_131.clicked.connect(self.onplayer_rt)
+        # self.ui.pushButton_129.clicked.connect(self.onplayer_pause)
+        # self.ui.pushButton_131.clicked.connect(self.onplayer_rt)
 
         # on_player slider
         self.slider_lock = False
@@ -1982,16 +1986,6 @@ class MainWindow(QMainWindow):
         self.ui.label_204.setText(timestr)
         self.ui.label_210.setText(timestr)
 
-    # fps set
-    def set_onscope_fps(self, fps):
-
-        fps_d = {5: 4, 7: 6, 8: 6, 9: 6, 10: 12, 11: 12}
-        fps = fps / 5
-        if fps in list(fps_d.keys()):
-            fps = fps_d[fps]
-
-        self.on_scope.cfps = fps * 5
-
     # ------------------------------------------------------------------------
     #
     #                           motion correction
@@ -2236,29 +2230,14 @@ class MainWindow(QMainWindow):
                 self.brightlist[i].append(self.getBrightness_v2(frame, itemlist[i]))
                 # brightlist[i].append(self.getBrightness(frame, itemlist[i]))
 
-        self.draw_chart(self.brightlist)
+        self.draw_chart(itemlist, self.brightlist)
         print(f'total time: {time.time() - timer}')
 
     # initialize and draw offline traces
-    def draw_chart(self, brightlist):
+    def draw_chart(self, itemlist, brightlist):
         from trace_viewer import Traceviewer
-        self.trace_viewer = Traceviewer(brightlist)
-        trace_layout = QtWidgets.QHBoxLayout()
-        trace_layout.addWidget(self.trace_viewer)
-        trace_layout.setContentsMargins(0, 0, 0, 0)
-
-        class ScrollArea(QtWidgets.QScrollArea):
-            def eventFilter(self, obj, event):
-                if obj == self.verticalScrollBar():
-                    if event.type() == QtCore.QEvent.Wheel:
-                        return True
-                return False
-
-        self.ui.scrollAreaWidgetContents_8 = ScrollArea(self.ui.scrollArea_8)
-        scrollWidget = QWidget()
-        scrollWidget.setLayout(trace_layout)
-        self.ui.scrollAreaWidgetContents_8.setWidget(scrollWidget)
-        self.ui.scrollArea_8.setWidget(self.ui.scrollAreaWidgetContents_8)
+        self.trace_viewer = Traceviewer(itemlist, brightlist)
+        self.ui.scrollArea_8.setWidget(self.trace_viewer)
 
     def save_trace(self):
         if self.brightlist is None:
@@ -2387,61 +2366,99 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------------
 
     # play/pause button
-    def onplayer_pause(self):
-        if self.on_scope == None or not self.on_scope.rtProcess:
-            return
-        text = self.ui.pushButton_129.text()
-        if text == 'pause':
-            self.on_scope.pause()
-            self.ui.pushButton_129.setText('play')
-        if text == 'play':
-            self.on_scope.play()
-            self.ui.pushButton_129.setText('pause')
+    # def onplayer_pause(self):
+    #     if self.on_scope == None or not self.on_scope.rtProcess:
+    #         return
+    #     text = self.ui.pushButton_129.text()
+    #     if text == 'pause':
+    #         self.on_scope.pause()
+    #         self.ui.pushButton_129.setText('play')
+    #     if text == 'play':
+    #         self.on_scope.play()
+    #         self.ui.pushButton_129.setText('pause')
 
     # jump to real time button
-    def onplayer_rt(self):
-        if self.on_scope == None or not self.on_scope.rtProcess:
-            return
-        self.on_scope.cur_frame = self.on_scope.total_frame
-        button = self.ui.pushButton_129
-        if button.text() == 'play':
-            self.on_scope.play()
-            button.setText('pause')
+    # def onplayer_rt(self):
+    #     if self.on_scope == None or not self.on_scope.rtProcess:
+    #         return
+    #     self.on_scope.cur_frame = self.on_scope.total_frame
+    #     button = self.ui.pushButton_129
+    #     if button.text() == 'play':
+    #         self.on_scope.play()
+    #         button.setText('pause')
 
     # camera connect button
     def online_scope(self):
-        ## video connect
-        text = self.ui.connectScopeCameraButton_2.text()
-        if text == 'Scope\nConnect' and self.on_scope is None:
-            # camera_ID = self.open_video_path ### temp
-            self.on_scope = self.connect_online_camera()
-            self.on_scope.frameI.connect(self.online_frame)
-            if self.MC is not None and self.on_template is not None:
-                self.MC.c_onmc = 0
-                self.on_scope.MC = self.MC
-                self.on_scope.ged_template = self.on_template
+        if self.online_process:
+            # process version
+            text = self.ui.connectScopeCameraButton_2.text()
+            if text == 'Scope\nConnect' and self.on_scope is None:
+                if not self.dev_list:
+                    self.get_devlist()
 
-            if self.timermode:
-                self.on_scope.timer.start()
-            else:
-                #self.moveToThread(self.on_scope)
+                camera_ID = self.get_cam_n()
+                miniscope = True
+                if camera_ID is None:
+                    camera_ID = self.cameraID  # defalut device, make it seletable in the future
+                    miniscope = False
+
+                self.on_scope = OnlineProcess(camera=camera_ID, parent=self, miniscope=miniscope)
+                if self.ui_updater is None:
+                    self.ui_updater = UIUpdater(self)
+                    self.ui_updater.start()
+                self.ui_updater.set_frame_queue(self.on_scope.scene_queue)
+                self.ui_updater.frameI.connect(self.online_frame)
+
+                if self.MC is not None and self.on_template is not None:
+                    self.on_scope.get_template = self.on_template
+
                 self.on_scope.start()
+                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
-            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+            elif text == 'Scope\nDisconnect' and self.on_scope is not None:
+                self.ui_updater.frameI.disconnect(self.online_frame)
 
-        elif text == 'Scope\nDisconnect' and self.on_scope is not None:
-            self.on_scope.frameI.disconnect(self.online_frame)
-
-            if self.timermode:
-                self.on_scope.timer.stop()
-            else:
+                if self.rt:
+                    self.rt = False
                 self.on_scope.stop()
-                #self.on_scope.quit()
+                time.sleep(0.01)
+                self.on_scope = None
+                self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
-            if self.rt:
-                self.rt = False
-            self.on_scope = None
-            self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+
+        else:
+            ## video connect
+            text = self.ui.connectScopeCameraButton_2.text()
+            if text == 'Scope\nConnect' and self.on_scope is None:
+                # camera_ID = self.open_video_path ### temp
+                self.on_scope = self.connect_online_camera()
+                self.on_scope.frameI.connect(self.online_frame)
+                if self.MC is not None and self.on_template is not None:
+                    self.MC.c_onmc = 0
+                    self.on_scope.MC = self.MC
+                    self.on_scope.ged_template = self.on_template
+
+                if self.timermode:
+                    self.on_scope.timer.start()
+                else:
+                    #self.moveToThread(self.on_scope)
+                    self.on_scope.start()
+
+                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+
+            elif text == 'Scope\nDisconnect' and self.on_scope is not None:
+                self.on_scope.frameI.disconnect(self.online_frame)
+
+                if self.timermode:
+                    self.on_scope.timer.stop()
+                else:
+                    self.on_scope.stop()
+                    #self.on_scope.quit()
+
+                if self.rt:
+                    self.rt = False
+                self.on_scope = None
+                self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
     # ------------------------------------------------------------------------
     #
@@ -2919,47 +2936,84 @@ class MainWindow(QMainWindow):
             # cancel
             return
 
-        ## video start
-        text = self.ui.connectScopeCameraButton_2.text()
-        if text == 'Scope\nConnect' and self.on_scope is None:
-            self.on_scope = self.connect_online_camera()
+        if self.online_process:
+            text = self.ui.connectScopeCameraButton_2.text()
+            if text == 'Scope\nConnect' and self.on_scope is None:
+                if not self.dev_list:
+                    self.get_devlist()
 
-            self.on_scope.frameI.connect(self.online_frame)
-            if self.timermode:
-                self.on_scope.timer.start()
-            else:
+                camera_ID = self.get_cam_n()
+                miniscope = True
+                if camera_ID is None:
+                    camera_ID = self.cameraID  # defalut device, make it seletable in the future
+                    miniscope = False
+
+                self.on_scope = OnlineProcess(camera=camera_ID, parent=self, miniscope=miniscope)
+                if self.ui_updater is None:
+                    self.ui_updater = UIUpdater(self)
+                    self.ui_updater.start()
+                self.ui_updater.set_frame_queue(self.on_scope.scene_queue)
+                self.ui_updater.frameI.connect(self.online_frame)
+
+                if self.MC is not None and self.on_template is not None:
+                    self.on_scope.get_template = self.on_template
+
                 self.on_scope.start()
 
 
-            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
-            print('connection')
+            self.receiver = TraceProcess(self.on_scope.trace_queue, self.ontrace_viewer.itemlist)
+            self.ui_updater.set_trace_queue(self.receiver.out_queue)
+            self.ui_updater.set_trace_viewer(self.ontrace_viewer)
 
-            if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
-                if type(self.on_template) != type(None):
-                    print('yes you have template')
-                    self.MC.c_onmc = 0  ##
-                    self.on_scope.MC = self.MC
-                    self.on_scope.ged_template = self.on_template  ###
-                    ##self.MCC.on_mc(self.on_template, )
+            self.receiver.start_process()
+            self.receiver.timer.start(20)
+            # self.receiver.start()
+            self.on_scope.rtProcess()
+
+        else:
+            ## video start
+            text = self.ui.connectScopeCameraButton_2.text()
+            if text == 'Scope\nConnect' and self.on_scope is None:
+                self.on_scope = self.connect_online_camera()
+
+                self.on_scope.frameI.connect(self.online_frame)
+                if self.timermode:
+                    self.on_scope.timer.start()
                 else:
-                    print('no template')
-                ## need to check process status of processing (motion corrected | ROI selected)
-            else:
-                print('check X - motion correction ')
+                    self.on_scope.start()
 
 
-        # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
-        # self.receiver.start()
-        self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
-        self.receiver.start()
-        #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
-        # self.ontrace_viewer.timer_init()
-        # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
+                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+                print('connection')
 
-        # self.ui.horizontalSlider_7.setMaximum(1)
-        # self.ui.horizontalSlider_7.setValue(1)
-        # self.ui.pushButton_129.setText('pause')
-        self.on_scope.rtProcess = True
+                if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
+                    if type(self.on_template) != type(None):
+                        print('yes you have template')
+                        self.MC.c_onmc = 0  ##
+                        self.on_scope.MC = self.MC
+                        self.on_scope.ged_template = self.on_template  ###
+                        ##self.MCC.on_mc(self.on_template, )
+                    else:
+                        print('no template')
+                    ## need to check process status of processing (motion corrected | ROI selected)
+                else:
+                    print('check X - motion correction ')
+
+
+            # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+            # self.receiver.start()
+            self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
+            self.receiver.start_process()
+            self.receiver.timer.start(10)
+            # self.receiver.start()
+            #self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
+            # self.ontrace_viewer.timer_init()
+            # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
+
+            # self.ui.horizontalSlider_7.setMaximum(1)
+            # self.ui.horizontalSlider_7.setValue(1)
+            # self.ui.pushButton_129.setText('pause')
+            self.on_scope.rtProcess = True
         self.rt = True
 
     # initialize online trace viewer

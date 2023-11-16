@@ -43,7 +43,7 @@ class VPlayer(QtCore.QThread):
         self.tlist = []
         self.speed = 1
         self.alpha = 0.99
-        self.tlen = 20
+        self.tlen = 30
 
 
     def datainit(self):
@@ -106,7 +106,7 @@ class VPlayer(QtCore.QThread):
                 loop_time = time.perf_counter()
                 if process_time < self.wtime:
                     # time.sleep(self.wtime - process_time)
-                    self.usleep((self.wtime - process_time) * 1000000)
+                    self.msleep((self.wtime - process_time) * 1000)
 
                 self.tlist.append(loop_time)
                 if len(self.tlist) == self.tlen:
@@ -140,11 +140,11 @@ class VPlayer(QtCore.QThread):
         self.wtime = 1/(self.fps * self.speed)
         self.alpha = 0.99
         self.tlist = []
-        self.tlen = 20 * ll[i]
+        self.tlen = 30 * ll[i]
         if i == 2:
-            self.wtime /= 5
+            self.wtime = 0.013
         if i == 3:
-            self.wtime /= 5
+            self.wtime /= 7
         print(f'play speed change to {ll[i]}x')
         print('wtime:', self.wtime)
 

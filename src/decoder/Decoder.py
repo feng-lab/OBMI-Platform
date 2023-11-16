@@ -17,11 +17,12 @@ import joblib
 class OBMIDecoder():
     def __init__(self):
         # model_path = './decoder/best_svm.pkl'
-        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-10\\best_svm_1012.pkl'
+        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-11\\best_svm_1108.pkl'
         self.model = joblib.load(model_path)
         # 归一化常量，根据当天采集的数据集而定
         self.data_min = -0.03512258532225913
         self.data_max = 0.13549502268053126
+        self.T = 0.96
 
     def inference(self, data):
         try:
@@ -31,7 +32,9 @@ class OBMIDecoder():
 
             input_sample = (input_sample - self.data_min) / (self.data_max - self.data_min)
 
-            p_labels = self.model.predict(input_sample)
+            # p_labels = self.model.predict(input_sample)
+            p_labels = self.model.predict_proba(input_sample)[:, 1]
+            p_labels = np.where(p_labels > self.T, 1, 0)
         except:
             print(traceback.format_exc())
             p_labels = -1

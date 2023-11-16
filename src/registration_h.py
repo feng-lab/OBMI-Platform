@@ -95,6 +95,28 @@ class on_NCC(): #H
 
         return new_raw_frame.astype(np.uint8), self.template
 
+    def NCC_framebyframe_out_gpu(self, frame):
+        frame = frame.astype(np.float32)
+        frame = torch.from_numpy(frame)
+        frame = frame.cuda()
+        preprocess_frame = self.LOAD.filter_frame(frame, self.kernel)
+        normxcorr2_general_output = NormXCorr2(self.template, preprocess_frame)
+        output, _ = normxcorr2_general_output.normxcorr2_general(self.sum1, self.a_rot_complex, self.b_complex,
+                                                                 self.Zeros)
+        Shift = ApplyShifts(output)
+        new_filtered_frame, _, _ = Shift.apply_shift(preprocess_frame, self.theta)
+        new_raw_frame, _, _ = Shift.apply_shift(frame, self.theta)
+
+        new_filtered_frame = new_filtered_frame.squeeze(0)
+        self.template_buffer[:, :, self.ith] = new_filtered_frame
+        self.ith += 1
+        if self.ith % 200 == 0:
+            mean_temp = torch.mean(self.template_buffer, dim=2)
+            self.template = (self.template + mean_temp) / 2
+            self.ith = 0
+        new_raw_frame = new_raw_frame.squeeze(0)
+
+        return new_raw_frame, self.template
 class Preprocess(sig):
     def __init__(self, path):
         super().__init__()
@@ -133,7 +155,7 @@ class Preprocess(sig):
         preprocess_temp = LOAD.filter_frame(template, kernel)
         for i in range(200):
 
-            frame = init_video[:, :, i]
+            frame = init_video[:, :, i % init_video.shape[2]]
 
             preprocess_frame = LOAD.filter_frame(frame, kernel)
             normxcorr2_general_output = NormXCorr2(preprocess_temp, preprocess_frame)
