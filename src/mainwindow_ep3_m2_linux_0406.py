@@ -1,3 +1,5 @@
+import json
+
 import h5py
 import numpy
 import scipy
@@ -7,8 +9,8 @@ from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, 
                                QHBoxLayout, QLabel)
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
-from PySide2.QtCore import QObject, Signal, Slot, QThread
-
+from PySide2.QtCore import QObject, Signal, Slot, QThread, QRectF
+# import icons_rc
 from PySide2.QtUiTools import QUiLoader  ### +++++++++++++++++++++++++++++++++++++
 
 from PySide2.QtWidgets import QApplication, QDesktopWidget  #
@@ -46,12 +48,17 @@ import pandas as pd
 
 ### vplayer
 from pygrabber.dshow_graph import FilterGraph
-from ROI import ROI, ROIType, readImagejROI
+
 from src.UI_updater import UIUpdater
+from ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem
+
 
 from src.data_receiver import DataReceiver, ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
+
 from src.online_player_process import OnlineProcess
+# from src.ui_210513_OMBI_UI import Ui_MainWindow
+from src.views.ImageView import QtImageViewer
 from vplayer import VPlayer, VPlayerStatus
 
 ## camera number
@@ -160,7 +167,6 @@ class MainWindow(QMainWindow):
         # self.ui.scopeExposureSlider.valueChanged.connect(self.move_slider8)
         # self.ui.scopeExposureValue.returnPressed.connect(self.slider_box8)
 
-
         ## scope Exposuretime Slider
         #### self.ui.scopeETslider.valueChanged.connect(self.move_slider9)
         #### self.ui.scopeETvalue.returnPressed.connect(self.slider_box9)
@@ -226,6 +232,8 @@ class MainWindow(QMainWindow):
 
         self.pl_width2 = 0
 
+        ## multi roi selection
+        self.ui.scope_camera_view_item_2.roiSelect.connect(self.select_multi_roi)
         ### --- recording ------ and UI (temporary)
 
         ## edit ui - player1
@@ -294,15 +302,13 @@ class MainWindow(QMainWindow):
 
         self.ui.LoadRoi.clicked.connect(self.load_roi)
         self.ui.LoadRoi_2.clicked.connect(self.load_on_roi)
-        
+
         ## second player scene
 
         ## self.ui.scope_camera_view_item_2 = QtWidgets.QWidget(self.ui.widget_46) ##+ edit ui
         ## self.ui.scope_camera_view_item_2.setMinimumSize(QtCore.QSize(917,585))
         ## self.ui.horizontalLayout_2.addWidget(self.ui.scope_camera_view_item_2)
 
-        self.player_scene2 = QGraphicsScene()
-        self.ui.scope_camera_view_item_2.setScene(self.player_scene2)  ##-
         self.player_view2 = None
 
         self.ui.scope_camera_view_item_2.setStyleSheet("background-color: rgb(0,0,0);")
@@ -364,7 +370,7 @@ class MainWindow(QMainWindow):
         ## on player
         self.onplayer_scene = QGraphicsScene()
         self.ui.scope_camera_view_item_3.setScene(self.onplayer_scene)
-        #self.onplayer_view = QGraphicsView(self.onplayer_scene, parent=self.ui.scope_camera_view_item_3)
+        # self.onplayer_view = QGraphicsView(self.onplayer_scene, parent=self.ui.scope_camera_view_item_3)
         self.ui.scope_camera_view_item_3.setStyleSheet("background-color: rgb(0,0,0);")
         self.onplayer_view_item = QGraphicsPixmapItem()
         self.onplayer_scene.addItem(self.onplayer_view_item)
@@ -642,8 +648,7 @@ class MainWindow(QMainWindow):
 
         self.ui.tabWidget.setCurrentIndex(0)
 
-
-        #auto focus
+        # auto focus
         self.ui.AutoFocus.clicked.connect(self.autoFocus)
         self.ui.AutoFocus_2.clicked.connect(self.autoFocus)
 
@@ -716,7 +721,7 @@ class MainWindow(QMainWindow):
 
         itemlist = self.player_scene2.items()
         print('item_after: ', itemlist)
-
+        self.setup_markers()
         self.init_onchart()
 
     ## functions ------------------------------------------------------------------------------------------------------------------------
@@ -734,6 +739,67 @@ class MainWindow(QMainWindow):
     #
     # ------------------------------------------------------------------------
 
+    def setup_markers(self):
+        self.ui.cursorbutton.setDown(True)
+        self.ui.cursorbutton.clicked.connect(self.set_marker_cursor)
+        self.ui.fitScreenbutton.clicked.connect(self.set_marker_zoom)
+        self.ui.selectbutton.clicked.connect(self.set_marker_select)
+        self.ui.rectanglebutton.clicked.connect(self.set_marker_rectangle)
+        self.ui.cyclebutton.clicked.connect(self.set_marker_cycle)
+        self.ui.polygonbutton.clicked.connect(self.set_marker_polygon)
+
+        self.ui.scope_camera_view_item_2.rectReleased.connect(self._collect_rect)
+        self.ui.scope_camera_view_item_2.cycleReleased.connect(self._collect_cycle)
+        self.ui.scope_camera_view_item_2.refresh.connect(self._scene_refresh)
+        self.marker_map = {
+            'cursor': self.ui.cursorbutton,
+            'zoom': self.ui.fitScreenbutton,
+            'select': self.ui.selectbutton,
+            'rectangle': self.ui.rectanglebutton,
+            'cycle': self.ui.cyclebutton,
+            'polygon': self.ui.polygonbutton,
+        }
+
+    def set_marker_cursor(self):
+        self._current_marker = 'cursor'
+        self._activate_marker_button('cursor')
+
+    def set_marker_select(self):
+        self._current_marker = 'select'
+        self._activate_marker_button('select')
+
+    def set_marker_rectangle(self):
+        self._current_marker = 'rectangle'
+        self._activate_marker_button('rectangle')
+
+    def set_marker_cycle(self):
+        self._current_marker = 'cycle'
+        self._activate_marker_button('cycle')
+
+    def set_marker_polygon(self):
+        self._current_marker = 'polygon'
+        self._activate_marker_button('polygon')
+
+    def set_marker_zoom(self):
+        self._current_marker = 'zoom'
+        self._activate_marker_button('zoom')
+
+    def set_marker_style(self, marker_name):
+        self.ui.scope_camera_view_item_2.marker = marker_name
+        if marker_name in ['cursor', 'select']:
+            self.ui.scope_camera_view_item_2.viewport().setCursor(Qt.ArrowCursor)
+        if marker_name in ['cycle', 'rectangle', 'polygon']:
+            self.ui.scope_camera_view_item_2.viewport().setCursor(Qt.CrossCursor)
+
+    def _scene_refresh(self):
+        self.player_scene2.update()
+
+    def _collect_rect(self, obj):
+        self.roi_table.add_to_table(obj, obj._color)
+
+    def _collect_cycle(self, obj):
+        self.roi_table.add_to_table(obj, obj._color)
+
     def button_new(self):
         self.ui.lineEdit.setText(datetime.now().strftime("%Y-%m-%d"))
         self.ui.lineEdit_26.setText("")
@@ -741,6 +807,14 @@ class MainWindow(QMainWindow):
         self.ui.spinBox_5.setValue(0)
         self.ui.spinBox_6.setValue(0)
         self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
+
+    def _activate_marker_button(self, name):
+        for btn_name in self.marker_map:
+            if btn_name == name:
+                self.marker_map[btn_name].setDown(True)
+            else:
+                self.marker_map[btn_name].setDown(False)
+        self.set_marker_style(name)
 
     # h5py版本更新，改变读取方式
     def button_load(self):
@@ -756,6 +830,7 @@ class MainWindow(QMainWindow):
                 g = f['offline']
                 # read offline video data
                 if len(g.keys()) > 0:
+                    self.deleteRoi(all=True)
                     self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
                     self.player2.frame_list = g['video'][:]
                     self.player2.total_frame = g['total_frame'][()]
@@ -764,47 +839,33 @@ class MainWindow(QMainWindow):
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
 
+
                     time.sleep(0.1)
 
                     self.s_totalframe2 = self.player2.total_frame
                     self.s_total2 = int(self.s_totalframe2 / self.player2.fps)
 
                     self.update_v_duration2(self.s_total2, self.s_totalframe2)
-
+                    self.player2.frame_update()
                     # read offline roi data
                     if len(g.keys()) > 3:
-                        data = g['roi_data'][:]
-                        contours = g['roi_contours'][:]
-                        idx = 0
-                        for roi_data in data:
-                            roi_id, x, y, type, c_size = roi_data
-                            contour = contours[idx:idx+int(c_size)]
-                            idx += int(c_size)
-                            contour = [QtCore.QPointF(contour[i], contour[i+1]) for i in range(len(contour)-1) if i % 2 == 0]
-                            roi = self.addRoiPolygon(x, y, contour)
-                            roi.setId(roi_id)
-                            if type == 1:
-                                roi.type = ROIType.CIRCLE
-                                roi.size = roi.boundingRect().width()
+                        data = np.array(g['roi_data'][()], dtype=str).tolist()
+                        if 'roi_contours' in g.keys():
+                            contours = g['roi_contours'][:]
+                        roi_dicts = json.loads(data)
+                        for roi_dict in roi_dicts:
+                            self.create_roi_from_dict(roi_dict)
 
                 g = f['online']
                 # read online roi data
                 if len(g.keys()) > 1:
                     self.on_scope = None
-                    data = g['roi_data'][:]
-                    contours = g['roi_contours'][:]
-                    idx = 0
-                    for roi_data in data:
-                        roi_id, x, y, type, c_size = roi_data
-                        contour = contours[idx:idx + int(c_size)]
-                        idx += int(c_size)
-                        contour = [QtCore.QPointF(contour[i], contour[i + 1]) for i in range(len(contour) - 1) if
-                                   i % 2 == 0]
-                        roi = self.addOnRoiPolygon(x, y, contour)
-                        roi.setId(roi_id)
-                        if type == 1:
-                            roi.type = ROIType.CIRCLE
-                            roi.size = roi.boundingRect().width()
+                    data = np.array(g['roi_data'][()], dtype=str).tolist()
+                    if 'roi_contours' in g.keys():
+                        contours = g['roi_contours'][:]
+                    roi_dicts = json.loads(data)
+                    for roi_dict in roi_dicts:
+                        self.create_roi_from_dict(roi_dict)
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -831,45 +892,28 @@ class MainWindow(QMainWindow):
                 g['fps'] = self.player2.fps
                 g['total_frame'] = self.player2.total_frame
                 g['video'] = numpy.asarray(fl)
-
                 if self.roi_table is not None:
                     size = self.roi_table.size()
                     if size > 0:
-                        shape_data = []
-                        data = np.empty((size, 5))
+                        roi_dict_list = []
                         roi_list = self.roi_table.itemlist
-                        for i in range(len(roi_list)):
-                            roi = roi_list[i]
-                            x = int(roi.pos().x())
-                            y = int(roi.pos().y())
-                            if roi.type == ROIType.CIRCLE:
-                                type = 1
-                            else:
-                                type = 2
-                            data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                            shape_data.extend(roi.contours.tolist())
-                        g['roi_data'] = data
-                        g['roi_contours'] = np.array(shape_data)
+                        for roi in roi_list:
+                            roi_dict_list.append(roi.to_dict())
+                        json_str = json.dumps(roi_dict_list)
+                        np_str = np.array(json_str, dtype=h5py.string_dtype(encoding='utf-8'))
+                        g['roi_data'] = np_str
 
             g = f.create_group('online')
             if self.onroi_table is not None:
                 size = self.onroi_table.size()
                 if size > 0:
-                    shape_data = []
-                    data = np.empty((size, 5))
+                    roi_dict_list = []
                     roi_list = self.onroi_table.itemlist
-                    for i in range(len(roi_list)):
-                        roi = roi_list[i]
-                        x = int(roi.pos().x())
-                        y = int(roi.pos().y())
-                        if roi.type == ROIType.CIRCLE:
-                            type = 1
-                        else:
-                            type = 2
-                        data[i] = np.array([roi.id, x, y, type, roi.c_size])
-                        shape_data.extend(roi.contours.tolist())
-                    g['roi_data'] = data
-                    g['roi_contours'] = np.array(shape_data)
+                    for roi in roi_list:
+                        roi_dict_list.append(roi.to_dict())
+                    json_str = json.dumps(roi_dict_list)
+                    np_str = np.array(json_str, dtype=h5py.string_dtype(encoding='utf-8'))
+                    g['onroi_data'] = np_str
         print('save success!')
 
     def button_recentfile(self):
@@ -1164,7 +1208,6 @@ class MainWindow(QMainWindow):
             msgbox = QMessageBox()
             msgbox.information(self, 'Info', f'Best focus is: {bestFocus}')
 
-
     # ------------------------------------------------------------------------
     #
     #                             system functions
@@ -1392,7 +1435,6 @@ class MainWindow(QMainWindow):
     def e_widget_scope(self):
         self.ui.widget_9.setEnabled(True)
 
-
     # ------------------------------------------------------------------------
     #
     #                             update functions
@@ -1557,7 +1599,6 @@ class MainWindow(QMainWindow):
     def fpsBox(self):
         val = int(self.ui.FRcomboBox.currentText())
         self.capturer2.cfps = val
-
 
     ####    @Slot()
     ####    def slider_box9(self):
@@ -1798,6 +1839,7 @@ class MainWindow(QMainWindow):
         print(f'selected file: {self.open_video_path}')
         if self.open_video_path != "":
             self.startPlayer2()  # init
+        self.player2.frame_update()
 
     def load_roi(self):
         # read imageJ roi files to offline tab
@@ -1813,6 +1855,9 @@ class MainWindow(QMainWindow):
             roi = self.addRoiPolygon(x, y, contour, name=d['name'])
 
         print(f'load {len(file_ls)} roi(s)')
+
+    def select_multi_roi(self, roi_list):
+        self.roi_table.select_multi_roi(roi_list)
 
     def load_on_roi(self):
         # read imageJ roi files to online tab
@@ -2099,8 +2144,12 @@ class MainWindow(QMainWindow):
         self.roi_table.add_to_table(roi_polygon, colr, name)
         return roi_polygon
 
-    def deleteRoi(self):
-        rois = self.roi_table.deleteRoi()
+
+    def deleteRoi(self, all=False):
+        if all:
+            rois = self.roi_table.deleteAllRoi()
+        else:
+            rois = self.roi_table.deleteRoi()
         for roi in rois:
             self.player_scene2.removeItem(roi)
 
@@ -2192,9 +2241,8 @@ class MainWindow(QMainWindow):
             shapeY = coors.T[1]
             minx = min(shapeX)
             miny = min(shapeY)
-            shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
+            shape = [QtCore.QPointF(x - minx, y - miny) for x, y in zip(shapeX, shapeY)]
             self.addRoiPolygon(minx, miny, shape)
-
 
     # ------------------------------------------------------------------------
     #
@@ -2213,7 +2261,7 @@ class MainWindow(QMainWindow):
 
         self.brightlist = []  # store trace value
 
-        for i in range(len(itemlist)-1, -1, -1):
+        for i in range(len(itemlist) - 1, -1, -1):
             if itemlist[i].__class__.__name__ == "ROI":
                 self.brightlist.append([])
             else:
@@ -2253,8 +2301,6 @@ class MainWindow(QMainWindow):
             roilist = self.roi_table.itemlist
             for roi in roilist:
                 f.write(roi.name + '\n')
-
-
 
     # pre-process for getting item range
     # def getItemRange(self, item):
@@ -2412,8 +2458,13 @@ class MainWindow(QMainWindow):
                 if self.MC is not None and self.on_template is not None:
                     self.on_scope.get_template = self.on_template
 
-                self.on_scope.start()
-                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+
+                if self.timermode:
+                    self.on_scope.timer.start()
+                else:
+                    # self.moveToThread(self.on_scope)
+                    self.on_scope.start()
+                    self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
             elif text == 'Scope\nDisconnect' and self.on_scope is not None:
                 self.ui_updater.frameI.disconnect(self.online_frame)
@@ -2421,9 +2472,11 @@ class MainWindow(QMainWindow):
                 if self.rt:
                     self.rt = False
                 self.on_scope.stop()
+
                 time.sleep(0.01)
                 self.on_scope = None
                 self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+                # self.on_scope.quit()
 
 
         else:
@@ -2605,7 +2658,6 @@ class MainWindow(QMainWindow):
 
                 self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
-
             self.MC = MCC(scope_num, self)
 
             # d_i ### update policy - 다되면 없애는 거 등 필요 ##
@@ -2768,7 +2820,6 @@ class MainWindow(QMainWindow):
 
             self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
-
         init_batch = param_list[8]
         frames = []
         for i in range(init_batch):
@@ -2838,12 +2889,9 @@ class MainWindow(QMainWindow):
         height = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
         # size = int(self.on_scope.capture.get(cv2.CAP_PROP_FRAME_COUNT))  # total recorded video length
-        size = 1   # for test
+        size = 1  # for test
 
         self.online_runner.tempFile(fps, width, height, size)
-
-
-
 
     # Online Tab add ROI button clicked
     def addOnRoi(self):
@@ -2872,12 +2920,12 @@ class MainWindow(QMainWindow):
             maxRange = nanIdx[1] - nanIdx[0]
             idx = 0
             if len(nanIdx) > 2:
-                for i in range(2,len(nanIdx)):
-                    r = nanIdx[i] - nanIdx[i-1]
+                for i in range(2, len(nanIdx)):
+                    r = nanIdx[i] - nanIdx[i - 1]
                     if r > maxRange:
-                        idx = i-1
+                        idx = i - 1
                         maxRange = r
-                coors = coors[nanIdx[idx]+1:nanIdx[idx+1], :]
+                coors = coors[nanIdx[idx] + 1:nanIdx[idx + 1], :]
             else:
                 coors = coors[~np.isnan(coors).any(axis=1)]
             shapeX = coors.T[0]
@@ -2890,7 +2938,7 @@ class MainWindow(QMainWindow):
             shapeY = out[1]
             minx = min(shapeX)
             miny = min(shapeY)
-            shape = [QtCore.QPointF(x-minx, y-miny) for x,y in zip(shapeX, shapeY)]
+            shape = [QtCore.QPointF(x - minx, y - miny) for x, y in zip(shapeX, shapeY)]
             self.addOnRoiPolygon(minx, miny, shape)
 
     # Online Tab add ROI
@@ -2965,6 +3013,9 @@ class MainWindow(QMainWindow):
             self.ui_updater.set_trace_queue(self.receiver.out_queue)
             self.ui_updater.set_trace_viewer(self.ontrace_viewer)
 
+            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+            print('connection')
+
             self.receiver.start_process()
             self.receiver.timer.start(20)
             # self.receiver.start()
@@ -2985,6 +3036,14 @@ class MainWindow(QMainWindow):
 
                 self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
                 print('connection')
+
+                # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+                # self.receiver.start()
+                self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
+                self.receiver.start()
+                # self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
+                # self.ontrace_viewer.timer_init()
+                # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)
 
                 if self.ui.checkBox_7.isChecked():  ## ?could be pre-checked
                     if type(self.on_template) != type(None):
@@ -3073,6 +3132,7 @@ class MainWindow(QMainWindow):
             miniscope = False
 
         return OPlayer(camera=camera_ID, lock=self.data_lock, parent=self, miniscope=miniscope)
+
     # time format
     def hhmmss(self, ms):
         ## 1000/60000/360000
@@ -3085,9 +3145,39 @@ class MainWindow(QMainWindow):
     def setupUi(self):
         self.ui = QUiLoader().load('210513_OMBI_UI.ui')  ##'210202_ui.ui') ## "1011_ui.ui")  ##
         self.setCentralWidget(self.ui)
+        # redifine self.ui.scope_camera_view_item_2 to QtImageViewer
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.ui.scope_camera_view_item_2 = QtImageViewer(self.ui.widget_103)
+        self.ui.scope_camera_view_item_2.setGeometry(QtCore.QRect(218, 20, 895, 556))
+        sizePolicy.setHeightForWidth(self.ui.scope_camera_view_item_2.sizePolicy().hasHeightForWidth())
+        self.ui.scope_camera_view_item_2.setSizePolicy(sizePolicy)
+        self.ui.scope_camera_view_item_2.setMinimumSize(QtCore.QSize(895, 556))
+        self.ui.scope_camera_view_item_2.setObjectName("scope_camera_view_item_2")
+        self.player_scene2 = QGraphicsScene()
+        self.ui.scope_camera_view_item_2.setScene(self.player_scene2)
         ## self.show()
 
-    def roi_click(self, widget):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
+    def create_roi_from_dict(self, d):
+        if d['type'] == 'RectLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = RectLabelItem(rect, name=d['name'],
+                              index=d['id'],
+                              color=d['color'],
+                              width=1)
+            self.ui.scope_camera_view_item_2.scene.addItem(r)
+            self._collect_rect(r)
+        if d['type'] == 'EllipseLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = EllipseLabelItem(rect, name=d['name'],
+                                 index=d['id'],
+                                 color=d['color'],
+                                 width=1)
+            self.ui.scope_camera_view_item_2.scene.addItem(r)
+            self._collect_rect(r)
+
+    def roi_click(self, widget, filter):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
             clicked = Signal(QtCore.QPointF)
 
@@ -3103,7 +3193,6 @@ class MainWindow(QMainWindow):
         filter = Filter(widget)
         widget.installEventFilter(filter)
         return filter
-
 
     def create_circle(self, c, pos, size=15):  ## circle 별도 class 만들어줄지
         r, g, b = c

@@ -1,0 +1,11 @@
+PySide2
+h5py
+scipy
+torch
+hnccorr
+scikit-learn
+opencv-python
+pandas
+comtypes
+roifile
+websockets
