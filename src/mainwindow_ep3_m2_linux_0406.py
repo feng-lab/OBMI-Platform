@@ -751,6 +751,8 @@ class MainWindow(QMainWindow):
         self.ui.scope_camera_view_item_2.rectReleased.connect(self._collect_rect)
         self.ui.scope_camera_view_item_2.cycleReleased.connect(self._collect_cycle)
         self.ui.scope_camera_view_item_2.refresh.connect(self._scene_refresh)
+        self.ui.scope_camera_view_item_2.roiDelete.connect(self.deleteRoi)
+        self.roi_table.roiSelect.connect(self.roi_select_reverse)
         self.marker_map = {
             'cursor': self.ui.cursorbutton,
             'zoom': self.ui.fitScreenbutton,
@@ -793,6 +795,10 @@ class MainWindow(QMainWindow):
 
     def _scene_refresh(self):
         self.player_scene2.update()
+
+    def roi_delete(self):
+        print(111)
+        rois = self.roi_table.deleteRoi()
 
     def _collect_rect(self, obj):
         self.roi_table.add_to_table(obj, obj._color)
@@ -2152,6 +2158,8 @@ class MainWindow(QMainWindow):
             rois = self.roi_table.deleteRoi()
         for roi in rois:
             self.player_scene2.removeItem(roi)
+    def roi_select_reverse(self, roi_list):
+        self.ui.scope_camera_view_item_2.select_items(roi_list)
 
     # auto roi by algorithms
     def auto_roi(self):

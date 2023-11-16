@@ -1,6 +1,6 @@
 import random
 
-from PySide2.QtCore import Qt, QItemSelectionModel
+from PySide2.QtCore import Qt, QItemSelectionModel, Signal
 from PySide2.QtWidgets import (QWidget, QTableWidget, QVBoxLayout, QGridLayout,
                                QPushButton, QAbstractItemView, QCheckBox, QTableWidgetItem, QColorDialog)
 import numpy as np
@@ -11,6 +11,7 @@ from ROI import ROIType
 
 
 class Table(QWidget):
+    roiSelect = Signal(list)
     def __init__(self, type, parent=None):
         super().__init__(parent)
 
@@ -31,7 +32,7 @@ class Table(QWidget):
         self.addlock = False
         self.editlock = False
         self.table.itemChanged.connect(self.value_changed)
-
+        self.table.itemSelectionChanged.connect(self.on_selection_changed)
         if type == 0:  # type0 for offline tab, type1 for online tab
             self.spinboxX = self._mainwin.ui.spinBox_3
             self.spinboxY = self._mainwin.ui.spinBox_4
@@ -77,10 +78,17 @@ class Table(QWidget):
         if item.type == ROIType.CIRCLE:
             item.circleSizeChange(int(value))
 
+    def on_selection_changed(self):
+        selected_rows = list(set(index.row() for index in self.table.selectedIndexes()))
+        rois = []
+        for r in selected_rows:
+            rois.append(self.itemlist[r])
+        print(rois)
+        self.roiSelect.emit(rois)
+
     def value_changed(self, item):
         if self.addlock or self.editlock:
             return
-
         column = item.column()
         row = item.row()
 
