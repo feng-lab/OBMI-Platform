@@ -3177,7 +3177,7 @@ class MainWindow(QMainWindow):
             self.ui.scope_camera_view_item_2.scene.addItem(r)
             self._collect_rect(r)
 
-    def roi_click(self, widget, filter):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
+    def roi_click(self, widget):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
             clicked = Signal(QtCore.QPointF)
 
