@@ -1,5 +1,6 @@
-from PySide2 import QtGui
+from PySide2 import QtGui, QtWidgets
 from PySide2.QtCore import Qt, QRectF, Signal, QPointF, QLineF
+from PySide2.QtGui import QKeySequence
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene
 
 from src.ROI import RectLabelItem, EllipseLabelItem
@@ -32,6 +33,7 @@ class QtImageViewer(QGraphicsView):
     doneReleased = Signal(int)
     mouseScrollUp = Signal(bool)
     roiSelect = Signal(list)
+    roiDelete = Signal()
 
     def __init__(self, parent):
         super(QtImageViewer, self).__init__(parent)
@@ -70,6 +72,9 @@ class QtImageViewer(QGraphicsView):
         self.canZoom = True
         self.canPan = False
 
+        self.shortcut_delete = QtWidgets.QShortcut(QKeySequence(Qt.Key_Delete), self)
+        self.shortcut_delete.activated.connect(self.delete_selected_roi)
+
     def randcolr(self):
         import numpy as np
         r, g, b = tuple(np.random.randint(256, size=3))
@@ -91,7 +96,7 @@ class QtImageViewer(QGraphicsView):
             self.setDragMode(QGraphicsView.NoDrag)
             self._pressed_pos = scene_pos
             if self.marker in ['cursor']:
-                if len(self.scene.selectedItems())== 0:
+                if len(self.scene.selectedItems()) == 0:
                     self._current_item = self.scene.mouseGrabberItem()
                 for item in self.scene.items():
                     if item.contains(scene_pos):
@@ -130,8 +135,6 @@ class QtImageViewer(QGraphicsView):
 
         # self.refresh.emit()
 
-
-
     def mouseReleaseEvent(self, event):
         """ Stop mouse pan or zoom mode (apply zoom if valid).
         """
@@ -140,7 +143,7 @@ class QtImageViewer(QGraphicsView):
         selected_items = self.scene.selectedItems()
         if self.marker in ['zoom']:
             self.scene.clearSelection()
-            #self.setDragMode(QGraphicsView.ScrollHandDrag)
+            # self.setDragMode(QGraphicsView.ScrollHandDrag)
         if self.marker in ['rectangle']:
             self._current_item.set_br(scene_pos)
             self.rectReleased.emit(self._current_item)
@@ -158,7 +161,7 @@ class QtImageViewer(QGraphicsView):
         self._pressed_pos = None
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
-        if self.marker in ['cursor','zoom', 'rectangle', 'cycle']:
+        if self.marker in ['cursor', 'zoom', 'rectangle', 'cycle']:
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             zoomInFactor = 1.25
             zoomOutFactor = 1 / zoomInFactor
@@ -184,15 +187,20 @@ class QtImageViewer(QGraphicsView):
                 self.mouseScrollUp.emit(True)
             else:
                 self.mouseScrollUp.emit(False)
+
     def setScene(self, scene) -> None:
         self.scene = scene
         super().setScene(scene)
 
     def clear_scene_items(self):
         for item in self.scene.items():
-            print(111111)
-            print(item)
             if isinstance(item, RectLabelItem) or isinstance(item, EllipseLabelItem):
                 self.scene.removeItem(item)
 
+    def delete_selected_roi(self):
+        self.roiDelete.emit()
 
+    def select_items(self, roi_list):
+        self.scene.clearSelection()
+        for r in roi_list:
+            r.setSelected(True)
