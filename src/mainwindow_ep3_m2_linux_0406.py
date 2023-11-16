@@ -843,7 +843,6 @@ class MainWindow(QMainWindow):
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
 
-
                     time.sleep(0.1)
 
                     self.s_totalframe2 = self.player2.total_frame
@@ -2169,6 +2168,8 @@ class MainWindow(QMainWindow):
             rois = self.roi_table.deleteRoi()
         for roi in rois:
             self.player_scene2.removeItem(roi)
+            self.ui.scope_camera_view_item_2.id_list.remove(roi.id)
+
     def roi_select_reverse(self, roi_list):
         self.ui.scope_camera_view_item_2.select_items(roi_list)
 

@@ -12,6 +12,7 @@ from ROI import ROIType
 
 class Table(QWidget):
     roiSelect = Signal(list)
+
     def __init__(self, type, parent=None):
         super().__init__(parent)
 
@@ -83,7 +84,6 @@ class Table(QWidget):
         rois = []
         for r in selected_rows:
             rois.append(self.itemlist[r])
-        print(rois)
         self.roiSelect.emit(rois)
 
     def value_changed(self, item):

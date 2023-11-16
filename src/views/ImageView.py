@@ -41,10 +41,7 @@ class QtImageViewer(QGraphicsView):
         self._draw_mode = 'cursor'
         self.setAcceptDrops(False)
         self.clipboard = None
-        self.item_list = {
-            'Annotation': [],
-            'Segmentation': []
-        }
+        self.id_list = set()
         # Store a local handle to the scene's current image pixel map.
         self._pixel_handle = None
         self._current_item = None
@@ -112,14 +109,15 @@ class QtImageViewer(QGraphicsView):
                               scene_pos.y() - self._pressed_pos.y())
                 if self.marker == 'rectangle':
                     self._current_item = RectLabelItem(rect, name='rec',
-                                                       index=len(self.scene.items()),
+                                                       index=self.generate_name(),
                                                        color=self.randcolr(),
                                                        width=self._marker_size / 4)
                 if self.marker == 'cycle':
                     self._current_item = EllipseLabelItem(rect, name='cycle',
-                                                          index=len(self.scene.items()),
+                                                          index=self.generate_name(),
                                                           color=self.randcolr(),
                                                           width=self._marker_size / 4)
+                self.id_list.add(self._current_item.id)
                 self.scene.addItem(self._current_item)
             if self.marker in ['select']:
                 self.setDragMode(QGraphicsView.RubberBandDrag)
@@ -204,3 +202,11 @@ class QtImageViewer(QGraphicsView):
         self.scene.clearSelection()
         for r in roi_list:
             r.setSelected(True)
+
+    def generate_name(self):
+        i = 1
+        names = self.id_list
+        print(names)
+        while i in names:
+            i += 1
+        return i
