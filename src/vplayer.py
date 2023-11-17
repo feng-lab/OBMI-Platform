@@ -45,6 +45,7 @@ class VPlayer(QtCore.QThread):
         self.alpha = 0.99
         self.tlen = 30
         self.brightness = 0
+        self.contrast = 1
 
 
     def datainit(self):
@@ -241,8 +242,7 @@ class VPlayer(QtCore.QThread):
         tmp_frame = self.frame_list[self.present_frame]
 
         tmp_frame = cv2.cvtColor(tmp_frame, cv2.COLOR_BGR2RGB)
-        if self.brightness != 0:
-            tmp_frame = cv2.convertScaleAbs(tmp_frame, beta=self.brightness)
+        tmp_frame = cv2.convertScaleAbs(tmp_frame, alpha=self.contrast, beta=self.brightness)
         self.data_lock.lock()
         self.frame = tmp_frame
         height, width, dim = self.frame.shape

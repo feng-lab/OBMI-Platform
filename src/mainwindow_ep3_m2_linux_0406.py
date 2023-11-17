@@ -297,6 +297,7 @@ class MainWindow(QMainWindow):
 
         ## offline processing tab --------------------------------------------------------------
         self.ui.OffBrightnessSlider.valueChanged.connect(self.off_brightness)
+        self.ui.OffContrastSlider.valueChanged.connect(self.off_contrast)
 
         self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
@@ -1923,6 +1924,11 @@ class MainWindow(QMainWindow):
             return
         self.player2.brightness = value
 
+    def off_contrast(self, value):
+        if self.player2 is None:
+            return
+        self.player2.contrast = value/100
+
     # ------------------------------------------------------------------------
     #
     #                             update functions
@@ -2537,6 +2543,11 @@ class MainWindow(QMainWindow):
         if self.on_scope is None:
             return
         self.on_scope.brightness = value
+
+    def on_contrast(self, value):
+        if self.on_scope is None:
+            return
+        self.on_scope.contrast = value/100
 
 
     # on_player sliders
