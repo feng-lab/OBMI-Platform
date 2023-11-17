@@ -50,6 +50,7 @@ class OPlayer(QtCore.QThread):
         self.cur_frame = 0
         self.total_frame = 0
         self.s_timer = 0
+        self.brightness = 0
 
         if miniscope:
             print('miniscope controller')
@@ -188,6 +189,8 @@ class OPlayer(QtCore.QThread):
         t3 = time.time()
 
         tmp_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        if self.brightness != 0:
+            tmp_frame = cv2.convertScaleAbs(tmp_frame, beta=self.brightness)
         self.data_lock.lock()
         self.frame = tmp_frame
         height, width, dim = self.frame.shape

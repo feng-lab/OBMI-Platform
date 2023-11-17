@@ -44,6 +44,7 @@ class VPlayer(QtCore.QThread):
         self.speed = 1
         self.alpha = 0.99
         self.tlen = 30
+        self.brightness = 0
 
 
     def datainit(self):
@@ -81,6 +82,7 @@ class VPlayer(QtCore.QThread):
             ## image()_ first image
 
             if self.vplayer_status == VPlayerStatus.STARTING:
+                st = time.perf_counter()
 
                 if self.next_frame != 0:
                     # self.capture.set(cv2.CAP_PROP_POS_FRAMES, self.next_frame)
@@ -106,27 +108,28 @@ class VPlayer(QtCore.QThread):
                 loop_time = time.perf_counter()
                 if process_time < self.wtime:
                     # time.sleep(self.wtime - process_time)
-                    self.msleep((self.wtime - process_time) * 1000)
+                    self.usleep((self.wtime - process_time) * 1000000)
 
                 self.tlist.append(loop_time)
                 if len(self.tlist) == self.tlen:
                     avgf = self.tlen/(self.tlist[-1]-self.tlist[0])
                     print('avg fps:', self.tlen/(self.tlist[-1]-self.tlist[0]))
-                    target_fps = self.fps*self.speed
-                    if avgf > target_fps * 1.05:
-                        self.wtime += self.wtime * (avgf/target_fps-1) * self.alpha
-                        self.alpha *= self.alpha
-                    elif avgf < target_fps * 0.95:
-                        self.wtime -= self.wtime * (1-avgf/target_fps) * self.alpha
-                        self.alpha *= self.alpha
-                    else:
-                        self.alpha *= 0.1
-                    print('self.wtime:', self.wtime)
+                    # target_fps = self.fps*self.speed
+                    # if avgf > target_fps * 1.05:
+                    #     self.wtime += self.wtime * (avgf/target_fps-1) * self.alpha
+                    #     self.alpha *= 0.9
+                    # elif avgf < target_fps * 0.95:
+                    #     self.wtime -= self.wtime * (1-avgf/target_fps) * self.alpha
+                    #     self.alpha *= 0.9
+                    # else:
+                    #     self.alpha *= 0.1
+                    # print('self.wtime:', self.wtime)
                     self.tlist = []
 
 
             if self.vplayer_status == VPlayerStatus.PAUSING:
-                 time.sleep(0.01)
+                self.frame_update()
+                time.sleep(0.01)
 
             if self.vplayer_status == VPlayerStatus.STOPPING:
                 self.p_stop()
@@ -138,13 +141,15 @@ class VPlayer(QtCore.QThread):
         ll = [1, 2, 3, 5]
         self.speed = ll[i]
         self.wtime = 1/(self.fps * self.speed)
-        self.alpha = 0.99
+        self.alpha = 0.9
         self.tlist = []
         self.tlen = 30 * ll[i]
         if i == 2:
-            self.wtime = 0.013
+            self.wtime = 0.0127
         if i == 3:
-            self.wtime /= 7
+            self.wtime = 0.00155
+        # wt = [0.0166, 0.01, 0.0012, 0.0009]
+        # self.wtime = wt[i]
         print(f'play speed change to {ll[i]}x')
         print('wtime:', self.wtime)
 
@@ -236,6 +241,8 @@ class VPlayer(QtCore.QThread):
         tmp_frame = self.frame_list[self.present_frame]
 
         tmp_frame = cv2.cvtColor(tmp_frame, cv2.COLOR_BGR2RGB)
+        if self.brightness != 0:
+            tmp_frame = cv2.convertScaleAbs(tmp_frame, beta=self.brightness)
         self.data_lock.lock()
         self.frame = tmp_frame
         height, width, dim = self.frame.shape

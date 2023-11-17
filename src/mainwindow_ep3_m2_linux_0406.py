@@ -10,7 +10,7 @@ from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, 
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QObject, Signal, Slot, QThread, QRectF
-# import icons_rc
+import icons_rc
 from PySide2.QtUiTools import QUiLoader  ### +++++++++++++++++++++++++++++++++++++
 
 from PySide2.QtWidgets import QApplication, QDesktopWidget  #
@@ -296,6 +296,7 @@ class MainWindow(QMainWindow):
         self.player_scene.addItem(self.player_view_item_i)
 
         ## offline processing tab --------------------------------------------------------------
+        self.ui.OffBrightnessSlider.valueChanged.connect(self.off_brightness)
 
         self.ui.connectBehaviorCameraButton_2.clicked.connect(self.load_video)  ### UI - need to change the name
         self.open_video_path = ''
@@ -332,6 +333,7 @@ class MainWindow(QMainWindow):
         self.p2oo_st = True
 
         ##      ## online processing tab -----------------------------------------------------------------
+        self.ui.OnBrightnessSlider.valueChanged.connect(self.on_brightness)
 
         # scope connect
         self.ui.connectScopeCameraButton_2.clicked.connect(self.online_scope)  ## saved 영상으로 일단 대체
@@ -1916,6 +1918,11 @@ class MainWindow(QMainWindow):
             return
         self.player2.playspeed(3)
 
+    def off_brightness(self, value):
+        if self.player2 is None:
+            return
+        self.player2.brightness = value
+
     # ------------------------------------------------------------------------
     #
     #                             update functions
@@ -2526,6 +2533,11 @@ class MainWindow(QMainWindow):
     #                           slider functions
     #
     # ------------------------------------------------------------------------
+    def on_brightness(self, value):
+        if self.on_scope is None:
+            return
+        self.on_scope.brightness = value
+
 
     # on_player sliders
     def onplayer_slider_pressed(self):

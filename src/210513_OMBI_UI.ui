@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -6989,6 +6989,46 @@ QTabBar::tab{width:71}</string>
           <bool>true</bool>
          </property>
         </widget>
+        <widget class="QSlider" name="OffBrightnessSlider">
+         <property name="geometry">
+          <rect>
+           <x>1160</x>
+           <y>330</y>
+           <width>16</width>
+           <height>160</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>-127</number>
+         </property>
+         <property name="maximum">
+          <number>127</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label">
+         <property name="geometry">
+          <rect>
+           <x>1160</x>
+           <y>300</y>
+           <width>16</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>B</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="widget_105" native="true">
         <property name="geometry">
@@ -11007,6 +11047,46 @@ QTabBar::tab{width:71}</string>
            </item>
           </layout>
          </widget>
+         <widget class="QSlider" name="OnBrightnessSlider">
+          <property name="geometry">
+           <rect>
+            <x>1170</x>
+            <y>300</y>
+            <width>16</width>
+            <height>160</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>-127</number>
+          </property>
+          <property name="maximum">
+           <number>127</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_4">
+          <property name="geometry">
+           <rect>
+            <x>1170</x>
+            <y>270</y>
+            <width>16</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>B</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
          <zorder>label_184</zorder>
          <zorder>widget_91</zorder>
          <zorder>scope_camera_view_item_3</zorder>
@@ -11028,6 +11108,8 @@ QTabBar::tab{width:71}</string>
          <zorder>label_187</zorder>
          <zorder>LoadRoi_2</zorder>
          <zorder>layoutWidget</zorder>
+         <zorder>OnBrightnessSlider</zorder>
+         <zorder>label_4</zorder>
         </widget>
         <widget class="QWidget" name="widget_92" native="true">
          <property name="geometry">
