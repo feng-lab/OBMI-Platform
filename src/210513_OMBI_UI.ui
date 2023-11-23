@@ -77,7 +77,7 @@ background-color: rgb(255, 238, 0);
 QTabBar::tab{width:180}</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>3</number>
     </property>
     <property name="iconSize">
      <size>
@@ -11136,6 +11136,55 @@ QTabBar::tab{width:71}</string>
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
+         <widget class="QLabel" name="label_11">
+          <property name="geometry">
+           <rect>
+            <x>1140</x>
+            <y>270</y>
+            <width>16</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>C</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+         <widget class="QSlider" name="OnContrastSlider">
+          <property name="geometry">
+           <rect>
+            <x>1140</x>
+            <y>300</y>
+            <width>16</width>
+            <height>160</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>200</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+          <property name="sliderPosition">
+           <number>100</number>
+          </property>
+          <property name="tracking">
+           <bool>true</bool>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
          <zorder>label_184</zorder>
          <zorder>widget_91</zorder>
          <zorder>scope_camera_view_item_3</zorder>
@@ -11159,6 +11208,8 @@ QTabBar::tab{width:71}</string>
          <zorder>layoutWidget</zorder>
          <zorder>OnBrightnessSlider</zorder>
          <zorder>label_4</zorder>
+         <zorder>label_11</zorder>
+         <zorder>OnContrastSlider</zorder>
         </widget>
         <widget class="QWidget" name="widget_92" native="true">
          <property name="geometry">

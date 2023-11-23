@@ -13,18 +13,31 @@ from src.decoder.Decoder import OBMIDecoder
 
 
 
-def extraction(item, img):
-    x = int(item['x'])
-    y = int(item['y'])
-    outlines = item['contours'].copy().reshape((-1, 2))  # 相对坐标
+def extraction(contours, params, img):
+    '''
+    :param contours: Contrours of ROI
+    :param params: Bounding box of ROI: [x, y, width, height]
+    :param img: Frame
+    :return: Extraction value
+    '''
+    # x = int(item['x'])
+    # y = int(item['y'])
+    # outlines = item['contours'].copy().reshape((-1, 2))  # 相对坐标
+    #
+    # outlines[:, 0] += x
+    # outlines[:, 1] += y
 
-    outlines[:, 0] += x
-    outlines[:, 1] += y
 
-    x_min = int(np.min(outlines[:, 0]))
-    x_max = int(np.max(outlines[:, 0]))
-    y_min = int(np.min(outlines[:, 1]))
-    y_max = int(np.max(outlines[:, 1]))
+    # x_min = int(np.min(outlines[:, 0]))
+    # x_max = int(np.max(outlines[:, 0]))
+    # y_min = int(np.min(outlines[:, 1]))
+    # y_max = int(np.max(outlines[:, 1]))
+
+    x_min = int(params[0])
+    x_max = int(params[0] + params[2])
+    y_min = int(params[1])
+    y_max = int(params[1] + params[3])
+
     center_x = x_min + (x_max - x_min) // 2
     center_y = y_min + (y_max - y_min) // 2
     r_cell = (x_max - x_min) // 2
@@ -55,11 +68,11 @@ def extraction(item, img):
 
     res = (F_cell - F_b) / F_b
     return res
-def extract_process(input_stream:Queue, output_stream:Queue, itemlist):
+def extract_process(input_stream:Queue, output_stream:Queue, params, contours):
     while True:
         if input_stream.qsize() > 0:
             img = input_stream.get()
-            avg = [extraction(item, img) for item in itemlist]
+            avg = [extraction(contours[i], params[i], img) for i in range(len(params))]
             output_stream.put(avg)
             time.sleep(0.001)
         else:
@@ -91,8 +104,13 @@ class ReceiverThread(QThread):
     def start_process(self):
         self.frame_signal.connect(self.recieve_img)
 
-        itemlist = [item.get_contour_dict() for item in self.itemlist]
-        self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
+        params = []
+        contours = []
+        for item in self.itemlist:
+            params.append(item.to_dict()['params'])
+            contours.append(item.contours)
+        # itemlist = [item.to_dict()['params'] for item in self.itemlist]
+        self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, params, contours))
         self.p.start()
     def traceupdate(self):
         if self.out_stream.empty():

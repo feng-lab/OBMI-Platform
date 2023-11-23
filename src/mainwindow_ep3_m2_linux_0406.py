@@ -50,8 +50,7 @@ import pandas as pd
 from pygrabber.dshow_graph import FilterGraph
 
 from src.UI_updater import UIUpdater
-from ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem
-
+from src.ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem, LabelItem
 
 from src.data_receiver import DataReceiver, ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
@@ -371,9 +370,6 @@ class MainWindow(QMainWindow):
         self.on_data_lock = QtCore.QMutex()
 
         ## on player
-        self.onplayer_scene = QGraphicsScene()
-        self.ui.scope_camera_view_item_3.setScene(self.onplayer_scene)
-        # self.onplayer_view = QGraphicsView(self.onplayer_scene, parent=self.ui.scope_camera_view_item_3)
         self.ui.scope_camera_view_item_3.setStyleSheet("background-color: rgb(0,0,0);")
         self.onplayer_view_item = QGraphicsPixmapItem()
         self.onplayer_scene.addItem(self.onplayer_view_item)
@@ -765,6 +761,29 @@ class MainWindow(QMainWindow):
             'polygon': self.ui.polygonbutton,
         }
 
+        self.ui.cursorButton.setDown(True)
+        self.ui.cursorButton.clicked.connect(self.set_on_marker_cursor)
+        self.ui.fitScreenButton.clicked.connect(self.set_on_marker_zoom)
+        self.ui.selectButton.clicked.connect(self.set_on_marker_select)
+        self.ui.rectangleButton.clicked.connect(self.set_on_marker_rectangle)
+        self.ui.cycleButton.clicked.connect(self.set_on_marker_cycle)
+        self.ui.polygonButton.clicked.connect(self.set_on_marker_polygon)
+
+        self.ui.scope_camera_view_item_3.rectReleased.connect(self._on_collect_rect)
+        self.ui.scope_camera_view_item_3.cycleReleased.connect(self._on_collect_cycle)
+        # self.ui.scope_camera_view_item_3.refresh.connect(self._on_scene_refresh)
+        self.ui.scope_camera_view_item_3.roiDelete.connect(self.deleteOnRoi)
+        self.onroi_table.roiSelect.connect(self.roi_select_reverse)
+        self.on_marker_map = {
+            'cursor': self.ui.cursorButton,
+            'zoom': self.ui.fitScreenButton,
+            'select': self.ui.selectButton,
+            'rectangle': self.ui.rectangleButton,
+            'cycle': self.ui.cycleButton,
+            'polygon': self.ui.polygonButton,
+        }
+
+    # offline markers
     def set_marker_cursor(self):
         self._current_marker = 'cursor'
         self._activate_marker_button('cursor')
@@ -799,23 +818,11 @@ class MainWindow(QMainWindow):
     def _scene_refresh(self):
         self.player_scene2.update()
 
-    def roi_delete(self):
-        print(111)
-        rois = self.roi_table.deleteRoi()
-
     def _collect_rect(self, obj):
         self.roi_table.add_to_table(obj, obj._color)
 
     def _collect_cycle(self, obj):
         self.roi_table.add_to_table(obj, obj._color)
-
-    def button_new(self):
-        self.ui.lineEdit.setText(datetime.now().strftime("%Y-%m-%d"))
-        self.ui.lineEdit_26.setText("")
-        self.ui.comboBox_4.setCurrentIndex(0)
-        self.ui.spinBox_5.setValue(0)
-        self.ui.spinBox_6.setValue(0)
-        self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
     def _activate_marker_button(self, name):
         for btn_name in self.marker_map:
@@ -824,6 +831,58 @@ class MainWindow(QMainWindow):
             else:
                 self.marker_map[btn_name].setDown(False)
         self.set_marker_style(name)
+
+    # online markers
+    def set_on_marker_cursor(self):
+        self._on_activate_marker_button('cursor')
+
+    def set_on_marker_select(self):
+        self._on_activate_marker_button('select')
+
+    def set_on_marker_rectangle(self):
+        self._on_activate_marker_button('rectangle')
+
+    def set_on_marker_cycle(self):
+        self._on_activate_marker_button('cycle')
+
+    def set_on_marker_polygon(self):
+        self._on_activate_marker_button('polygon')
+
+    def set_on_marker_zoom(self):
+        self._on_activate_marker_button('zoom')
+
+    def set_on_marker_style(self, marker_name):
+        self.ui.scope_camera_view_item_3.marker = marker_name
+        if marker_name in ['cursor', 'select']:
+            self.ui.scope_camera_view_item_3.viewport().setCursor(Qt.ArrowCursor)
+        if marker_name in ['cycle', 'rectangle', 'polygon']:
+            self.ui.scope_camera_view_item_3.viewport().setCursor(Qt.CrossCursor)
+
+    def _on_activate_marker_button(self, name):
+        for btn_name in self.marker_map:
+            if btn_name == name:
+                self.on_marker_map[btn_name].setDown(True)
+            else:
+                self.on_marker_map[btn_name].setDown(False)
+        self.set_on_marker_style(name)
+
+    def _on_collect_rect(self, obj):
+        self.onroi_table.add_to_table(obj, obj._color)
+        self.ontrace_viewer.add_trace(obj)
+
+    def _on_collect_cycle(self, obj):
+        self.onroi_table.add_to_table(obj, obj._color)
+        self.ontrace_viewer.add_trace(obj)
+
+
+
+    def button_new(self):
+        self.ui.lineEdit.setText(datetime.now().strftime("%Y-%m-%d"))
+        self.ui.lineEdit_26.setText("")
+        self.ui.comboBox_4.setCurrentIndex(0)
+        self.ui.spinBox_5.setValue(0)
+        self.ui.spinBox_6.setValue(0)
+        self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
     # h5py版本更新，改变读取方式
     def button_load(self):
@@ -869,12 +928,13 @@ class MainWindow(QMainWindow):
                 # read online roi data
                 if len(g.keys()) > 1:
                     self.on_scope = None
+                    self.deleteOnRoi(all=True)
                     data = np.array(g['roi_data'][()], dtype=str).tolist()
                     if 'roi_contours' in g.keys():
                         contours = g['roi_contours'][:]
                     roi_dicts = json.loads(data)
                     for roi_dict in roi_dicts:
-                        self.create_roi_from_dict(roi_dict)
+                        self.create_on_roi_from_dict(roi_dict)
 
     def button_save(self):
         path = self.ui.lineEdit_26.text()
@@ -2281,9 +2341,9 @@ class MainWindow(QMainWindow):
         itemlist = self.player_scene2.items().copy()
 
         self.brightlist = []  # store trace value
-
         for i in range(len(itemlist) - 1, -1, -1):
-            if itemlist[i].__class__.__name__ == "ROI":
+            # if itemlist[i].__class__.__name__ == "ROI":
+            if isinstance(itemlist[i], LabelItem):
                 self.brightlist.append([])
             else:
                 itemlist.pop(i)
@@ -2376,17 +2436,25 @@ class MainWindow(QMainWindow):
         return avg
 
     def getBrightness_v2(self, frame, item):
-        x = int(item.pos().x())
-        y = int(item.pos().y())
-        outlines = item.contours.copy().reshape((-1, 2))  # 相对坐标
+        # x = int(item.pos().x())
+        # y = int(item.pos().y())
+        # outlines = item.contours.copy().reshape((-1, 2))  # 相对坐标
+        #
+        # outlines[:, 0] += x
+        # outlines[:, 1] += y
+        #
+        # x_min = int(np.min(outlines[:, 0]))
+        # x_max = int(np.max(outlines[:, 0]))
+        # y_min = int(np.min(outlines[:, 1]))
+        # y_max = int(np.max(outlines[:, 1]))
 
-        outlines[:, 0] += x
-        outlines[:, 1] += y
+        pos = item.real_pos()
+        rect = item.boundingRect()
+        x_min = int(pos[0])
+        x_max = int(pos[0] + rect.width())
+        y_min = int(pos[1])
+        y_max = int(pos[1] + rect.height())
 
-        x_min = int(np.min(outlines[:, 0]))
-        x_max = int(np.max(outlines[:, 0]))
-        y_min = int(np.min(outlines[:, 1]))
-        y_max = int(np.max(outlines[:, 1]))
         center_x = x_min + (x_max - x_min) // 2
         center_y = y_min + (y_max - y_min) // 2
         r_cell = (x_max - x_min) // 2
@@ -2991,11 +3059,14 @@ class MainWindow(QMainWindow):
         self.ontrace_viewer.add_trace(roi_polygon)
         return roi_polygon
 
-    def deleteOnRoi(self):
-        rois = self.onroi_table.deleteRoi()
+    def deleteOnRoi(self, all=False):
+        if all:
+            rois = self.onroi_table.deleteAllRoi()
+        else:
+            rois = self.onroi_table.deleteRoi()
         for roi in rois:
-            self.ontrace_viewer.remove_trace(roi)
             self.onplayer_scene.removeItem(roi)
+            self.ontrace_viewer.remove_trace(roi)
 
     # ------------------------------------------------------------------------
     #
@@ -3190,6 +3261,17 @@ class MainWindow(QMainWindow):
         self.ui.scope_camera_view_item_2.setScene(self.player_scene2)
         ## self.show()
 
+        self.ui.scope_camera_view_item_3 = QtImageViewer(self.ui.widget_90)
+        self.ui.scope_camera_view_item_3.setGeometry(QtCore.QRect(218, 20, 895, 556))
+        sizePolicy.setHeightForWidth(self.ui.scope_camera_view_item_3.sizePolicy().hasHeightForWidth())
+        self.ui.scope_camera_view_item_3.setSizePolicy(sizePolicy)
+        self.ui.scope_camera_view_item_3.setMinimumSize(QtCore.QSize(895, 556))
+        self.ui.scope_camera_view_item_3.setObjectName("scope_camera_view_item_3")
+        self.onplayer_scene = QGraphicsScene()
+        self.ui.scope_camera_view_item_3.setScene(self.onplayer_scene)
+
+
+
     def create_roi_from_dict(self, d):
         if d['type'] == 'RectLabelItem':
             rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
@@ -3206,7 +3288,25 @@ class MainWindow(QMainWindow):
                                  color=d['color'],
                                  width=1)
             self.ui.scope_camera_view_item_2.scene.addItem(r)
-            self._collect_rect(r)
+            self._collect_cycle(r)
+
+    def create_on_roi_from_dict(self, d):
+        if d['type'] == 'RectLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = RectLabelItem(rect, name=d['name'],
+                              index=d['id'],
+                              color=d['color'],
+                              width=1)
+            self.ui.scope_camera_view_item_3.scene.addItem(r)
+            self._on_collect_rect(r)
+        if d['type'] == 'EllipseLabelItem':
+            rect = QRectF(d['params'][0], d['params'][1], d['params'][2], d['params'][3])
+            r = EllipseLabelItem(rect, name=d['name'],
+                                 index=d['id'],
+                                 color=d['color'],
+                                 width=1)
+            self.ui.scope_camera_view_item_3.scene.addItem(r)
+            self._on_collect_cycle(r)
 
     def roi_click(self, widget):  ## widget과 raphicsview 같이 받아서 해보면 어떨까.
         class Filter(QObject):
