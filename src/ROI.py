@@ -140,6 +140,13 @@ class LabelItem(QGraphicsItem):
         self._rect = None
         self.setAcceptedMouseButtons(Qt.LeftButton)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
+        self.contours = None
+
+    def contoursUpdate(self):
+        l = self.shape().toFillPolygon().toList()
+        pts = [[p.x(), p.y()] for p in l]
+        ret = np.array(pts).flatten()
+        self.contours = ret
 
     def setId(self, n):
         self.id = n
@@ -154,6 +161,7 @@ class LabelItem(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         self.signals.moved.emit(self.real_pos())
+        self.contoursUpdate()
 
     def move_once(self):
         self.signals.moved_multi.emit(self.real_pos(), self.name)
@@ -228,7 +236,6 @@ class EllipseLabelItem(LabelItem):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
         self._rect = rect
         self.id = index
-        self._rect = rect
         if color is not None:
             self._color = QColor(color)
         else:

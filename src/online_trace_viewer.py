@@ -36,7 +36,7 @@ class OnTraceviewer(pg.GraphicsLayoutWidget):
         self.itemlist = []
         self.trace_data = []
         self.window_size = 400
-        self.trace_size = 10
+        self.trace_size = 5
 
         self.plot_item.setXRange(0, self.window_size)
 
@@ -94,7 +94,11 @@ class OnTraceviewer(pg.GraphicsLayoutWidget):
         self.itemlist.append(roi)
         self.trace_data.append([])
         self.resetPos()
-        self.plot_item.setYRange(-self.num_curves * self.gap + 0.4, 0.3)
+
+        if self.num_curves > self.trace_size:
+            self.plot_item.setYRange(-self.trace_size * self.gap + 0.4, 0.3)
+        else:
+            self.plot_item.setYRange(-self.num_curves * self.gap + 0.4, 0.3)
 
     def remove_trace(self, roi):
         i = self.itemlist.index(roi)
@@ -105,7 +109,10 @@ class OnTraceviewer(pg.GraphicsLayoutWidget):
         self.num_curves -= 1
 
         self.resetPos()
-        self.plot_item.setYRange(-self.num_curves * self.gap + 0.4, 0.3)
+        if self.num_curves > self.trace_size:
+            self.plot_item.setYRange(-self.trace_size * self.gap + 0.4, 0.3)
+        else:
+            self.plot_item.setYRange(-self.num_curves * self.gap + 0.4, 0.3)
 
     def resetPos(self):
         for i, curve in enumerate(self.curves):
