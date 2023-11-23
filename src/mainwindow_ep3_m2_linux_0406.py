@@ -10,7 +10,8 @@ from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, 
 from PySide2 import QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QObject, Signal, Slot, QThread, QRectF
-import icons_rc
+# import icons_rc
+import iconlists
 from PySide2.QtUiTools import QUiLoader  ### +++++++++++++++++++++++++++++++++++++
 
 from PySide2.QtWidgets import QApplication, QDesktopWidget  #
@@ -3245,7 +3246,8 @@ class MainWindow(QMainWindow):
 
     ## about ui +
     def setupUi(self):
-        self.ui = QUiLoader().load('210513_OMBI_UI.ui')  ##'210202_ui.ui') ## "1011_ui.ui")  ##
+        # self.ui = QUiLoader().load('210513_OMBI_UI.ui')  ##'210202_ui.ui') ## "1011_ui.ui")  ##
+        self.ui = QUiLoader().load('231123_OMBI_UI.ui')
         self.setCentralWidget(self.ui)
         # redifine self.ui.scope_camera_view_item_2 to QtImageViewer
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
