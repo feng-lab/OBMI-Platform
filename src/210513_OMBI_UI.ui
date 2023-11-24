@@ -6852,7 +6852,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/expand-arrows.png</normaloff>:/resources/imgs/expand-arrows.png</iconset>
          </property>
          <property name="flat">
@@ -6878,7 +6878,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/select.png</normaloff>:/resources/imgs/select.png</iconset>
          </property>
          <property name="flat">
@@ -6904,7 +6904,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/dish.png</normaloff>:/resources/imgs/dish.png</iconset>
          </property>
          <property name="flat">
@@ -6930,7 +6930,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/draw-polygon-solid.png</normaloff>:/resources/imgs/draw-polygon-solid.png</iconset>
          </property>
          <property name="flat">
@@ -6956,7 +6956,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/cursor.png</normaloff>:/resources/imgs/cursor.png</iconset>
          </property>
          <property name="flat">
@@ -6982,7 +6982,7 @@ QTabBar::tab{width:71}</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources/icons.qrc">
+          <iconset resource="150ppi/iconlist.qrc">
            <normaloff>:/resources/imgs/rectangle.png</normaloff>:/resources/imgs/rectangle.png</iconset>
          </property>
          <property name="flat">
@@ -10954,7 +10954,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/cursor.png</normaloff>:/resources/imgs/cursor.png</iconset>
              </property>
              <property name="autoDefault">
@@ -10993,7 +10993,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/expand-arrows.png</normaloff>:/resources/imgs/expand-arrows.png</iconset>
              </property>
              <property name="flat">
@@ -11013,7 +11013,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/select.png</normaloff>:/resources/imgs/select.png</iconset>
              </property>
              <property name="flat">
@@ -11046,7 +11046,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/rectangle.png</normaloff>:/resources/imgs/rectangle.png</iconset>
              </property>
              <property name="flat">
@@ -11066,7 +11066,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/dish.png</normaloff>:/resources/imgs/dish.png</iconset>
              </property>
              <property name="flat">
@@ -11086,7 +11086,7 @@ QTabBar::tab{width:71}</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources/icons.qrc">
+              <iconset resource="150ppi/iconlist.qrc">
                <normaloff>:/resources/imgs/draw-polygon-solid.png</normaloff>:/resources/imgs/draw-polygon-solid.png</iconset>
              </property>
              <property name="flat">
