@@ -723,6 +723,7 @@ class MainWindow(QMainWindow):
         print('item_after: ', itemlist)
         self.setup_markers()
         self.init_onchart()
+        self.auto_cam_scan()
 
     ## functions ------------------------------------------------------------------------------------------------------------------------
     #########################################################################
@@ -1009,37 +1010,32 @@ class MainWindow(QMainWindow):
     # record button
     @Slot()
     def recording_start_stop(self):
+        # text = self.ui.recordButton.text()
+        if self.capture2 is None:
+            return
 
-        ## 현재시간 저장
-        ###    self.rec_timer()
-        ## 타이머 동작
-        ## behavior 영상저장
-        ## scope 영상저장
-        ## pressure data 저장
-
-        text = self.ui.recordButton.text()
-        if text == "Record" and self.capturer2 is not None:
+        if self.capturer2.video_saving_status != VideoSavingStatus.STARTING:
             self.capturer2.video_saving_status = VideoSavingStatus.STARTING
             if self.capturer is not None:
                 self.capturer.video_saving_status = VideoSavingStatus.STARTING
                 self.rec_timer(True)
-            self.ui.recordButton.setText("Stop Recording")
+            # self.ui.recordButton.setText("Stop Recording")
             ## self.elapsed_t(QObject.QTime.currentTime()) timer 표기용
-        elif text == "Stop Recording" and self.capturer2 is not None:
+        elif self.capturer2 == VideoSavingStatus.STARTING:
             self.capturer2.video_saving_status = VideoSavingStatus.STOPPING
-            if self.capturer2 is not None:
+            if self.capturer is not None:
                 self.capturer.video_saving_status = VideoSavingStatus.STOPPING
                 self.rec_timer(False)
-            self.ui.recordButton.setText("Record")
+            # self.ui.recordButton.setText("Record")
 
-            self.show_player()
+            # self.show_player() # todo: 播放器
             self.stop_connection()  ##
 
     # behavior camera connection
     @Slot()
     def connect_behavior_camera_button_clicked(self):
-        text = self.ui.connectBehaviorCameraButton.text()
-        if text == 'Behavior\n''Connect' and self.capturer is None:
+        # text = self.ui.connectBehaviorCameraButton.text()
+        if self.capturer is None:
 
             ## camera_ID = self.cam_num #1
             camera_ID = self.Bnum
@@ -1054,46 +1050,32 @@ class MainWindow(QMainWindow):
             self.capturer.fpsChanged.connect(self.update_behavior_camera_FPS)  ##
             self.capturer.start()
 
-            ## about fps
-            ## self.ui.scope_fps.setText(f'fps: {self.FPS}')
-            ## fps signal 계속 받기
+            # self.ui.connectBehaviorCameraButton.setText('Behavior\n''Disconnect')
+            # self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(0, 255, 0);")  ## > func or not
+            # self.ui.behaviorcamStatusLabel.setText('Connected')
 
-            #  self.exposure_control(int(self.ui.exposureSliderBCam.value))
-            # self.capturer.
-            ### nd2 set policy / (!>interruption 고려)
-            self.ui.connectBehaviorCameraButton.setText('Behavior\n''Disconnect')
-            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(0, 255, 0);")  ## > func or not
-            self.ui.behaviorcamStatusLabel.setText('Connected')
-            ###
-            ### (nd check function)
-            ###        if check_function():
-            ###                setEnabled(True)
-            ###           else
-            ###                setEnabled(False)
-            ###
             self.ui.widget_2.setEnabled(True)
 
-        elif text == 'Behavior\n''Disconnect' and self.capturer is not None:
+        elif self.capturer is not None:
 
             self.capturer.frameCaptured.disconnect(self.update_behavior_camera_frame)  ##
             self.capturer.fpsChanged.disconnect(self.update_behavior_camera_FPS)
             self.capturer.stop()
             self.capturer = None
 
-            self.ui.connectBehaviorCameraButton.setText('Behavior\n''Connect')  ## set text ##
-            self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(85, 85, 127);")  ## > func or not
-            self.ui.behaviorcamStatusLabel.setText('Disconnected')
+            # self.ui.connectBehaviorCameraButton.setText('Behavior\n''Connect')  ## set text ##
+            # self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(85, 85, 127);")  ## > func or not
+            # self.ui.behaviorcamStatusLabel.setText('Disconnected')
 
-            self.disable_cam('B')
+            # self.disable_cam('B')
             self.ui.widget_2.setEnabled(False)
-            ## self.disable_cam('S') ## temp
 
     # scope camera connection
     @Slot()
     def connect_scope_camera_button_clicked(self):
         print("sign-sign")
-        text = self.ui.connectScopeCameraButton.text()
-        if text == 'Scope\n''Connect' and self.capturer2 is None:  ## check - capturer
+        # text = self.ui.connectScopeCameraButton.text()
+        if self.capturer2 is None:  ## check - capturer
 
             ## camera_ID = self.mini_num #0
             camera_ID = self.Snum  ##
@@ -1113,9 +1095,9 @@ class MainWindow(QMainWindow):
             ## record finished
             self.capturer2.videoSaved.connect(self.record_finished)
 
-            self.ui.connectScopeCameraButton.setText('Scope\n''Disconnect')
-            self.ui.signScopeCamera.setStyleSheet("background-color: rgb(0, 255, 0);")
-            self.ui.scopecamStatusLabel.setText('Connected')
+            # self.ui.connectScopeCameraButton.setText('Scope\n''Disconnect')
+            # self.ui.signScopeCamera.setStyleSheet("background-color: rgb(0, 255, 0);")
+            # self.ui.scopecamStatusLabel.setText('Connected')
 
             self.ui.widget_2.setEnabled(True)  ##
 
@@ -1128,23 +1110,20 @@ class MainWindow(QMainWindow):
 
             self.capturer2.fps_calculating = True  ###
 
-            ## print("cap2: ", self.capturer2.get(cv2.CAP_PROP_BRIGHTNESS))
 
-
-        elif text == 'Scope\n''Disconnect' and self.capturer2 is not None:
+        elif self.capturer2 is not None:
 
             self.capturer2.frameCaptured.disconnect(self.update_scope_camera_frame)
             self.capturer2.fpsChanged.disconnect(self.update_scope_camera_FPS)
             self.capturer2.stop()
             self.capturer2 = None
 
-            self.ui.connectScopeCameraButton.setText('Scope\n''Connect')
-            self.ui.signScopeCamera.setStyleSheet("background-color: rgb(85, 85, 127);")
-            self.ui.scopecamStatusLabel.setText('Disconnected')
+            # self.ui.connectScopeCameraButton.setText('Scope\n''Connect')
+            # self.ui.signScopeCamera.setStyleSheet("background-color: rgb(85, 85, 127);")
+            # self.ui.scopecamStatusLabel.setText('Disconnected')
 
-            self.disable_cam('S')
+            # self.disable_cam('S')
             self.ui.widget_2.setEnabled(False)
-            ## self.disable_cam('B') ## temp
 
     ## --------window------
     @Slot()
@@ -1292,14 +1271,6 @@ class MainWindow(QMainWindow):
         time.sleep(0.5)
         self.ui.widget_71.show()
 
-        ## 접기
-        ## capture = cv2.VideoCapture(self.capturer2.video_file)
-        ## ret, i_frame = capture.read()
-
-        ## self.present_status = 0
-
-        ##   self.push_image(i_frame)##(아니면 캡쳐 jpg)(frame 연결부에 연결)
-
         self.player = VPlayer(v_path=self.capturer2.video_file, lock=self.data_lock, parent=self, fps=self.s_fps)
         self.player.start()
 
@@ -1314,10 +1285,10 @@ class MainWindow(QMainWindow):
 
     def stop_connection(self):
         ### Hwab con/
-        if self.ui.connectBehaviorCameraButton.text() == 'Behavior\n''Disconnect' and self.capturer is not None:
+        if self.capturer is not None:
             self.connect_behavior_camera_button_clicked()
             self.set_cam_number()  ## func 보완필요
-        if self.ui.connectScopeCameraButton.text() == 'Scope\n''Disconnect' and self.capturer2 is not None:
+        if self.capturer2 is not None:
             self.connect_scope_camera_button_clicked()
             self.set_cam_number()  ## func 보완필요
 
@@ -1369,6 +1340,20 @@ class MainWindow(QMainWindow):
                 # cap.read()[0]
             cap.release()  ### --
         return cam_list
+
+    def auto_cam_scan(self):
+        self.cam_refresh()
+        if self.mini_num is not None:
+            self.ui.SnumBox.setText(self.mini_num)
+            if self.mini_num == 0:
+                self.ui.BnumBox.setText('1')
+            else:
+                self.ui.BnumBox.setText('0')
+        else:
+            self.ui.SnumBox.setText('0')
+            self.ui.BnumBox.setText('0')
+
+        self.set_cam_number()
 
     @Slot()
     def cam_refresh(self):
@@ -2018,16 +2003,16 @@ class MainWindow(QMainWindow):
     @Slot()
     def play_button_clicked2(self):
         text = self.ui.pushButton_2.text()
-        if self.player2 is not None and text == 'play':
+        if self.player2 is not None and self.player2.vplayer_status != VPlayerStatus.STARTING:
             # self.player2.frameC.connect(self.update_player_frame2)
             self.player2.vplayer_status = VPlayerStatus.STARTING
             print("set starting")
-            self.ui.pushButton_2.setText('pause')
-        elif self.player2 is not None and text == 'pause':
+            # self.ui.pushButton_2.setText('pause')
+        elif self.player2 is not None and self.player2.vplayer_status == VPlayerStatus.STARTING:
             self.player2.vplayer_status = VPlayerStatus.PAUSING
             # self.player2.frameC.disconnect(self.update_player_frame2)
             print("set pausing")
-            self.ui.pushButton_2.setText('play')
+            # self.ui.pushButton_2.setText('play')
         # self.player2.stateCh.connect(self.stop_button_clicked2)
 
     # L2 button
@@ -2528,7 +2513,7 @@ class MainWindow(QMainWindow):
         if self.online_process:
             # process version
             text = self.ui.connectScopeCameraButton_2.text()
-            if text == 'Scope\nConnect' and self.on_scope is None:
+            if self.on_scope is None:
                 if not self.dev_list:
                     self.get_devlist()
 
@@ -2554,9 +2539,9 @@ class MainWindow(QMainWindow):
                 else:
                     # self.moveToThread(self.on_scope)
                     self.on_scope.start()
-                    self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+                    # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
-            elif text == 'Scope\nDisconnect' and self.on_scope is not None:
+            elif self.on_scope is not None:
                 self.ui_updater.frameI.disconnect(self.online_frame)
 
                 if self.rt:
@@ -2565,14 +2550,14 @@ class MainWindow(QMainWindow):
 
                 time.sleep(0.01)
                 self.on_scope = None
-                self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+                # self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
                 # self.on_scope.quit()
 
 
         else:
             ## video connect
             text = self.ui.connectScopeCameraButton_2.text()
-            if text == 'Scope\nConnect' and self.on_scope is None:
+            if self.on_scope is None:
                 # camera_ID = self.open_video_path ### temp
                 self.on_scope = self.connect_online_camera()
                 self.on_scope.frameI.connect(self.online_frame)
@@ -2587,9 +2572,9 @@ class MainWindow(QMainWindow):
                     #self.moveToThread(self.on_scope)
                     self.on_scope.start()
 
-                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+                # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
-            elif text == 'Scope\nDisconnect' and self.on_scope is not None:
+            elif self.on_scope is not None:
                 self.on_scope.frameI.disconnect(self.online_frame)
 
                 if self.timermode:
@@ -2601,7 +2586,7 @@ class MainWindow(QMainWindow):
                 if self.rt:
                     self.rt = False
                 self.on_scope = None
-                self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+                # self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
     # ------------------------------------------------------------------------
     #
