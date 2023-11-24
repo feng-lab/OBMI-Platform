@@ -13,7 +13,7 @@ from src.decoder.Decoder import OBMIDecoder
 
 
 
-def extraction(contours, params, img):
+def extraction_v2(contours, params, img):
     '''
     :param contours: Contrours of ROI
     :param params: Bounding box of ROI: [x, y, width, height]
@@ -68,6 +68,50 @@ def extraction(contours, params, img):
 
     res = (F_cell - F_b) / F_b
     return res
+
+# TODO: 函数名修改，主要是为了和getBrightness_v3的版本对应
+def extraction_v3(contours, params, img):
+    '''
+    :param contours: Contrours of ROI
+    :param params: Bounding box of ROI: [x, y, width, height]
+    :param img: Frame
+    :return: Extraction value
+    '''
+    # x = int(item['x'])
+    # y = int(item['y'])
+    # outlines = item['contours'].copy().reshape((-1, 2))  # 相对坐标
+    #
+    # outlines[:, 0] += x
+    # outlines[:, 1] += y
+
+
+    # x_min = int(np.min(outlines[:, 0]))
+    # x_max = int(np.max(outlines[:, 0]))
+    # y_min = int(np.min(outlines[:, 1]))
+    # y_max = int(np.max(outlines[:, 1]))
+
+    x_min = int(params[0])
+    x_max = int(params[0] + params[2])
+    y_min = int(params[1])
+    y_max = int(params[1] + params[3])
+
+    # TODO: 添加cell_mask的来源
+    cell_mask = ...
+    masked_frame = img[y_min:y_max + 1, x_min:x_max + 1] * cell_mask
+    F_cell = np.sum(masked_frame)
+    cnt_cell = np.sum(cell_mask)
+    F_cell = F_cell / cnt_cell
+
+    # TODO: 添加bg_mask的来源
+    bg_mask = ...
+    masked_frame = img[y_min:y_max + 1, x_min:x_max + 1] * bg_mask
+    F_bg = np.sum(masked_frame)
+    cnt_bg = np.sum(bg_mask)
+    F_b = F_bg / cnt_bg
+
+    res = (F_cell - F_b) / F_b
+    return res
+
 def extract_process(input_stream:Queue, output_stream:Queue, params, contours):
     while True:
         if input_stream.qsize() > 0:

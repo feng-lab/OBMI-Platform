@@ -72,7 +72,7 @@ class OPlayer(QtCore.QThread):
 
 
     def cap_init(self):
-        self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
+        # self.capture = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         if self.fakecapture:
             # self.capture = cv2.VideoCapture("C:\\Users\\ZJLAB\\Downloads\\Video\\demoMovie.avi")
             # self.capture = cv2.VideoCapture("C:\\Users\ZJLAB\caiman_data\example_movies\demoMovie_out.avi")

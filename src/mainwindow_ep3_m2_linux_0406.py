@@ -4,6 +4,7 @@ import h5py
 import numpy
 import scipy
 import torch
+from shapely.geometry import Point, Polygon
 from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
                                QHBoxLayout, QLabel)
@@ -2353,11 +2354,13 @@ class MainWindow(QMainWindow):
 
         itemlist.reverse()
 
+        time_1 = time.time()
         for frame in frame_list:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             for i in range(0, len(itemlist)):
                 self.brightlist[i].append(self.getBrightness_v2(frame, itemlist[i]))
                 # brightlist[i].append(self.getBrightness(frame, itemlist[i]))
+        print("time used: ", time.time()-time_1)
 
         self.draw_chart(itemlist, self.brightlist)
         print(f'total time: {time.time() - timer}')
@@ -2482,6 +2485,31 @@ class MainWindow(QMainWindow):
         F_all = np.sum(masked_frame)
         cnt_all = np.sum(mask_all)
         F_b = F_all / cnt_all
+
+        res = (F_cell - F_b) / F_b
+        return res
+
+    def getBrightness_v3(self, frame, item):
+        pos = item.real_pos()
+        rect = item.boundingRect()
+        x_min = int(pos[0])
+        x_max = int(pos[0] + rect.width())
+        y_min = int(pos[1])
+        y_max = int(pos[1] + rect.height())
+
+        # TODO: 添加cell_mask的来源
+        cell_mask = ...
+        masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * cell_mask
+        F_cell = np.sum(masked_frame)
+        cnt_cell = np.sum(cell_mask)
+        F_cell = F_cell / cnt_cell
+
+        # TODO: 添加bg_mask的来源
+        bg_mask = ...
+        masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * bg_mask
+        F_bg = np.sum(masked_frame)
+        cnt_bg = np.sum(bg_mask)
+        F_b = F_bg / cnt_bg
 
         res = (F_cell - F_b) / F_b
         return res
