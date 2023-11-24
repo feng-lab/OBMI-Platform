@@ -20,7 +20,7 @@ class Traceviewer(pg.GraphicsLayoutWidget):
         self.gap = 0.5
         self.brightlist = brightlist
         self.rois = rois
-        self.trace_size = 10
+        self.trace_size = 5
 
         self.init_trace()
 
@@ -35,8 +35,8 @@ class Traceviewer(pg.GraphicsLayoutWidget):
             label.setPos(0, 0.2)
 
         self.plot_item.autoRange()
-        if len(self.rois) > 10:
-            self.plot_item.setYRange(-10 * self.gap + 0.4, 0.3)
+        if len(self.rois) > self.trace_size:
+            self.plot_item.setYRange(-self.trace_size * self.gap + 0.4, 0.3)
         else:
             self.plot_item.setYRange(-len(self.rois) * self.gap + 0.4, 0.3)
 
