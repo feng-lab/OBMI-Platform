@@ -124,7 +124,7 @@ QTabBar::tab{width:180}</string>
         <rect>
          <x>8</x>
          <y>10</y>
-         <width>1031</width>
+         <width>1081</width>
          <height>111</height>
         </rect>
        </property>
@@ -137,11 +137,11 @@ QTabBar::tab{width:180}</string>
           <property name="font">
            <font>
             <family>Arial</family>
-            <pointsize>10</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Scope Cam:</string>
+           <string>Scope Cam</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -249,7 +249,7 @@ background-repeat: no-repeat;
           <property name="font">
            <font>
             <family>Arial</family>
-            <pointsize>10</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -314,7 +314,7 @@ background-repeat: no-repeat;
           <property name="font">
            <font>
             <family>Arial</family>
-            <pointsize>10</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -494,11 +494,11 @@ background-repeat: no-repeat;
           <property name="font">
            <font>
             <family>Arial</family>
-            <pointsize>10</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>COM:</string>
+           <string>COM</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2091,11 +2091,6 @@ background:none;
 border:none;
 background-repeat:none;
 }
-#pushButton_49:pressed
-{
-border-image: url(:/media/Pause.png);
-background-repeat: no-repeat;
-}
 </string>
                          </property>
                          <property name="text">
@@ -3518,7 +3513,7 @@ Camera</string>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3597,7 +3592,7 @@ Camera</string>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3685,7 +3680,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3771,7 +3766,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3793,7 +3788,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3803,7 +3798,7 @@ background-repeat: no-repeat;
              <widget class="QLineEdit" name="scopeFocusValue">
               <property name="geometry">
                <rect>
-                <x>602</x>
+                <x>612</x>
                 <y>17</y>
                 <width>47</width>
                 <height>25</height>
@@ -3835,7 +3830,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -3993,7 +3988,7 @@ background-repeat: no-repeat;
              <widget class="QSlider" name="scopeFocusSlider">
               <property name="geometry">
                <rect>
-                <x>480</x>
+                <x>488</x>
                 <y>44</y>
                 <width>174</width>
                 <height>23</height>
@@ -4012,7 +4007,7 @@ background-repeat: no-repeat;
              <widget class="QLabel" name="label_38">
               <property name="geometry">
                <rect>
-                <x>293</x>
+                <x>301</x>
                 <y>66</y>
                 <width>41</width>
                 <height>21</height>
@@ -4021,7 +4016,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4040,7 +4035,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4053,9 +4048,9 @@ background-repeat: no-repeat;
              <widget class="QSlider" name="scopeGainSlider">
               <property name="geometry">
                <rect>
-                <x>290</x>
+                <x>301</x>
                 <y>44</y>
-                <width>173</width>
+                <width>162</width>
                 <height>23</height>
                </rect>
               </property>
@@ -4087,7 +4082,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4106,7 +4101,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4141,7 +4136,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4153,14 +4148,14 @@ background-repeat: no-repeat;
                <rect>
                 <x>679</x>
                 <y>19</y>
-                <width>80</width>
+                <width>91</width>
                 <height>21</height>
                </rect>
               </property>
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4226,7 +4221,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4236,7 +4231,7 @@ background-repeat: no-repeat;
              <widget class="QLabel" name="label_42">
               <property name="geometry">
                <rect>
-                <x>477</x>
+                <x>488</x>
                 <y>66</y>
                 <width>41</width>
                 <height>21</height>
@@ -4245,7 +4240,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4267,7 +4262,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4347,7 +4342,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4382,7 +4377,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4425,7 +4420,7 @@ background-repeat: no-repeat;
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>10</pointsize>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="text">
@@ -4643,6 +4638,12 @@ background-repeat: no-repeat;
                 <height>21</height>
                </rect>
               </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Elapsed time: 0</string>
               </property>
@@ -4655,6 +4656,12 @@ background-repeat: no-repeat;
                 <width>131</width>
                 <height>21</height>
                </rect>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>11</pointsize>
+               </font>
               </property>
               <property name="text">
                <string>Record length: 0</string>
@@ -4932,7 +4939,7 @@ background-repeat: no-repeat;
        <widget class="QComboBox" name="comboBox_2">
         <property name="geometry">
          <rect>
-          <x>338</x>
+          <x>350</x>
           <y>15</y>
           <width>51</width>
           <height>22</height>
@@ -4960,14 +4967,14 @@ background-repeat: no-repeat;
          <rect>
           <x>273</x>
           <y>15</y>
-          <width>61</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5014,7 +5021,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5026,14 +5033,14 @@ background-repeat: no-repeat;
          <rect>
           <x>273</x>
           <y>75</y>
-          <width>171</width>
+          <width>181</width>
           <height>16</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5122,7 +5129,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5264,7 +5271,7 @@ Extraction</string>
        <widget class="QLabel" name="label_120">
         <property name="geometry">
          <rect>
-          <x>383</x>
+          <x>400</x>
           <y>15</y>
           <width>41</width>
           <height>22</height>
@@ -5273,7 +5280,7 @@ Extraction</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5320,14 +5327,14 @@ Extraction</string>
          <rect>
           <x>935</x>
           <y>15</y>
-          <width>56</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5371,7 +5378,7 @@ Extraction</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5424,14 +5431,14 @@ Extraction</string>
          <rect>
           <x>1128</x>
           <y>15</y>
-          <width>56</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -5567,7 +5574,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="contextMenuPolicy">
@@ -5596,7 +5603,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="contextMenuPolicy">
@@ -5625,7 +5632,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="contextMenuPolicy">
@@ -5674,14 +5681,14 @@ background-repeat: no-repeat;
          <rect>
           <x>935</x>
           <y>85</y>
-          <width>121</width>
+          <width>141</width>
           <height>23</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -7932,11 +7939,6 @@ background:none;
 border:none;
 background-repeat:none;
 }
-#pushButton_2:pressed
-{
-border-image: url(:/media/Pause.png);
-background-repeat: no-repeat;
-}
 </string>
               </property>
               <property name="text">
@@ -8599,7 +8601,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8618,7 +8620,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8637,7 +8639,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8656,7 +8658,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8703,7 +8705,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8725,7 +8727,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8855,7 +8857,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8877,7 +8879,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8936,7 +8938,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -8955,7 +8957,7 @@ QTabBar::tab{width:103}</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9079,7 +9081,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9171,7 +9173,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9219,7 +9221,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9238,7 +9240,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9269,14 +9271,14 @@ background-repeat: no-repeat;
          <rect>
           <x>910</x>
           <y>73</y>
-          <width>81</width>
+          <width>91</width>
           <height>22</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9289,7 +9291,7 @@ background-repeat: no-repeat;
        <widget class="QLineEdit" name="exposureValueBCam_3">
         <property name="geometry">
          <rect>
-          <x>1000</x>
+          <x>1010</x>
           <y>73</y>
           <width>47</width>
           <height>22</height>
@@ -9485,14 +9487,14 @@ background-repeat: no-repeat;
          <rect>
           <x>1230</x>
           <y>50</y>
-          <width>61</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9505,7 +9507,7 @@ background-repeat: no-repeat;
        <widget class="QComboBox" name="comboBox_23">
         <property name="geometry">
          <rect>
-          <x>1300</x>
+          <x>1310</x>
           <y>50</y>
           <width>101</width>
           <height>22</height>
@@ -9651,7 +9653,7 @@ background-repeat: no-repeat;
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -9697,13 +9699,14 @@ background-repeat: no-repeat;
          <rect>
           <x>1675</x>
           <y>102</y>
-          <width>101</width>
+          <width>111</width>
           <height>16</height>
          </rect>
         </property>
         <property name="font">
          <font>
           <family>Arial</family>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="styleSheet">
@@ -12254,11 +12257,6 @@ border-image: url(:/media/play.png);
 background:none;
 border:none;
 background-repeat:none;
-}
-#pushButton_129:pressed
-{
-border-image: url(:/media/Pause.png);
-background-repeat: no-repeat;
 }
 </string>
                </property>
