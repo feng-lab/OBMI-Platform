@@ -166,3 +166,7 @@ src/test_data.h5
 src/temp.avi
 *.mat
 src/decoder/decoder-bak.zip
+src/data_receiver - bak.py
+Test/decoding_test.py
+Test/trace.py
+Test/traces_load.py
