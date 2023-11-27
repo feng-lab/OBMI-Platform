@@ -25,6 +25,20 @@ def readImagejROI(path):
     }
     return d
 
+def readImagejROI_v2(path):
+    roi = ImagejRoi.fromfile(path)
+    x = roi.left
+    y = roi.top
+    width = roi.right - roi.left
+    height = roi.bottom - roi.top
+    rect = [x, y, width, height]
+
+    d = {
+        'rect': rect,
+        'name': roi.name,
+    }
+    return d
+
 
 class ROIconnect(QObject):
     selected = Signal(str)

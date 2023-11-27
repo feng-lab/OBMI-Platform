@@ -51,7 +51,7 @@ import pandas as pd
 from pygrabber.dshow_graph import FilterGraph
 
 from src.UI_updater import UIUpdater
-from src.ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem, LabelItem
+from src.ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem, LabelItem, readImagejROI_v2
 
 from src.data_receiver import DataReceiver, ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
@@ -1344,7 +1344,7 @@ class MainWindow(QMainWindow):
     def auto_cam_scan(self):
         self.cam_refresh()
         if self.mini_num is not None:
-            self.ui.SnumBox.setText(self.mini_num)
+            self.ui.SnumBox.setText(str(self.mini_num))
             if self.mini_num == 0:
                 self.ui.BnumBox.setText('1')
             else:
@@ -1903,11 +1903,16 @@ class MainWindow(QMainWindow):
         file_ls = sorted([file for file in file_ls if '.roi' in file])
 
         for roi_file in file_ls:
-            d = readImagejROI(os.path.join(dir, roi_file))
-            x = d['x']
-            y = d['y']
-            contour = d['contour']
-            roi = self.addRoiPolygon(x, y, contour, name=d['name'])
+            # d = readImagejROI(os.path.join(dir, roi_file))
+            # x = d['x']
+            # y = d['y']
+            # contour = d['contour']
+            # roi = self.addRoiPolygon(x, y, contour, name=d['name'])
+            d = readImagejROI_v2(os.path.join(dir, roi_file))
+            rect = QRectF(d['rect'][0], d['rect'][1], d['rect'][2], d['rect'][3])
+            r = EllipseLabelItem(rect, name=d['name'], width=1)
+            self.ui.scope_camera_view_item_2.scene.addItem(r)
+            self._collect_cycle(r)
 
         print(f'load {len(file_ls)} roi(s)')
 
@@ -1921,11 +1926,16 @@ class MainWindow(QMainWindow):
         file_ls = sorted([file for file in file_ls if '.roi' in file])
 
         for roi_file in file_ls:
-            d = readImagejROI(os.path.join(dir, roi_file))
-            x = d['x']
-            y = d['y']
-            contour = d['contour']
-            roi = self.addOnRoiPolygon(x, y, contour, name=d['name'])
+            # d = readImagejROI(os.path.join(dir, roi_file))
+            # x = d['x']
+            # y = d['y']
+            # contour = d['contour']
+            # roi = self.addOnRoiPolygon(x, y, contour, name=d['name'])
+            d = readImagejROI_v2(os.path.join(dir, roi_file))
+            rect = QRectF(d['rect'][0], d['rect'][1], d['rect'][2], d['rect'][3])
+            r = EllipseLabelItem(rect, name=d['name'], width=1)
+            self.ui.scope_camera_view_item_3.scene.addItem(r)
+            self._on_collect_cycle(r)
 
         print(f'load {len(file_ls)} roi(s)')
 
@@ -3149,7 +3159,7 @@ class MainWindow(QMainWindow):
 
             # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
             # self.receiver.start()
-            self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
+            self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
             self.receiver.start_process()
             self.receiver.timer.start(10)
             # self.receiver.start()

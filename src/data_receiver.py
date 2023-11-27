@@ -79,11 +79,14 @@ def extract_process(input_stream:Queue, output_stream:Queue, params, contours):
             time.sleep(0.01)
 
 class ReceiverThread(QThread):
-    def __init__(self, trace_viewer, frame_signal):
+    decoding_sig = QtCore.Signal(bool)
+    def __init__(self, trace_viewer, frame_signal, network_controller, decoding_text):
         super(ReceiverThread, self).__init__()
         self.trace_viewer = trace_viewer
         self.frame_signal = frame_signal
         self.itemlist = trace_viewer.itemlist
+        self.network_controller = network_controller
+        self.decoding_text = decoding_text
         self.frame_count = 1
 
         self.filename = datetime.datetime.now().strftime('%F %T') + '.h5'
@@ -95,11 +98,22 @@ class ReceiverThread(QThread):
         self.range_list_reset()
         self.interval = 0.03
 
+        self.traces = None
+        self.decoding = False
+        self.decoder = None
+
         self.img_buffer = Queue(maxsize=-1)
         self.out_stream = Queue(maxsize=-1)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.traceupdate)
+        self.traces = [[]]
+
+    def decoder_init(self):
+        self.decoder = OBMIDecoder()
+        num = len(self.itemlist)
+        self.traces = np.empty((num,))
+        self.decoding = True
 
     def start_process(self):
         self.frame_signal.connect(self.recieve_img)
@@ -117,6 +131,7 @@ class ReceiverThread(QThread):
             return
 
         avgs = self.out_stream.get()
+        # print(avgs[1])
         if self.img_buffer.qsize() > 1:
             print("img buffer, remaining:", self.img_buffer.qsize())
         if self.out_stream.qsize() > 0:
@@ -124,6 +139,25 @@ class ReceiverThread(QThread):
 
         self.trace_viewer.full_trace_update(avgs, self.frame_count)
         self.frame_count += 1
+
+        if self.decoding:
+            if self.decoding_text.isVisible() and time.time() - self.decoding_timer > 1:
+                self.decoding_sig.emit(False)
+
+
+            data = np.array(avgs).T
+            # print(data.shape)
+            # print(self.traces.shape)
+            self.traces = np.vstack((self.traces, data))
+            # print(self.traces.shape)
+            if self.traces.shape[0] == 30:
+                label = self.decoder.inference(self.traces.T)
+                if label == 1:
+                    self.network_controller.feed()
+                    self.decoding_sig.emit(True)
+                    self.decoding_timer = time.time()
+                self.traces = self.traces[15:, :]
+                # print(self.traces.shape)
 
     def run(self):
         self.frame_signal.connect(self.recieve_img)

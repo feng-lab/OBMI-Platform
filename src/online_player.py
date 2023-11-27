@@ -60,7 +60,7 @@ class OPlayer(QtCore.QThread):
             print('simple controller')
             self.controller = SimpleCameraController()
 
-        self.fakecapture = True     # todo：离线视频模式开关
+        self.fakecapture = False     # todo：离线视频模式开关
         self.file_save = False
         self.file_count = 1
         self.file_size = 5000

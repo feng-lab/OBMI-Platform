@@ -17,12 +17,16 @@ import joblib
 class OBMIDecoder():
     def __init__(self):
         # model_path = './decoder/best_svm.pkl'
-        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-11\\best_svm_1108.pkl'
+        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-11\\best_svm_1124.pkl'
         self.model = joblib.load(model_path)
         # 归一化常量，根据当天采集的数据集而定
-        self.data_min = -0.03512258532225913
-        self.data_max = 0.13549502268053126
-        self.T = 0.96
+        # self.data_min = -0.03512258532225913
+        # self.data_max = 0.13549502268053126
+        self.data_min = -0.025915620118706816
+        self.data_max = 0.12246589081282179
+
+
+        self.T = 0.84
 
     def inference(self, data):
         try:
