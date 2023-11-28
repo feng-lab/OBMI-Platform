@@ -4,7 +4,7 @@ import h5py
 import numpy
 import scipy
 import torch
-from shapely.geometry import Point, Polygon
+# from shapely.geometry import Point, Polygon
 from PySide2.QtWidgets import (QMainWindow, QSlider, QFileDialog, QTableWidget, QTableWidgetItem,
                                QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLayout,
                                QHBoxLayout, QLabel)
@@ -54,7 +54,7 @@ from pygrabber.dshow_graph import FilterGraph
 from src.UI_updater import UIUpdater
 from src.ROI import ROI, ROIType, readImagejROI, RectLabelItem, EllipseLabelItem, LabelItem, readImagejROI_v2
 
-from src.data_receiver import DataReceiver, ReceiverThread, TraceProcess
+from src.data_receiver import ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
 
 from src.online_player_process import OnlineProcess
@@ -822,9 +822,11 @@ class MainWindow(QMainWindow):
         self.player_scene2.update()
 
     def _collect_rect(self, obj):
+        obj.updateMasks()
         self.roi_table.add_to_table(obj, obj._color)
 
     def _collect_cycle(self, obj):
+        obj.updateMasks()
         self.roi_table.add_to_table(obj, obj._color)
 
     def _activate_marker_button(self, name):
@@ -870,10 +872,12 @@ class MainWindow(QMainWindow):
         self.set_on_marker_style(name)
 
     def _on_collect_rect(self, obj):
+        obj.updateMasks()
         self.onroi_table.add_to_table(obj, obj._color)
         self.ontrace_viewer.add_trace(obj)
 
     def _on_collect_cycle(self, obj):
+        obj.updateMasks()
         self.onroi_table.add_to_table(obj, obj._color)
         self.ontrace_viewer.add_trace(obj)
 
@@ -1911,7 +1915,9 @@ class MainWindow(QMainWindow):
             # roi = self.addRoiPolygon(x, y, contour, name=d['name'])
             d = readImagejROI_v2(os.path.join(dir, roi_file))
             rect = QRectF(d['rect'][0], d['rect'][1], d['rect'][2], d['rect'][3])
-            r = EllipseLabelItem(rect, name=d['name'], width=1)
+            r, g, b = tuple(np.random.randint(256, size=3))
+            color = QtGui.QColor(r, g, b)
+            r = EllipseLabelItem(rect, name=d['name'], color=color, width=1)
             self.ui.scope_camera_view_item_2.scene.addItem(r)
             self._collect_cycle(r)
 
@@ -1934,7 +1940,9 @@ class MainWindow(QMainWindow):
             # roi = self.addOnRoiPolygon(x, y, contour, name=d['name'])
             d = readImagejROI_v2(os.path.join(dir, roi_file))
             rect = QRectF(d['rect'][0], d['rect'][1], d['rect'][2], d['rect'][3])
-            r = EllipseLabelItem(rect, name=d['name'], width=1)
+            r, g, b = tuple(np.random.randint(256, size=3))
+            color = QtGui.QColor(r, g, b)
+            r = EllipseLabelItem(rect, name=d['name'], color=color, width=1)
             self.ui.scope_camera_view_item_3.scene.addItem(r)
             self._on_collect_cycle(r)
 
@@ -2486,22 +2494,44 @@ class MainWindow(QMainWindow):
         return res
 
     def getBrightness_v3(self, frame, item):
-        pos = item.real_pos()
-        rect = item.boundingRect()
-        x_min = int(pos[0])
-        x_max = int(pos[0] + rect.width())
-        y_min = int(pos[1])
-        y_max = int(pos[1] + rect.height())
+        rect = item._rect
+        x_min = int(rect.left())
+        x_max = int(rect.right())
+        y_min = int(rect.top())
+        y_max = int(rect.bottom())
 
         # TODO: 添加cell_mask的来源
-        cell_mask = ...
+        cell_mask = item.mask
         masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * cell_mask
         F_cell = np.sum(masked_frame)
         cnt_cell = np.sum(cell_mask)
         F_cell = F_cell / cnt_cell
 
+        expand_pixels = 5
+
+        x_min = int(x_min - expand_pixels)
+        x_max = int(x_max + expand_pixels)
+        y_min = int(y_min - expand_pixels)
+        y_max = int(y_max + expand_pixels)
+
         # TODO: 添加bg_mask的来源
-        bg_mask = ...
+        bg_mask = item.bg_mask
+
+        # 检查边界
+        if x_min < 0:
+            x_min = 0
+            bg_mask = bg_mask[:, -x_min:]
+        if x_max > frame.shape[1] - 1:
+            x_max = frame.shape[1] - 1
+            bg_mask = bg_mask[:, :-(x_max - frame.shape[1] + 1)]
+        if y_min < 0:
+            y_min = 0
+            bg_mask = bg_mask[-y_min:, :]
+        if y_max > frame.shape[0] - 1:
+            y_max = frame.shape[0] - 1
+            bg_mask = bg_mask[:-(y_max - frame.shape[0] + 1), :]
+
+
         masked_frame = frame[y_min:y_max + 1, x_min:x_max + 1] * bg_mask
         F_bg = np.sum(masked_frame)
         cnt_bg = np.sum(bg_mask)

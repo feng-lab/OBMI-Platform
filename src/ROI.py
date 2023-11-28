@@ -7,7 +7,7 @@ from PySide2.QtCore import QObject, Signal, QPointF
 from PySide2.QtGui import QPixmap, Qt, QColor, QPen
 from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem, QGraphicsItem
 from roifile import ImagejRoi
-
+from shapely.geometry import Point, Polygon
 
 def readImagejROI(path):
     roi = ImagejRoi.fromfile(path)
@@ -154,13 +154,8 @@ class LabelItem(QGraphicsItem):
         self._rect = None
         self.setAcceptedMouseButtons(Qt.LeftButton)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
-        self.contours = None
-
-    def contoursUpdate(self):
-        l = self.shape().toFillPolygon().toList()
-        pts = [[p.x(), p.y()] for p in l]
-        ret = np.array(pts).flatten()
-        self.contours = ret
+        self.mask = None
+        self.bg_mask = None
 
     def setId(self, n):
         self.id = n
@@ -176,6 +171,46 @@ class LabelItem(QGraphicsItem):
         super().mouseReleaseEvent(event)
         self.signals.moved.emit(self.real_pos())
         self.contoursUpdate()
+
+    # 已知cell_outline， 求得cell_mask
+    def generate_cell_mask(self, cell_outline):
+        x_min = int(self._rect.left())
+        x_max = int(self._rect.right())
+        y_min = int(self._rect.top())
+        y_max = int(self._rect.bottom())
+
+        # x,y范围+1后mask处于矩阵正中间
+        xx, yy = np.meshgrid(np.arange(x_min, x_max + 1), np.arange(y_min, y_max + 1))
+        # mask_cell = np.zeros_like(frame[y_min:y_max + 1, x_min:x_max + 1])
+        cell_mask = np.zeros((y_max + 1 - y_min, x_max + 1 - x_min))
+        cell = Polygon(cell_outline)
+        for i in range(cell_mask.shape[0]):
+            for j in range(cell_mask.shape[1]):
+                if cell.contains(Point(xx[i, j], yy[i, j])):
+                    cell_mask[i, j] = 1
+        return cell_mask
+
+    # 已知cell的外轮廓/cell_polygon，求得background_mask
+    # 只要能提供准确的cell_polygon， 可以直接传入cell_polygon, 不需要cell_outline
+    def generate_background_mask(self, cell_outline, expand_pixels=5):
+        x_min = int(self._rect.left()) - expand_pixels
+        x_max = int(self._rect.right()) + expand_pixels
+        y_min = int(self._rect.top()) - expand_pixels
+        y_max = int(self._rect.bottom()) + expand_pixels
+
+        xx, yy = np.meshgrid(np.arange(x_min, x_max + 1), np.arange(y_min, y_max + 1))
+        bg_mask = np.zeros((y_max + 1 - y_min, x_max + 1 - x_min))
+
+        cell_polygon = Polygon(cell_outline)
+        cell_and_bg_polygon = cell_polygon.buffer(expand_pixels)
+
+        for i in range(bg_mask.shape[0]):
+            for j in range(bg_mask.shape[1]):
+                if not cell_polygon.contains(Point(xx[i, j], yy[i, j])) and cell_and_bg_polygon.contains(
+                        Point(xx[i, j], yy[i, j])):
+                    bg_mask[i, j] = 1
+
+        return bg_mask
 
     def move_once(self):
         self.signals.moved_multi.emit(self.real_pos(), self.name)
@@ -229,6 +264,33 @@ class RectLabelItem(LabelItem):
         self._rect.setBottomRight(pos)
         self.update()
 
+    def updateMasks(self):
+        outlines = self.get_rectangle_points()
+        self.mask = self.generate_cell_mask(outlines)
+        self.bg_mask = self.generate_background_mask(outlines)
+
+    def get_rectangle_points(self):
+        points = []
+        center_x, center_y = self.real_pos()
+        width = self._rect.width()
+        height = self._rect.height()
+
+        top_left = (self._rect.left(), self._rect.top())
+
+        # 从左上角到右上角
+        for x in range(int(top_left[0]), int(top_left[0] + width)):
+            points.append((x, int(top_left[1])))
+        # 从右上角到右下角
+        for y in range(int(top_left[1]), int(top_left[1] + height)):
+            points.append((int(top_left[0] + width), y))
+        # 从右下角到左下角
+        for x in range(int(top_left[0] + width), int(top_left[0]), -1):
+            points.append((x, int(top_left[1] + height)))
+        # 从左下角到左上角
+        for y in range(int(top_left[1] + height), int(top_left[1]), -1):
+            points.append((int(top_left[0]), y))
+        return points
+
     def to_dict(self):
         d = {
             'params': [self.real_pos()[0], self.real_pos()[1],self._rect.width(),self._rect.height()],
@@ -281,6 +343,23 @@ class EllipseLabelItem(LabelItem):
     def set_br(self, pos):
         self._rect.setBottomRight(pos)
         self.update()
+
+    def updateMasks(self):
+        outlines = self.get_ellipse_points()
+        self.mask = self.generate_cell_mask(outlines)
+        self.bg_mask = self.generate_background_mask(outlines)
+
+    def get_ellipse_points(self):
+        points = []
+        center_x = self._rect.center().x()
+        center_y = self._rect.center().y()
+        radius_x = self._rect.width() / 2
+        radius_y = self._rect.height() / 2
+        for angle in range(0, 360, 5):
+            x = center_x + radius_x * np.cos(np.radians(angle))
+            y = center_y + radius_y * np.sin(np.radians(angle))
+            points.append([x, y])
+        return np.array(points)
 
     def to_dict(self):
         d = {
