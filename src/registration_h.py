@@ -127,6 +127,8 @@ class Preprocess(sig):
         print(self.path)
         cap=cv2.VideoCapture(self.path)
         nums=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if nums > 200:
+            nums = 200
         height=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         video=np.empty((height, width, nums))
