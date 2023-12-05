@@ -21,8 +21,13 @@ class NCCProject():
         ret, raw_frame=cap.read()
         raw_frame=cv2.cvtColor(raw_frame, cv2.COLOR_RGB2GRAY)
         raw_frame=torch.tensor(raw_frame, dtype=torch.float32)
-        self.template=torch.tensor(template_frame, dtype=torch.float32).cuda()
+
+        # self.template=torch.tensor(template_frame, dtype=torch.float32).cuda()
         self.kernel=torch.tensor(self.LOAD.generate_kernel((8,8)), dtype=torch.float32)#kernel尺寸可能后期要根据神经元大小调整
+        template_frame=raw_frame
+        template_frame = self.LOAD.filter_frame(template_frame, self.kernel)
+        self.template = torch.tensor(template_frame, dtype=torch.float32).cuda()
+
         self.sum1, self.a_rot_complex, self.b_complex, self.Zeros, self.theta, self.template_buffer = self.LOAD.SetParameters(
             raw_frame, self.kernel, CROP=False, use_gpu=True)
         self.kernel=self.kernel.cuda()
@@ -30,6 +35,32 @@ class NCCProject():
 
 
     def NCC_framebyframe(self, frame):
+        #frame = torch.tensor(frame, dtype=torch.float32).cuda()
+        frame = frame.astype(np.float32)
+        frame = torch.from_numpy(frame)
+        frame = frame.cuda()
+        preprocess_frame = self.LOAD.filter_frame(frame, self.kernel)
+        normxcorr2_general_output = NormXCorr2(self.template, preprocess_frame)
+        output, _ = normxcorr2_general_output.normxcorr2_general(self.sum1, self.a_rot_complex, self.b_complex,
+                                                                 self.Zeros)
+        Shift = ApplyShifts(output)
+        new_filtered_frame, _, _ = Shift.apply_shift(preprocess_frame, self.theta)
+        new_raw_frame, _ , _ = Shift.apply_shift(frame, self.theta)
+
+        new_filtered_frame = new_filtered_frame.squeeze(0)
+        self.template_buffer[:, :, self.ith%200] = new_filtered_frame
+        if self.ith < 200:
+            self.template = torch.mean(self.template_buffer[:,:,:self.ith+1], dim=2)
+        else:
+            self.template = torch.mean(self.template_buffer, dim=2)
+        self.ith+=1
+
+        new_raw_frame = new_raw_frame.squeeze(0)
+        new_raw_frame=new_raw_frame.cpu().numpy()
+
+        return new_raw_frame.astype(np.uint8), self.template
+
+    def NCC_framebyframe_bak(self, frame):
         #frame = torch.tensor(frame, dtype=torch.float32).cuda()
         frame = frame.astype(np.float32)
         frame = torch.from_numpy(frame)
@@ -174,9 +205,12 @@ class Preprocess(sig):
 
     def on_generate_temp(self):
         cap = cv2.VideoCapture(self.path)
+        from cameraController import MiniscopeController
+        controller = MiniscopeController('./configs/miniscopes.json')
+        args = controller.init_args(cap)
         nums = 200
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = args["height"]
+        width = args["width"]
         video=np.empty((height, width, nums))
 
         i=0

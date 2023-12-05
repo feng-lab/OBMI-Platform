@@ -3,7 +3,7 @@ from enum import Enum
 import cv2
 import numpy as np
 
-from PySide2.QtCore import QObject, Signal, QPointF
+from PySide2.QtCore import QObject, Signal, QPointF, QRectF
 from PySide2.QtGui import QPixmap, Qt, QColor, QPen
 from PySide2.QtWidgets import QGraphicsPolygonItem, QGraphicsEllipseItem, QGraphicsItem
 from roifile import ImagejRoi
@@ -170,7 +170,6 @@ class LabelItem(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         self.signals.moved.emit(self.real_pos())
-        self.contoursUpdate()
 
     # 已知cell_outline， 求得cell_mask
     def generate_cell_mask(self, cell_outline):
@@ -218,6 +217,13 @@ class LabelItem(QGraphicsItem):
     def real_pos(self):
         return [self._rect.x() + self.pos().x(), self._rect.y() + self.pos().y()]
 
+    def updateRect(self):
+        x = min(self._rect.left(), self._rect.right())
+        y = min(self._rect.top(), self._rect.bottom())
+        w = abs(self._rect.width())
+        h = abs(self._rect.height())
+        _rect = QRectF(x, y, w, h)
+
     def to_dict(self):
         raise NotImplementedError
 
@@ -264,6 +270,7 @@ class RectLabelItem(LabelItem):
         self._rect.setBottomRight(pos)
         self.update()
 
+
     def updateMasks(self):
         outlines = self.get_rectangle_points()
         self.mask = self.generate_cell_mask(outlines)
@@ -271,7 +278,6 @@ class RectLabelItem(LabelItem):
 
     def get_rectangle_points(self):
         points = []
-        center_x, center_y = self.real_pos()
         width = self._rect.width()
         height = self._rect.height()
 

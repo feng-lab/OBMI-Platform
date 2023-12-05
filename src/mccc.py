@@ -4,6 +4,9 @@ import time
 
 from PySide2.QtCore import Slot, Signal, QObject
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 class MCCs(QObject):
     signalPath = Signal(str)
     signalPrc = Signal(int)

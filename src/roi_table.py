@@ -182,14 +182,14 @@ class Table(QWidget):
         if column == 2:
             print('2clicked')
 
-    def add_to_table(self, roi, colr, name=""):
+    def add_to_table(self, roi, colr):
         self.addlock = True
         ## num 을 받든지, 여기서 get 하던지 
         if True:  # 선택 안되어있으면. :
             new_row_num = self.table.rowCount() + 1
             self.table.setRowCount(new_row_num)
             # colr = self.randcolr()
-            self.add_table_form(new_row_num - 1, colr, roi, name)
+            self.add_table_form(new_row_num - 1, colr, roi)
         else:
             self.table.insertRow(num)
 
@@ -230,7 +230,7 @@ class Table(QWidget):
             rgb = (col.red(), col.green(), col.blue())
             print(rgb)  ## color를 다시 받아올 방법   
 
-    def add_table_form(self, num, colr, roi, name=""):
+    def add_table_form(self, num, colr, roi):
         self.itemlist.append(roi)
         roi.setId(roi.id)
         roi.signals.selected.connect(self.circle_click)
@@ -247,10 +247,11 @@ class Table(QWidget):
         print(f'background-color:rgb{colr}')
         brushbtn.setStyleSheet(f'background-color:rgb{colr}')
         brushbtn.setFixedWidth(20)
-        if name == '':
+        if roi.name is None:
             namestr = 'ROI_' + str(roi.id)
+            roi.name = namestr
         else:
-            namestr = name
+            namestr = roi.name
         self.namelist.append(namestr)
         roi.setName(namestr)
 

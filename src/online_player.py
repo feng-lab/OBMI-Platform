@@ -22,7 +22,7 @@ class VideoSavingStatus(Enum):
 class OPlayer(QtCore.QThread):
 
     frameI = QtCore.Signal(QtGui.QPixmap)
-    frameG = QtCore.Signal(list)
+    frameG = QtCore.Signal(list, float)
     fpsChanged = QtCore.Signal(float)
     roi_pos = QtCore.Signal(list)
     ## fImg = QtCore.Signal(np.ndarray)
@@ -117,6 +117,9 @@ class OPlayer(QtCore.QThread):
         self.autoROI = cm
 
     def updates(self):
+        '''
+        timer方法，不使用
+        '''
         cap = self.capture
         st = time.time()
         ret, frame = cap.read()
@@ -247,7 +250,7 @@ class OPlayer(QtCore.QThread):
 
         if self.fakecapture:
             # todo：修改视频路径
-            cap = cv2.VideoCapture("D:\data\\2023_08_16\\2023_08_16\\14_59_15\Miniscope\\0.avi")
+            cap = cv2.VideoCapture("D:\data\obmi\\231128\\0.avi")
             self.cfps = self.fps = cap.get(cv2.CAP_PROP_FPS)    # todo: 默认读取视频文件帧率，可能需要手动改低一点
 
 
@@ -256,10 +259,9 @@ class OPlayer(QtCore.QThread):
         ptime = time.time()
         count = 0
         while not self.isInterruptionRequested():
-            t0 = time.time()
             ret, frame = cap.read()
-            t1 = time.time()
-            # print('read:', t1-t0)
+            ts = time.time()
+
             if not ret:
                 if self.fakecapture:
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -302,10 +304,11 @@ class OPlayer(QtCore.QThread):
                 print('MC time: ', t1-t0)
 
             #print('1:',1/(time.time() - S))
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            self.frameG.emit(gray)
+            # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            self.frameG.emit(frame, ts)
 
             tmp_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            tmp_frame = cv2.convertScaleAbs(tmp_frame, alpha=self.contrast, beta=self.brightness)
             self.data_lock.lock()
             self.frame = tmp_frame
             height, width, dim = self.frame.shape
@@ -331,7 +334,7 @@ class OPlayer(QtCore.QThread):
             count += 1
             # print('current fps: ', 1/(et-ptime))
             # #print('avg fps: ', count/(et-tt))
-            if count % 10 == 0:
+            if count % 30 == 0:
                 print('recent 100 fps: ', len(timelist)/(et-timelist[0]))
             timelist.append(et)
             if len(timelist) > 100:

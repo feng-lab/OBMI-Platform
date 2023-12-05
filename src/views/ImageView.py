@@ -111,12 +111,12 @@ class QtImageViewer(QGraphicsView):
                               scene_pos.x() - self._pressed_pos.x(),
                               scene_pos.y() - self._pressed_pos.y())
                 if self.marker == 'rectangle':
-                    self._current_item = RectLabelItem(rect, name='rec',
+                    self._current_item = RectLabelItem(rect, name=None,
                                                        index=len(self.scene.items()),
                                                        color=self.randcolr(),
                                                        width=self._marker_size / 4)
                 if self.marker == 'cycle':
-                    self._current_item = EllipseLabelItem(rect, name='cycle',
+                    self._current_item = EllipseLabelItem(rect, name=None,
                                                           index=len(self.scene.items()),
                                                           color=self.randcolr(),
                                                           width=self._marker_size / 4)
@@ -132,6 +132,7 @@ class QtImageViewer(QGraphicsView):
             if self.marker in ['rectangle', 'cycle']:
                 self.scene.update()
                 self._current_item.set_br(scene_pos)
+                self._current_item.updateRect()
 
         # self.refresh.emit()
 

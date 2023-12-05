@@ -22,9 +22,12 @@ class OBMIDecoder():
         # 归一化常量，根据当天采集的数据集而定
         # self.data_min = -0.03512258532225913
         # self.data_max = 0.13549502268053126
+
+        # self.data_min = -0.024158042929754545
+        # self.data_max = 0.07747500551928602
+
         self.data_min = -0.025915620118706816
         self.data_max = 0.12246589081282179
-
 
         self.T = 0.84
 

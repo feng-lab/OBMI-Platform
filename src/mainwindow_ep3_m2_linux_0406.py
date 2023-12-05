@@ -77,6 +77,7 @@ from mccc import MCC
 from online_player import OPlayer
 
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()  ## //
@@ -336,6 +337,7 @@ class MainWindow(QMainWindow):
 
         ##      ## online processing tab -----------------------------------------------------------------
         self.ui.OnBrightnessSlider.valueChanged.connect(self.on_brightness)
+        self.ui.OnContrastSlider.valueChanged.connect(self.on_contrast)
 
         # scope connect
         self.ui.connectScopeCameraButton_2.clicked.connect(self.online_scope)  ## saved 영상으로 일단 대체
@@ -906,6 +908,9 @@ class MainWindow(QMainWindow):
                 # read offline video data
                 if len(g.keys()) > 0:
                     self.deleteRoi(all=True)
+                    if self.player2 is not None:
+                        self.player2.stop()
+                        self.player2 = None
                     self.player2 = VPlayer(v_path='', lock=self.data_lock, parent=self)
                     self.player2.frame_list = g['video'][:]
                     self.player2.total_frame = g['total_frame'][()]
@@ -913,7 +918,6 @@ class MainWindow(QMainWindow):
                     self.player2.load_mode = True
                     self.player2.start()
                     self.player2.frameC.connect(self.update_player_frame2)
-
 
                     time.sleep(0.1)
 
@@ -925,8 +929,8 @@ class MainWindow(QMainWindow):
                     # read offline roi data
                     if len(g.keys()) > 3:
                         data = np.array(g['roi_data'][()], dtype=str).tolist()
-                        if 'roi_contours' in g.keys():
-                            contours = g['roi_contours'][:]
+                        # if 'roi_contours' in g.keys():
+                        #     contours = g['roi_contours'][:]
                         roi_dicts = json.loads(data)
                         for roi_dict in roi_dicts:
                             self.create_roi_from_dict(roi_dict)
@@ -934,11 +938,12 @@ class MainWindow(QMainWindow):
                 g = f['online']
                 # read online roi data
                 if len(g.keys()) > 1:
-                    self.on_scope = None
+                    if self.on_scope is not None:
+                        self.online_scope()
                     self.deleteOnRoi(all=True)
                     data = np.array(g['roi_data'][()], dtype=str).tolist()
-                    if 'roi_contours' in g.keys():
-                        contours = g['roi_contours'][:]
+                    # if 'roi_contours' in g.keys():
+                    #     contours = g['roi_contours'][:]
                     roi_dicts = json.loads(data)
                     for roi_dict in roi_dicts:
                         self.create_on_roi_from_dict(roi_dict)
@@ -1258,6 +1263,7 @@ class MainWindow(QMainWindow):
                     ncc = result.max()
                     bestFocus = i
 
+            controller.change_focus(cap, bestFocus)
             cap.release()
             msgbox = QMessageBox()
             msgbox.information(self, 'Info', f'Best focus is: {bestFocus}')
@@ -2021,15 +2027,17 @@ class MainWindow(QMainWindow):
     # play/pause button
     @Slot()
     def play_button_clicked2(self):
-        text = self.ui.pushButton_2.text()
+        # text = self.ui.pushButton_2.text()
         if self.player2 is not None and self.player2.vplayer_status != VPlayerStatus.STARTING:
             # self.player2.frameC.connect(self.update_player_frame2)
             self.player2.vplayer_status = VPlayerStatus.STARTING
+            self.ui.pushButton_2.setStyleSheet("border-image: url(\"150ppi/pause.png\")")
             print("set starting")
             # self.ui.pushButton_2.setText('pause')
         elif self.player2 is not None and self.player2.vplayer_status == VPlayerStatus.STARTING:
             self.player2.vplayer_status = VPlayerStatus.PAUSING
             # self.player2.frameC.disconnect(self.update_player_frame2)
+            self.ui.pushButton_2.setStyleSheet("border-image: url(\"150ppi/play.png\")")
             print("set pausing")
             # self.ui.pushButton_2.setText('play')
         # self.player2.stateCh.connect(self.stop_button_clicked2)
@@ -2132,6 +2140,10 @@ class MainWindow(QMainWindow):
     #     mccdone.setText("MCC process finished")
     #     mccdone.exec_()
     #     return
+    def play_finished2(self):
+        if self.player2 is not None:
+            self.player2.stop()
+            self.player2 = None
 
     def motion_corr(self):
         # loading bar signal
@@ -2220,12 +2232,12 @@ class MainWindow(QMainWindow):
         return roi_circle
 
     #
-    def addRoiPolygon(self, x, y, shape, name=""):
+    def addRoiPolygon(self, x, y, shape):
         # shape: list of QPointF
         colr = self.roi_table.randcolr()
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.player_scene2.addItem(roi_polygon)
-        self.roi_table.add_to_table(roi_polygon, colr, name)
+        self.roi_table.add_to_table(roi_polygon, colr)
         return roi_polygon
 
 
@@ -2362,7 +2374,7 @@ class MainWindow(QMainWindow):
         for frame in frame_list:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             for i in range(0, len(itemlist)):
-                self.brightlist[i].append(self.getBrightness_v2(frame, itemlist[i]))
+                self.brightlist[i].append(self.getBrightness_v3(frame, itemlist[i]))
                 # brightlist[i].append(self.getBrightness(frame, itemlist[i]))
         print("time used: ", time.time()-time_1)
 
@@ -2798,10 +2810,10 @@ class MainWindow(QMainWindow):
         scope_num = self.mini_num + cv2.CAP_DSHOW
         # self.on_template = None
 
-        text = self.ui.connectScopeCameraButton_2.text()
+        # text = self.ui.connectScopeCameraButton_2.text()
         if self.ui.checkBox_7.isChecked():
             ## video stop
-            if text == 'Scope\nDisconnect' and self.on_scope is not None:
+            if self.on_scope is not None:
                 self.on_scope.frameI.disconnect(self.online_frame)
                 if self.timermode:
                     self.on_scope.timer.stop()
@@ -2809,7 +2821,7 @@ class MainWindow(QMainWindow):
                     self.on_scope.stop()
                 self.on_scope = None
 
-                self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
+                # self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
             self.MC = MCC(scope_num, self)
 
@@ -3104,12 +3116,12 @@ class MainWindow(QMainWindow):
         return roi_circle
 
     # Online Tab add ROI Polygon
-    def addOnRoiPolygon(self, x, y, shape, name=""):
+    def addOnRoiPolygon(self, x, y, shape):
         # shape: list of QPointF
         colr = self.onroi_table.randcolr()
         roi_polygon = self.create_polygon(colr, x, y, shape)
         self.onplayer_scene.addItem(roi_polygon)
-        self.onroi_table.add_to_table(roi_polygon, colr, name=name)
+        self.onroi_table.add_to_table(roi_polygon, colr)
         self.ontrace_viewer.add_trace(roi_polygon)
         return roi_polygon
 
@@ -3141,8 +3153,8 @@ class MainWindow(QMainWindow):
             return
 
         if self.online_process:
-            text = self.ui.connectScopeCameraButton_2.text()
-            if text == 'Scope\nConnect' and self.on_scope is None:
+            # text = self.ui.connectScopeCameraButton_2.text()
+            if self.on_scope is None:
                 if not self.dev_list:
                     self.get_devlist()
 
@@ -3169,7 +3181,7 @@ class MainWindow(QMainWindow):
             self.ui_updater.set_trace_queue(self.receiver.out_queue)
             self.ui_updater.set_trace_viewer(self.ontrace_viewer)
 
-            self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+            # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
             print('connection')
 
             self.receiver.start_process()
@@ -3179,8 +3191,8 @@ class MainWindow(QMainWindow):
 
         else:
             ## video start
-            text = self.ui.connectScopeCameraButton_2.text()
-            if text == 'Scope\nConnect' and self.on_scope is None:
+            # text = self.ui.connectScopeCameraButton_2.text()
+            if self.on_scope is None:
                 self.on_scope = self.connect_online_camera()
 
                 self.on_scope.frameI.connect(self.online_frame)
@@ -3190,13 +3202,13 @@ class MainWindow(QMainWindow):
                     self.on_scope.start()
 
 
-                self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+                # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
                 print('connection')
 
                 # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
                 # self.receiver.start()
-                self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
-                self.receiver.start()
+                # self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG)
+                # self.receiver.start()
                 # self.on_scope.frameG.connect(self.ontrace_viewer.recieve_img)
                 # self.ontrace_viewer.timer_init()
                 # self.on_scope.frameG.connect(self.ontrace_viewer.update_chart)

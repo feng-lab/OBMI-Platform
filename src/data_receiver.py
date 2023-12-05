@@ -2,6 +2,7 @@ import datetime
 import time
 from multiprocessing import Process, Queue
 
+import cv2
 import h5py
 import numpy as np
 import torch
@@ -13,7 +14,7 @@ from src.decoder.Decoder import OBMIDecoder
 
 
 
-def extraction_v2(contours, params, img):
+def extraction_v2(params, img):
     '''
     :param contours: Contrours of ROI
     :param params: Bounding box of ROI: [x, y, width, height]
@@ -78,15 +79,10 @@ def extraction_v3(cell_mask, bg_mask, params, img):
     :return: Extraction value
     '''
 
-    center_x = params[0]
-    center_y = params[1]
-    width = params[2]
-    height = params[3]
-
-    x_min = int(center_x - width/2)
-    x_max = int(center_x + width/2)
-    y_min = int(center_y - height/2)
-    y_max = int(center_y + height/2)
+    x_min = int(params[0])
+    x_max = int(params[0] + params[2])
+    y_min = int(params[1])
+    y_max = int(params[1] + params[3])
 
     masked_frame = img[y_min:y_max + 1, x_min:x_max + 1] * cell_mask
     F_cell = np.sum(masked_frame)
@@ -126,6 +122,7 @@ def extract_process(input_stream:Queue, output_stream:Queue, params, masks, bg_m
         if input_stream.qsize() > 0:
             img = input_stream.get()
             avg = [extraction_v3(masks[i], bg_masks[i], params[i], img) for i in range(len(params))]
+            # avg = [extraction_v2(params[i], img) for i in range(len(params))]
             output_stream.put(avg)
             time.sleep(0.001)
         else:
@@ -148,7 +145,6 @@ class ReceiverThread(QThread):
         self.save_file["version"] = 1.0
         self.save_file.close()
 
-        self.range_list_reset()
         self.interval = 0.03
 
         self.traces = None
@@ -207,28 +203,36 @@ class ReceiverThread(QThread):
             # print(self.traces.shape)
             if self.traces.shape[0] == 30:
                 label = self.decoder.inference(self.traces.T)
+                print('label: ', label)
+                # import random
+                # if random.randint(0, 10) < 2:
+                #     label = 1
                 if label == 1:
                     self.network_controller.feed()
                     self.decoding_sig.emit(True)
                     self.decoding_timer = time.time()
                 self.traces = self.traces[15:, :]
+
+
                 # print(self.traces.shape)
 
-    def run(self):
-        self.frame_signal.connect(self.recieve_img)
+    # def run(self):
+    #     self.frame_signal.connect(self.recieve_img)
+    #
+    #     itemlist = [item.get_contour_dict() for item in self.itemlist]
+    #     self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
+    #     self.p.start()
+    #
+    #     self.timer.start(20)
 
-        itemlist = [item.get_contour_dict() for item in self.itemlist]
-        self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
-        self.p.start()
-
-        self.timer.start(20)
-
-    def recieve_img(self, img):
+    def recieve_img(self, img, ts):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         self.img_buffer.put(img)
 
-    def range_list_reset(self):
-        self.max_list = [0, 0, 0, 0, 0]
-        self.window_size = 300
+
+    # def range_list_reset(self):
+    #     self.max_list = [0, 0, 0, 0, 0]
+    #     self.window_size = 300
 
 
 class TraceProcess(QObject):

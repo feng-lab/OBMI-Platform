@@ -59,7 +59,7 @@ class VPlayer(QtCore.QThread):
                 self.load_avi() # pending for other file type
 
         try:
-            self.wtime = 1 / self.fps
+            self.wtime = 0.8 / self.fps
             print('waitT: ', self.wtime)
 
         except ZeroDivisionError:
@@ -77,8 +77,9 @@ class VPlayer(QtCore.QThread):
     def run(self):
         self.datainit()
 
-        loop_time = time.perf_counter()
+
         while not self.isInterruptionRequested():
+            loop_time = time.perf_counter()
             ## show start
             ## image()_ first image
 
@@ -106,7 +107,6 @@ class VPlayer(QtCore.QThread):
 
                 # process_time = time.time() - start_time
                 process_time = time.perf_counter() - loop_time
-                loop_time = time.perf_counter()
                 if process_time < self.wtime:
                     # time.sleep(self.wtime - process_time)
                     self.usleep((self.wtime - process_time) * 1000000)
@@ -141,14 +141,14 @@ class VPlayer(QtCore.QThread):
     def playspeed(self, i):
         ll = [1, 2, 3, 5]
         self.speed = ll[i]
-        self.wtime = 1/(self.fps * self.speed)
+        self.wtime = 0.8/(self.fps * self.speed)
         self.alpha = 0.9
         self.tlist = []
         self.tlen = 30 * ll[i]
         if i == 2:
-            self.wtime = 0.0127
+            self.wtime = 0.0013
         if i == 3:
-            self.wtime = 0.00155
+            self.wtime = 0.00105
         # wt = [0.0166, 0.01, 0.0012, 0.0009]
         # self.wtime = wt[i]
         print(f'play speed change to {ll[i]}x')
