@@ -3542,6 +3542,9 @@ Camera</string>
                 <height>25</height>
                </rect>
               </property>
+              <property name="text">
+               <string>0</string>
+              </property>
              </widget>
              <widget class="QLabel" name="behaviorcamStatusLabel">
               <property name="geometry">
@@ -3804,6 +3807,9 @@ background-repeat: no-repeat;
                 <height>25</height>
                </rect>
               </property>
+              <property name="text">
+               <string>0</string>
+              </property>
              </widget>
              <widget class="QPushButton" name="pushButton_16">
               <property name="geometry">
@@ -3920,16 +3926,6 @@ background-repeat: no-repeat;
                <string>Disconnected</string>
               </property>
              </widget>
-             <widget class="QLineEdit" name="scopeGainValue">
-              <property name="geometry">
-               <rect>
-                <x>415</x>
-                <y>17</y>
-                <width>47</width>
-                <height>25</height>
-               </rect>
-              </property>
-             </widget>
              <widget class="QPushButton" name="connectScopeCameraButton">
               <property name="geometry">
                <rect>
@@ -3978,11 +3974,14 @@ background-repeat: no-repeat;
              <widget class="QLineEdit" name="scopeLEDvalue">
               <property name="geometry">
                <rect>
-                <x>220</x>
+                <x>230</x>
                 <y>17</y>
                 <width>47</width>
                 <height>25</height>
                </rect>
+              </property>
+              <property name="text">
+               <string>0</string>
               </property>
              </widget>
              <widget class="QSlider" name="scopeFocusSlider">
@@ -4122,25 +4121,6 @@ background-repeat: no-repeat;
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_107">
-              <property name="geometry">
-               <rect>
-                <x>270</x>
-                <y>19</y>
-                <width>31</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>%</string>
               </property>
              </widget>
              <widget class="QLabel" name="label_5">
@@ -8818,33 +8798,6 @@ QTabBar::tab{width:103}</string>
          <string/>
         </property>
        </widget>
-       <widget class="QLineEdit" name="scopeGainValue_2">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>18</y>
-          <width>43</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>43</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-         </font>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_152">
         <property name="geometry">
          <rect>
@@ -9018,6 +8971,9 @@ background-repeat: no-repeat;
           <width>43</width>
           <height>20</height>
          </size>
+        </property>
+        <property name="text">
+         <string>0</string>
         </property>
        </widget>
        <widget class="QLabel" name="scopecamStatusLabel_2">
@@ -10036,7 +9992,7 @@ border-color: rgb(0, 0, 0);</string>
 QTabBar::tab{width:71}</string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="iconSize">
          <size>

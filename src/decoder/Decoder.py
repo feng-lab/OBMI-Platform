@@ -17,7 +17,7 @@ import joblib
 class OBMIDecoder():
     def __init__(self):
         # model_path = './decoder/best_svm.pkl'
-        model_path = 'C:\\Users\ZJLAB\Documents\WeChat Files\wxid_ciusgv6gvwq222\FileStorage\File\\2023-11\\best_svm_1124.pkl'
+        model_path = 'D:\data\obmi\\231214\model\model tq\\best_svm_1214_38.pkl'
         self.model = joblib.load(model_path)
         # 归一化常量，根据当天采集的数据集而定
         # self.data_min = -0.03512258532225913
@@ -26,14 +26,23 @@ class OBMIDecoder():
         # self.data_min = -0.024158042929754545
         # self.data_max = 0.07747500551928602
 
-        self.data_min = -0.025915620118706816
-        self.data_max = 0.12246589081282179
 
-        self.T = 0.84
+        # 39 all
+        # self.data_min = -0.04754848099313753
+        # self.data_max = 0.6147035422720355
+
+        # 39
+        # self.data_min = -0.029390582304221695
+        # self.data_max = 0.31663806488518415
+
+        self.data_min = -0.01737869807302489
+        self.data_max = 0.09952513139910092
+
+        self.T = 0.9
 
     def inference(self, data):
         try:
-            input_sample = np.reshape(data, (1, 10 * 30 ))   # 数据扁平化
+            input_sample = np.reshape(data, (1, data.shape[0] * 30 ))   # 数据扁平化
 
             # input_sample = scaler.transform(input_sample) #标准化
 

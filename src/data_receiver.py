@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 from multiprocessing import Process, Queue
 
@@ -121,6 +122,10 @@ def extract_process(input_stream:Queue, output_stream:Queue, params, masks, bg_m
     while True:
         if input_stream.qsize() > 0:
             img = input_stream.get()
+            if type(img) == str and img == "End of stream":
+                output_stream.put(img)
+                return
+
             avg = [extraction_v3(masks[i], bg_masks[i], params[i], img) for i in range(len(params))]
             # avg = [extraction_v2(params[i], img) for i in range(len(params))]
             output_stream.put(avg)
@@ -130,20 +135,18 @@ def extract_process(input_stream:Queue, output_stream:Queue, params, masks, bg_m
 
 class ReceiverThread(QThread):
     decoding_sig = QtCore.Signal(bool)
-    def __init__(self, trace_viewer, frame_signal, network_controller, decoding_text):
+    def __init__(self, trace_viewer, on_player, network_controller, decoding_text, workdir):
         super(ReceiverThread, self).__init__()
+        self.on_player = on_player
+        self.workdir = os.path.join(workdir, 'decoding')
         self.trace_viewer = trace_viewer
-        self.frame_signal = frame_signal
+        self.frame_signal = on_player.frameG
         self.itemlist = trace_viewer.itemlist
         self.network_controller = network_controller
         self.decoding_text = decoding_text
         self.frame_count = 1
 
-        self.filename = datetime.datetime.now().strftime('%F %T') + '.h5'
-
-        self.save_file = h5py.File('trace_data_2.h5', 'w')  # change to self.filename
-        self.save_file["version"] = 1.0
-        self.save_file.close()
+        self.sav_init()
 
         self.interval = 0.03
 
@@ -157,6 +160,29 @@ class ReceiverThread(QThread):
         self.timer = QTimer()
         self.timer.timeout.connect(self.traceupdate)
         self.traces = [[]]
+
+        self.in_process = True
+
+    def sav_init(self):
+        if not os.path.exists(self.workdir):
+            os.makedirs(self.workdir)
+
+        self.video = 'online_video.avi'    # 视频数据
+        self.trace_name = 'online_trace.txt'     # trace数据
+        self.time = 'online_timestamp.txt'   # 时间戳文件
+        self.decoding_log = 'decoding_log.txt'   # decoding成功log
+
+        width = self.on_player.width
+        height = self.on_player.height
+        fps = self.on_player.fps
+        print(width, height, fps)
+        fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+        out_path = os.path.join(self.workdir, self.video)
+        self.videocap = cv2.VideoWriter(out_path, fourcc, fps, (width, height), True)
+
+        self.timestamp = open(os.path.join(self.workdir, self.time), 'w')
+        self.tracefile = open(os.path.join(self.workdir, self.trace_name), 'w')
+
 
     def decoder_init(self):
         self.decoder = OBMIDecoder()
@@ -174,7 +200,7 @@ class ReceiverThread(QThread):
             params.append(item.to_dict()['params'])
             masks.append(item.mask)
             bg_masks.append(item.bg_mask)
-        # itemlist = [item.to_dict()['params'] for item in self.itemlist]
+
         self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, params, masks, bg_masks))
         self.p.start()
     def traceupdate(self):
@@ -182,6 +208,10 @@ class ReceiverThread(QThread):
             return
 
         avgs = self.out_stream.get()
+        if type(avgs) == str and avgs == "End of stream":
+            self.in_process = False
+            return
+
         # print(avgs[1])
         if self.img_buffer.qsize() > 1:
             print("img buffer, remaining:", self.img_buffer.qsize())
@@ -189,7 +219,9 @@ class ReceiverThread(QThread):
             print('read img, remaining:', self.out_stream.qsize())
 
         self.trace_viewer.full_trace_update(avgs, self.frame_count)
-        self.frame_count += 1
+
+        values = ','.join([str(v) for v in avgs]) + '\n'
+        self.tracefile.write(values)
 
         if self.decoding:
             if self.decoding_text.isVisible() and time.time() - self.decoding_timer > 1:
@@ -211,28 +243,36 @@ class ReceiverThread(QThread):
                     self.network_controller.feed()
                     self.decoding_sig.emit(True)
                     self.decoding_timer = time.time()
+                    with open(self.decoding_log, 'a') as f:
+                        f.write(f'{self.frame_count-31} - {self.frame_count-1}\n')
                 self.traces = self.traces[15:, :]
 
-
-                # print(self.traces.shape)
-
-    # def run(self):
-    #     self.frame_signal.connect(self.recieve_img)
-    #
-    #     itemlist = [item.get_contour_dict() for item in self.itemlist]
-    #     self.p = Process(target=extract_process, args=(self.img_buffer, self.out_stream, itemlist,))
-    #     self.p.start()
-    #
-    #     self.timer.start(20)
+        self.frame_count += 1
 
     def recieve_img(self, img, ts):
+        img = np.array(img)
+        self.timestamp.write(str(ts) + '\n')
+
+        self.videocap.write(img)
+
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         self.img_buffer.put(img)
 
 
-    # def range_list_reset(self):
-    #     self.max_list = [0, 0, 0, 0, 0]
-    #     self.window_size = 300
+
+    def stop(self):
+        self.frame_signal.disconnect(self.recieve_img)
+        self.img_buffer.put("End of stream")
+
+        while self.in_process:
+            time.sleep(0.5)
+        time.sleep(0.1)
+
+        self.p.terminate()
+
+        self.videocap.release()
+        self.timestamp.close()
+        self.tracefile.close()
 
 
 class TraceProcess(QObject):

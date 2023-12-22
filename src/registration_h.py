@@ -32,6 +32,7 @@ class NCCProject():
             raw_frame, self.kernel, CROP=False, use_gpu=True)
         self.kernel=self.kernel.cuda()
         self.ith=0
+        self.log = open('mcc_shift.log', 'w')
 
 
     def NCC_framebyframe(self, frame):
@@ -45,7 +46,11 @@ class NCCProject():
                                                                  self.Zeros)
         Shift = ApplyShifts(output)
         new_filtered_frame, _, _ = Shift.apply_shift(preprocess_frame, self.theta)
-        new_raw_frame, _ , _ = Shift.apply_shift(frame, self.theta)
+        new_raw_frame, offset_x , offset_y = Shift.apply_shift(frame, self.theta)
+
+        s = f'{self.ith},{offset_x},{offset_y}\n'
+        self.log.write(s)
+
 
         new_filtered_frame = new_filtered_frame.squeeze(0)
         self.template_buffer[:, :, self.ith%200] = new_filtered_frame

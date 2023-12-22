@@ -22,7 +22,7 @@ class VideoSavingStatus(Enum):
 class OPlayer(QtCore.QThread):
 
     frameI = QtCore.Signal(QtGui.QPixmap)
-    frameG = QtCore.Signal(list, float)
+    frameG = QtCore.Signal(np.ndarray, float)
     fpsChanged = QtCore.Signal(float)
     roi_pos = QtCore.Signal(list)
     ## fImg = QtCore.Signal(np.ndarray)
@@ -240,6 +240,11 @@ class OPlayer(QtCore.QThread):
         cap = cv2.VideoCapture(self.c_number + cv2.CAP_DSHOW)
         # capture = cv2.VideoCapture(self.c_number)
 
+        if self.fakecapture:
+            # todo：修改视频路径
+            cap = cv2.VideoCapture("D:\data\obmi\\231128\\0.avi")
+            self.cfps = self.fps = cap.get(cv2.CAP_PROP_FPS)    # todo: 默认读取视频文件帧率，可能需要手动改低一点
+
         args = self.controller.init_args(cap)
         self.width = args["width"]
         self.height = args["height"]
@@ -247,12 +252,6 @@ class OPlayer(QtCore.QThread):
         self.fps = args["fps"]
         self.focus = args["focus"]
         self.led = args["led"]
-
-        if self.fakecapture:
-            # todo：修改视频路径
-            cap = cv2.VideoCapture("D:\data\obmi\\231128\\0.avi")
-            self.cfps = self.fps = cap.get(cv2.CAP_PROP_FPS)    # todo: 默认读取视频文件帧率，可能需要手动改低一点
-
 
         tt = time.time()
         timelist= [tt]

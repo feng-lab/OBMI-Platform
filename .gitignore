@@ -168,5 +168,5 @@ src/temp.avi
 src/decoder/decoder-bak.zip
 src/data_receiver - bak.py
 Test/decoding_test.py
-Test/trace.py
-Test/traces_load.py
+Test/
+src/sav/

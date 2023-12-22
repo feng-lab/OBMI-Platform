@@ -58,6 +58,7 @@ from src.data_receiver import ReceiverThread, TraceProcess
 from src.network_controller import NetworkController
 
 from src.online_player_process import OnlineProcess
+from src.projectIO import ProjectManager
 # from src.ui_210513_OMBI_UI import Ui_MainWindow
 from src.views.ImageView import QtImageViewer
 from vplayer import VPlayer, VPlayerStatus
@@ -155,7 +156,7 @@ class MainWindow(QMainWindow):
 
         ## scope Gain slider
         self.ui.scopeGainSlider.valueChanged.connect(self.move_slider6)
-        self.ui.scopeGainValue.returnPressed.connect(self.slider_box6)
+        # self.ui.scopeGainValue.returnPressed.connect(self.slider_box6)
 
         # todo: check point
         ## scope FR slider
@@ -348,7 +349,7 @@ class MainWindow(QMainWindow):
 
         ## scope Gain slider
         self.ui.scopeGainSlider_2.valueChanged.connect(self.move_Gslider2)
-        self.ui.scopeGainValue_2.returnPressed.connect(self.Gslider2_box)
+        # self.ui.scopeGainValue_2.returnPressed.connect(self.Gslider2_box)
 
         ## scope FR box
         self.ui.FRcomboBox_2.currentIndexChanged.connect(self.fpsBox_2)
@@ -722,6 +723,8 @@ class MainWindow(QMainWindow):
         self.ui.connectBehaviorCameraButton_11.clicked.connect(self.save_trace)
         self.trace_viewer = None
 
+        self.pg = None
+
         itemlist = self.player_scene2.items()
         print('item_after: ', itemlist)
         self.setup_markers()
@@ -893,8 +896,27 @@ class MainWindow(QMainWindow):
         self.ui.spinBox_6.setValue(0)
         self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
-    # h5py版本更新，改变读取方式
+        self.pg = None
+
     def button_load(self):
+        path = str(QFileDialog.getOpenFileName(self, "select project file", './', 'Project File (*.obmiproject)')[0])
+        if path == "":
+            return
+
+        print(f'load project file: {path}')
+        with open(path, 'r') as fp:
+            f = json.load(fp)
+
+        version = f['info']['version']
+        if version == '2.0':
+            workdir = os.path.dirname(path)
+            self.pg = ProjectManager(self, workdir)
+            self.pg.project_load(f)
+
+
+
+    # h5py版本更新，改变读取方式
+    def button_load_v1(self):
         path = str(QFileDialog.getOpenFileName(self, "select project file", './', 'Project File (*.obmiproject)')[0])
         if path == "":
             return
@@ -948,7 +970,36 @@ class MainWindow(QMainWindow):
                     for roi_dict in roi_dicts:
                         self.create_on_roi_from_dict(roi_dict)
 
+
     def button_save(self):
+        """
+        Project saving function V2.0
+        Current
+        """
+        path = self.ui.lineEdit_26.text()
+        if path == "":
+            path_msg = QMessageBox(QMessageBox.Warning, 'Warning', 'No path found')
+            path_msg.exec_()
+            return
+        name = self.ui.lineEdit.text()
+        if name == "":
+            name_msg = QMessageBox(QMessageBox.Warning, 'Warning', 'Enter project name')
+            name_msg.exec_()
+            return
+
+        workdir = os.path.join(path, name)
+        self.pg = ProjectManager(self, workdir)
+
+        v_path = None
+        if self.player2 is not None:
+            v_path = self.player2.v_path
+
+        self.pg.project_save(off_video_path=v_path, roi_table=self.roi_table, on_roi_table=self.onroi_table)
+
+    def button_save_v1(self):
+        """
+        Project saving function V1.0
+        """
         path = self.ui.lineEdit_26.text()
         if path == "":
             path_msg = QMessageBox(QMessageBox.Warning, 'Warning', 'No path found')
@@ -1059,10 +1110,11 @@ class MainWindow(QMainWindow):
             self.capturer.frameCaptured.connect(self.update_behavior_camera_frame)  ## frame 연결
             self.capturer.fpsChanged.connect(self.update_behavior_camera_FPS)  ##
             self.capturer.start()
+            self.ui.signBehaviorCamera.setStyleSheet('background-color: rgb(0, 255, 0);')
+            self.ui.behaviorcamStatusLabel.setText('Connected')
 
             # self.ui.connectBehaviorCameraButton.setText('Behavior\n''Disconnect')
-            # self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(0, 255, 0);")  ## > func or not
-            # self.ui.behaviorcamStatusLabel.setText('Connected')
+
 
             self.ui.widget_2.setEnabled(True)
 
@@ -1074,8 +1126,8 @@ class MainWindow(QMainWindow):
             self.capturer = None
 
             # self.ui.connectBehaviorCameraButton.setText('Behavior\n''Connect')  ## set text ##
-            # self.ui.signBehaviorCamera.setStyleSheet("background-color: rgb(85, 85, 127);")  ## > func or not
-            # self.ui.behaviorcamStatusLabel.setText('Disconnected')
+            self.ui.behaviorcamStatusLabel.setText('Disconnected')
+            self.ui.signBehaviorCamera.setStyleSheet('background-color: rgb(85, 85, 127);')
 
             # self.disable_cam('B')
             self.ui.widget_2.setEnabled(False)
@@ -1106,8 +1158,8 @@ class MainWindow(QMainWindow):
             self.capturer2.videoSaved.connect(self.record_finished)
 
             # self.ui.connectScopeCameraButton.setText('Scope\n''Disconnect')
-            # self.ui.signScopeCamera.setStyleSheet("background-color: rgb(0, 255, 0);")
-            # self.ui.scopecamStatusLabel.setText('Connected')
+            self.ui.signScopeCamera.setStyleSheet("background-color: rgb(0, 255, 0);")
+            self.ui.scopecamStatusLabel.setText('Connected')
 
             self.ui.widget_2.setEnabled(True)  ##
 
@@ -1129,8 +1181,8 @@ class MainWindow(QMainWindow):
             self.capturer2 = None
 
             # self.ui.connectScopeCameraButton.setText('Scope\n''Connect')
-            # self.ui.signScopeCamera.setStyleSheet("background-color: rgb(85, 85, 127);")
-            # self.ui.scopecamStatusLabel.setText('Disconnected')
+            self.ui.signScopeCamera.setStyleSheet("background-color: rgb(85, 85, 127);")
+            self.ui.scopecamStatusLabel.setText('Disconnected')
 
             # self.disable_cam('S')
             self.ui.widget_2.setEnabled(False)
@@ -1267,6 +1319,26 @@ class MainWindow(QMainWindow):
             cap.release()
             msgbox = QMessageBox()
             msgbox.information(self, 'Info', f'Best focus is: {bestFocus}')
+
+    def getAcqCamConfigs(self):
+        d = {
+            'exposure': int(self.ui.exposureSliderBCam.value()),
+            'led': int(self.ui.scopeLEDslider.value()),
+            'gain': int(self.ui.scopeGainSlider.value()),
+            'focus': int(self.ui.scopeFocusSlider.value())
+        }
+        return d
+
+    def setAcqCamConfigs(self, d):
+        exposure = d['exposure']
+        led = d['led']
+        gain = d['gain']
+        focus = d['focus']
+
+        self.ui.exposureSliderBCam.setValue(exposure)
+        self.ui.scopeLEDslider.setValue(led)
+        self.ui.scopeGainSlider.setValue(gain)
+        self.ui.scopeFocusSlider.setValue(focus)
 
     # ------------------------------------------------------------------------
     #
@@ -1637,7 +1709,7 @@ class MainWindow(QMainWindow):
     def move_slider6(self, sl_val):
         print(sl_val)
         print("moved")
-        self.ui.scopeGainValue.setPlaceholderText(str(sl_val))
+        # self.ui.scopeGainValue.setPlaceholderText(str(sl_val))
         self.capturer2.gain_status = sl_val
 
     @Slot()
@@ -2376,10 +2448,12 @@ class MainWindow(QMainWindow):
             for i in range(0, len(itemlist)):
                 self.brightlist[i].append(self.getBrightness_v3(frame, itemlist[i]))
                 # brightlist[i].append(self.getBrightness(frame, itemlist[i]))
-        print("time used: ", time.time()-time_1)
+
+        et = time.time()
+        print("extraction time: ", et-time_1)
 
         self.draw_chart(itemlist, self.brightlist)
-        print(f'total time: {time.time() - timer}')
+        print(f'display time: {time.time() - et}')
 
     # initialize and draw offline traces
     def draw_chart(self, itemlist, brightlist):
@@ -2621,6 +2695,9 @@ class MainWindow(QMainWindow):
                     self.on_scope.start()
                     # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
 
+                self.ui.signScopeCamera_2.setStyleSheet('background-color: rgb(0, 255, 0);')
+                self.ui.scopecamStatusLabel_2.setText('Connected')
+
             elif self.on_scope is not None:
                 self.ui_updater.frameI.disconnect(self.online_frame)
 
@@ -2630,13 +2707,15 @@ class MainWindow(QMainWindow):
 
                 time.sleep(0.01)
                 self.on_scope = None
+
+                self.ui.signScopeCamera_2.setStyleSheet('background-color: rgb(85, 85, 127);')
+                self.ui.scopecamStatusLabel_2.setText('Disconnected')
                 # self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
                 # self.on_scope.quit()
 
-
         else:
             ## video connect
-            text = self.ui.connectScopeCameraButton_2.text()
+
             if self.on_scope is None:
                 # camera_ID = self.open_video_path ### temp
                 self.on_scope = self.connect_online_camera()
@@ -2653,8 +2732,13 @@ class MainWindow(QMainWindow):
                     self.on_scope.start()
 
                 # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
+                self.ui.signScopeCamera_2.setStyleSheet('background-color: rgb(0, 255, 0);')
+                self.ui.scopecamStatusLabel_2.setText('Connected')
 
             elif self.on_scope is not None:
+                if self.on_scope.rtProcess:
+                    self.receiver.stop()
+
                 self.on_scope.frameI.disconnect(self.online_frame)
 
                 if self.timermode:
@@ -2666,6 +2750,8 @@ class MainWindow(QMainWindow):
                 if self.rt:
                     self.rt = False
                 self.on_scope = None
+                self.ui.signScopeCamera_2.setStyleSheet('background-color: rgb(85, 85, 127);')
+                self.ui.scopecamStatusLabel_2.setText('Disconnected')
                 # self.ui.connectScopeCameraButton_2.setText('Scope\nConnect')
 
     # ------------------------------------------------------------------------
@@ -2673,6 +2759,23 @@ class MainWindow(QMainWindow):
     #                           slider functions
     #
     # ------------------------------------------------------------------------
+    def getOnCamConfigs(self):
+        d = {
+            'led': int(self.ui.scopeLEDslider_2.value()),
+            'gain': int(self.ui.scopeGainSlider_2.value()),
+            'focus': int(self.ui.scopeFocusSlider_2.value())
+        }
+        return d
+
+    def setOnCamConfigs(self, d):
+        led = d['led']
+        gain = d['gain']
+        focus = d['focus']
+
+        self.ui.scopeLEDslider_2.setValue(led)
+        self.ui.scopeGainSlider_2.setValue(gain)
+        self.ui.scopeFocusSlider_2.setValue(focus)
+
     def on_brightness(self, value):
         if self.on_scope is None:
             return
@@ -2721,7 +2824,7 @@ class MainWindow(QMainWindow):
     def move_Gslider2(self, sl_val):
         print(sl_val)
         print("moved")
-        self.ui.scopeGainValue_2.setPlaceholderText(str(sl_val))
+        # self.ui.scopeGainValue_2.setPlaceholderText(str(sl_val))
         self.on_scope.gain_status = sl_val
 
     @Slot()
@@ -3201,7 +3304,6 @@ class MainWindow(QMainWindow):
                 else:
                     self.on_scope.start()
 
-
                 # self.ui.connectScopeCameraButton_2.setText('Scope\nDisconnect')
                 print('connection')
 
@@ -3229,7 +3331,10 @@ class MainWindow(QMainWindow):
 
             # self.receiver = DataReceiver(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
             # self.receiver.start()
-            self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope.frameG, self.network_controller, self.ui.DecodingText)
+            if self.pg is None:
+                self.pg = ProjectManager(self)
+
+            self.receiver = ReceiverThread(self.ontrace_viewer, self.on_scope, self.network_controller, self.ui.DecodingText, self.pg.getWorkDir())
             self.receiver.start_process()
             self.receiver.timer.start(10)
             # self.receiver.start()
@@ -3269,7 +3374,15 @@ class MainWindow(QMainWindow):
             print('Start real time process before decoding')
             return
 
-        if not self.receiver.decoding:
+        if self.receiver.decoding:
+            # stop decoding process
+            self.ui.DecodingText.setVisible(False)
+            self.receiver.stop()
+            self.receiver.decoding_sig.diconnect(self.decodingText)
+            self.receiver = None
+            self.on_scope.rtProcess = False
+        else:
+            # start decoding process
             print('Start decoding')
             self.ui.DecodingStatusText.setVisible(True)
             self.receiver.decoder_init()
